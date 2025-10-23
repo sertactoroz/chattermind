@@ -1,8 +1,9 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# --------------------------------------------------
+# 📦 Node & Package Management
+# --------------------------------------------------
+node_modules
+.pnpm
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,32 +11,60 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
+# --------------------------------------------------
+# 🧱 Build & Output
+# --------------------------------------------------
+.next
+out
+dist
+build
+.vercel
 
-# next.js
-/.next/
-/out/
+# --------------------------------------------------
+# ⚙️ Environment Files
+# --------------------------------------------------
+.env
+.env.*
+!.env.example  
 
-# production
-/build
+# --------------------------------------------------
+# 🧪 Testing & Coverage
+# --------------------------------------------------
+coverage
+*.lcov
 
-# misc
+# --------------------------------------------------
+# 🧠 TypeScript
+# --------------------------------------------------
+*.tsbuildinfo
+next-env.d.ts
+
+# --------------------------------------------------
+# 🪄 IDE & System Files
+# --------------------------------------------------
+.vscode/
+.idea/
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
+# --------------------------------------------------
+# 🪪 Certificates & Keys
+# --------------------------------------------------
+*.pem
+*.key
+*.crt
+
+# --------------------------------------------------
+# 🪵 Logs & Debug
+# --------------------------------------------------
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# --------------------------------------------------
+# 🧩 Misc
+# --------------------------------------------------
+*.swp
+*.swo
