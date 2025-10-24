@@ -1,3 +1,4 @@
+import AuthButton from "@/features/auth/components/AuthButton";
 import Image from "next/image";
 
 export default function Home() {
@@ -48,7 +49,7 @@ export default function Home() {
         </section>
 
         <section className="mb-6">
-          {/* <AuthButton /> */}
+          <AuthButton />
         </section>
 
         <section className="mt-4 text-xs text-slate-400">

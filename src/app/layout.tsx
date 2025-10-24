@@ -1,3 +1,4 @@
+import { AuthProvider } from '@/features/auth/context/AuthProvider';
 import '../styles/globals.css';
 import { ReactNode } from 'react';
 
@@ -11,9 +12,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="tr">
       <body>
         {/* AuthProvider MUST be a client component; it'll be imported */}
-        {/* <AuthProvider> */}
-        {children}
-        {/* </AuthProvider> */}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
