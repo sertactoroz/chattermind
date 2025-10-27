@@ -2,44 +2,44 @@
 
 import React from 'react';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export default function AuthButton() {
     const { user, loading, signInWithGoogle, signOut } = useAuthContext();
+
     if (loading) {
         return (
-            <button className="w-full max-w-sm h-12 rounded-lg bg-slate-200 text-slate-700 font-medium flex items-center justify-center" disabled>
+            <Button className="w-full" disabled>
                 Loading…
-            </button>
+            </Button>
         );
     }
 
     if (user) {
         return (
-            <div className="w-full max-w-sm flex items-center justify-between gap-3">
+            <div className="w-full flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <img
-                        src={(user.user_metadata as any)?.avatar_url || '/default-avatar.png'}
-                        alt="avatar"
-                        className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <Avatar>
+                        <AvatarImage src={(user.user_metadata as any)?.avatar_url || '/default-avatar.png'} alt="avatar" />
+                        <AvatarFallback>{(user.user_metadata as any)?.full_name?.slice?.(0, 2) ?? 'U'}</AvatarFallback>
+                    </Avatar>
                     <div className="text-sm">
-                        <div className="font-medium text-slate-500">{user.user_metadata?.full_name || user.email}</div>
+                        <div className="font-medium text-slate-800">{user.user_metadata?.full_name || user.email}</div>
                         {/* <div className="text-xs text-slate-500">Signed in</div> */}
                     </div>
                 </div>
-                <button onClick={() => signOut()} className="px-3 py-2 rounded-md bg-red-500 text-white text-sm">
+
+                <Button variant="destructive" onClick={() => signOut()}>
                     Sign out
-                </button>
+                </Button>
             </div>
         );
     }
 
     return (
-        <button
-            onClick={() => signInWithGoogle()}
-            className="w-full max-w-sm h-12 rounded-lg bg-sky-700 text-white font-semibold flex items-center justify-center min-h-[44px]"
-        >
+        <Button className="w-full" onClick={() => signInWithGoogle()}>
             Sign in with Google
-        </button>
+        </Button>
     );
 }
