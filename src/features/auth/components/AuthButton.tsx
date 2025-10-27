@@ -1,4 +1,3 @@
-// src/components/AuthButton.tsx
 'use client';
 
 import React from 'react';
@@ -6,7 +5,6 @@ import { useAuthContext } from '@/features/auth/context/AuthProvider';
 
 export default function AuthButton() {
     const { user, loading, signInWithGoogle, signOut } = useAuthContext();
-
     if (loading) {
         return (
             <button className="w-full max-w-sm h-12 rounded-lg bg-slate-200 text-slate-700 font-medium flex items-center justify-center" disabled>
@@ -25,8 +23,8 @@ export default function AuthButton() {
                         className="w-10 h-10 rounded-full object-cover"
                     />
                     <div className="text-sm">
-                        <div className="font-medium">{user.user_metadata?.full_name || user.email}</div>
-                        <div className="text-xs text-slate-500">Signed in</div>
+                        <div className="font-medium text-slate-500">{user.user_metadata?.full_name || user.email}</div>
+                        {/* <div className="text-xs text-slate-500">Signed in</div> */}
                     </div>
                 </div>
                 <button onClick={() => signOut()} className="px-3 py-2 rounded-md bg-red-500 text-white text-sm">
