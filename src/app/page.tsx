@@ -1,65 +1,45 @@
-import AuthButton from "@/features/auth/components/AuthButton";
-import Image from "next/image";
+import Image from 'next/image';
+import AuthButton from '@/features/auth/components/AuthButton';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 flex items-center justify-center p-6">
-      <main className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-md p-6 sm:p-8">
-        <header className="flex flex-col items-center text-center mb-8 animate-fadeIn">
-          {/* Logo container */}
-          <div className="w-full flex justify-center mb-3">
-            <div className="relative aspect-square w-2/3 max-w-[160px] sm:max-w-[200px]">
-              <Image
-                src="/chattermind-logo.svg"
-                alt="Logo"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+      <Card className="w-full max-w-md mx-auto rounded-2xl shadow-md">
+        <CardHeader className="p-6 pt-8 text-center">
+          <div className="mx-auto w-28 h-28 relative mb-4">
+            <Image src="/chattermind-logo.svg" alt="Logo" fill className="object-contain" priority />
           </div>
+          {/* <CardTitle className="text-lg">ChatterMind</CardTitle> */}
+          <CardDescription className="text-sm text-slate-500 mt-1">
+            Modern, mobile-first AI chat — experience real-time, fluid conversations with distinct characters.
+          </CardDescription>
+        </CardHeader>
 
-          {/* Title */}
-          {/* <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-800">
-            ChatterMind
-          </h1> */}
-
-          {/* Subtitle */}
-          <p className="mt-2 text-sm sm:text-base text-slate-500 max-w-xs leading-relaxed">
-            Modern, mobile-first AI chat — experience real-time and fluid conversations with different characters.
-          </p>
-        </header>
-
-
-        <section className="mb-6">
-          <ul className="text-sm text-slate-600 space-y-2">
+        <CardContent className="p-6">
+          <ul className="text-sm text-slate-600 space-y-3">
             <li className="flex items-start gap-3">
-              <span className=" inline-flex w-6 h-6 rounded-md bg-slate-100 items-center justify-center text-xs">✓</span>
-              <span className="leading-5 ">Mobile-first chat UI with touch-friendly controls</span>
+              <span className="inline-flex w-7 h-7 rounded-md bg-slate-100 items-center justify-center text-xs">✓</span>
+              <span>Mobile-first chat UI with touch-friendly controls</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="inline-flex w-6 h-6 rounded-md bg-slate-100 items-center justify-center text-xs">⚡</span>
-              <span className="leading-5">Smooth animations & message transitions</span>
+              <span className="inline-flex w-7 h-7 rounded-md bg-slate-100 items-center justify-center text-xs">⚡</span>
+              <span>Smooth animations & message transitions</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="inline-flex w-6 h-6 rounded-md bg-slate-100 items-center justify-center text-xs">🔁</span>
-              <span className="leading-5">Realtime sync backed by Supabase</span>
+              <span className="inline-flex w-7 h-7 rounded-md bg-slate-100 items-center justify-center text-xs">🔁</span>
+              <span>Realtime sync backed by Supabase</span>
             </li>
           </ul>
-        </section>
+        </CardContent>
 
-        <section className="mb-6">
+        <CardFooter className="flex flex-col gap-3 p-6">
           <AuthButton />
-        </section>
-
-        <section className="mt-4 text-xs text-slate-400">
-          <p>By continuing you agree to use your Google account for authentication.</p>
-        </section>
-
-        <footer className="mt-6 text-center text-xs text-slate-400">
-          <p>Prototype • Mobile-first • Framer Motion • Supabase • Groq</p>
-        </footer>
-      </main>
+          <div className="flex items-center justify-center gap-3 text-xs text-slate-400">
+            <span>Prototype • Mobile-first • Framer Motion • Supabase • Groq</span>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
