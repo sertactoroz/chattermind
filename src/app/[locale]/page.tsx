@@ -41,14 +41,12 @@ export default async function Home() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 p-6">
-          <AuthButton />
+          {/* <AuthButton /> */}
           <div className="flex items-center justify-center gap-3 text-xs text-slate-400">
             {/* <span>Prototype • Mobile-first • Framer Motion • Supabase • Groq</span> */}
             <span>{t('footer_note')}</span>
           </div>
-          <div className="pt-3 flex justify-center">
-            <LanguageSwitcher />
-          </div>
+
         </CardFooter>
       </Card>
     </div>
