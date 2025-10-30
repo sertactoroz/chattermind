@@ -1,0 +1,16 @@
+{
+    "Homepage": {
+        "subtitle": "Modern, mobile-first AI chat — experience real-time, fluid conversations with distinct characters.",
+        "feature_mobile": "Mobile-first chat UI with touch-friendly controls",
+        "feature_animations": "Smooth animations & message transitions",
+        "feature_realtime": "Realtime sync backed by Supabase",
+        "cta_signin": "Sign in with Google",
+        "footer_note": "Prototype • Mobile-first • Framer Motion • Supabase • Groq",
+        "auth_byContinuing": "By continuing you agree to use your Google account for authentication."
+    },
+    "Auth": {
+        "loading": "Loading…",
+        "signout": "Sign out",
+        "signin_google": "Sign in with Google"
+    }
+}

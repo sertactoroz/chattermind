@@ -1,0 +1,16 @@
+{
+    "Homepage": {
+        "subtitle": "Modern, mobil öncelikli yapay zeka sohbeti — özgün karakterlerle gerçek zamanlı, akıcı konuşmaları deneyimleyin.",
+        "feature_mobile": "Dokunmatik kontrollere sahip mobil öncelikli sohbet arayüzü",
+        "feature_animations": "Akıcı animasyonlar ve mesaj geçişleri",
+        "feature_realtime": "Supabase destekli gerçek zamanlı senkronizasyon",
+        "cta_signin": "Google ile Giriş Yap",
+        "footer_note": "Prototip • Mobil Öncelikli • Framer Motion • Supabase • Groq",
+        "auth_byContinuing": "Devam ederek kimlik doğrulama için Google hesabınızı kullanmayı kabul etmiş olursunuz."
+    },
+    "Auth": {
+        "loading": "Yükleniyor…",
+        "signout": "Çıkış Yap",
+        "signin_google": "Google ile Giriş Yap"
+    }
+}
