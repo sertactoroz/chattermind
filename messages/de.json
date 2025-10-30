@@ -1,0 +1,16 @@
+{
+    "Homepage": {
+        "subtitle": "Moderner, mobil-optimierter KI-Chat — erleben Sie flüssige Echtzeit-Gespräche mit unterschiedlichen Charakteren.",
+        "feature_mobile": "Mobile-First Chat-UI mit berührungsfreundlichen Steuerelementen",
+        "feature_animations": "Flüssige Animationen und Nachrichtenübergänge",
+        "feature_realtime": "Echtzeit-Synchronisierung, unterstützt durch Supabase",
+        "cta_signin": "Mit Google anmelden",
+        "footer_note": "Prototyp • Mobil-Optimiert • Framer Motion • Supabase • Groq",
+        "auth_byContinuing": "Durch die Fortsetzung stimmen Sie der Verwendung Ihres Google-Kontos zur Authentifizierung zu."
+    },
+    "Auth": {
+        "loading": "Wird geladen…",
+        "signout": "Abmelden",
+        "signin_google": "Mit Google anmelden"
+    }
+}

@@ -4,14 +4,16 @@ import React from 'react';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useTranslations } from 'next-intl';
 
 export default function AuthButton() {
     const { user, loading, signInWithGoogle, signOut } = useAuthContext();
+    const t = useTranslations('Auth');
 
     if (loading) {
         return (
             <Button className="w-full" disabled>
-                Loading…
+                {t('loading')}
             </Button>
         );
     }
@@ -26,12 +28,11 @@ export default function AuthButton() {
                     </Avatar>
                     <div className="text-sm">
                         <div className="font-medium text-slate-800">{user.user_metadata?.full_name || user.email}</div>
-                        {/* <div className="text-xs text-slate-500">Signed in</div> */}
                     </div>
                 </div>
 
                 <Button variant="destructive" onClick={() => signOut()}>
-                    Sign out
+                    {t('signout')}
                 </Button>
             </div>
         );
@@ -39,7 +40,7 @@ export default function AuthButton() {
 
     return (
         <Button className="w-full" onClick={() => signInWithGoogle()}>
-            Sign in with Google
+            {t('signin_google')}
         </Button>
     );
 }
