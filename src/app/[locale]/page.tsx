@@ -2,6 +2,7 @@ import Image from 'next/image';
 import AuthButton from '@/features/auth/components/AuthButton';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
+import LanguageSwitcher from '@/features/common/components/LanguageSwitcher';
 
 export default async function Home() {
 
@@ -44,6 +45,9 @@ export default async function Home() {
           <div className="flex items-center justify-center gap-3 text-xs text-slate-400">
             {/* <span>Prototype • Mobile-first • Framer Motion • Supabase • Groq</span> */}
             <span>{t('footer_note')}</span>
+          </div>
+          <div className="pt-3 flex justify-center">
+            <LanguageSwitcher />
           </div>
         </CardFooter>
       </Card>
