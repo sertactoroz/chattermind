@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧠 ChatterMind
 
-## Getting Started
+**Mobile-first AI chat application** built with **Next.js**, **Supabase**, **Framer Motion**, and **Groq**.  
+This project follows a **feature-based architecture** and demonstrates responsive UI, real-time chat capabilities, smooth animations, and multilingual support.
 
-First, run the development server:
+---
 
+## ✨ Features
+- 📱 **Mobile-first** responsive design  
+- 🔐 **Google Sign-In** via Supabase Auth  
+- ⚡ **Realtime chat synchronization** using Supabase Realtime  
+- 🧩 **Predefined characters** (system prompts)  
+- 🤖 **Groq LLM integration** via server-side proxy  
+- 🌍 **Internationalization (i18n)** with `next-intl` and a language switcher  
+- 🎞️ **Fluid animations** powered by Framer Motion  
+- 🎨 **Modern UI** built with `shadcn/ui` and Radix primitives  
+
+---
+
+## 🧰 Tech Stack
+| Category       | Technologies                        |
+|----------------|------------------------------------|
+| **Framework**  | Next.js (App Router)                |
+| **Language**   | TypeScript                          |
+| **Styling**    | Tailwind CSS                        |
+| **Backend**    | Supabase (Auth, Database, Realtime)|
+| **AI / LLM**   | Groq API                            |
+| **UI Library** | shadcn / Radix UI                   |
+| **Animations** | Framer Motion                       |
+| **i18n**       | next-intl                           |
+
+---
+
+## 🚀 Quickstart (Local Setup)
+
+### 1️⃣ Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/sertactoroz/chattermind.git
+cd chattermind
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2️⃣ Configure environment variables
+Create a `.env.local` file based on `.env.example` and fill in your values:
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+GROQ_API_KEY=
+NEXT_PUBLIC_GROQ_BASE=
+NEXT_PUBLIC_VERCEL_URL=
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3️⃣ Install dependencies
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4️⃣ Run the development server
+```bash
+npm run dev
+```
 
-## Learn More
+### 5️⃣ (Optional) Initialize Supabase schema
+```bash
+psql < scripts/setup-supabase.sql
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🌿 Git Workflow
+We use a simple but effective branching strategy:  
+- `main` → stable production-ready code  
+- `dev` → active development branch for new features  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Recommended Feature Branch Workflow
+```bash
+git checkout dev
+git pull origin dev
+git checkout -b feat/your-feature
+# implement feature
+git add .
+git commit -m "feat(feature-name): short description"
+git push -u origin feat/your-feature
+# Open PR -> dev
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧭 Folder Structure (src/)
+```
+src/
+├── app/                # Next.js App Router pages
+├── components/         # Shared UI components (shadcn)
+├── config/             # Config files
+├── features/           # Feature-based modules (auth, chat, etc.)
+├── i18n/               # Localization setup
+├── lib/                # Supabase clients, utilities
+├── scripts/            # Database setup scripts
+└── styles/             # Global CSS styles
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🤝 Contributing
+Pull requests are welcome!  
+If you plan major changes, please open an issue first to discuss your idea.
+
+---
+
+## ⚡ License
+MIT
