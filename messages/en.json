@@ -9,8 +9,14 @@
         "auth_byContinuing": "By continuing you agree to use your Google account for authentication."
     },
     "Auth": {
-        "loading": "Loading…",
-        "signout": "Sign out",
-        "signin_google": "Sign in with Google"
+        "loading": "Loading...",
+        "signin_google": "Sign in",
+        "signout": "Sign out"
+    },
+    "Header": {
+        "edit_profile": "Edit profile",
+        "settings_privacy": "Settings & Privacy",
+        "help_support": "Help & Support",
+        "logout": "Logout"
     }
 }

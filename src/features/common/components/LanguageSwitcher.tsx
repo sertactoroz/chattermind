@@ -29,7 +29,7 @@ export default function LanguageSwitcher() {
             <DropdownMenu.Trigger asChild>
                 <Button
                     aria-label="Change language"
-                    className="min-w-[px] h-9 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center"
+                    className="min-w-[px] h-8 w-8 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center"
                 >
                     {locale?.toUpperCase() || 'EN'}
                 </Button>
@@ -57,7 +57,6 @@ export default function LanguageSwitcher() {
                                     <span className="w-7 text-xs/4 font-semibold">{l.label}</span>
                                     <span className="text-slate-600 text-sm">{l.name}</span>
                                 </div>
-
                                 {/* check icon for active locale */}
                                 <div className="w-6 h-6 flex items-center justify-center">
                                     {active ? <Check className="w-4 h-4 text-sky-600" /> : null}
