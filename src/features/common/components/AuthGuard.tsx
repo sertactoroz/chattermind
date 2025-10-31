@@ -13,11 +13,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             router.push('/'); //Redirect to login page
         }
     }, [user, loading, router]);
-
     if (loading || !user) {
         // You can return a loading skeleton or null
         return <div className="p-4">Loading</div>;
     }
-
     return <>{children}</>;
 }
