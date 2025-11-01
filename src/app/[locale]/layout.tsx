@@ -5,6 +5,7 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import Header from '@/features/common/components/Header';
+import BottomNav from '@/features/common/components/BottomNav';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -33,6 +34,7 @@ export default async function RootLayout({
           <AuthProvider>
             <Header />
             <main className="min-h-[calc(100vh-64px)]">{children}</main>
+            <BottomNav />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>
