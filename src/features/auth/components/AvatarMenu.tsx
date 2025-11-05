@@ -29,14 +29,14 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
             <button
                 aria-haspopup="menu"
                 aria-expanded="false"
-                className="flex items-center justify-center w-10 h-10 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500"
                 id="avatar-trigger"
                 onClick={(e) => {
                     const panel = document.getElementById('avatar-menu-panel');
                     if (panel) panel.classList.toggle('hidden');
                 }}
             >
-                <Avatar className="w-9 h-9">
+                <Avatar className="w-11 h-11">
                     <AvatarImage src={userAvatar || '/default-avatar.png'} alt={fullName || 'User'} />
                     <AvatarFallback>{(fullName && fullName.slice(0, 2).toUpperCase()) ?? 'U'}</AvatarFallback>
                 </Avatar>

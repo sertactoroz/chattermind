@@ -19,7 +19,7 @@ export default function BottomNav() {
     return (
         <nav
             aria-label="Primary navigation"
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[min(1100px,96%)] max-w-3xl z-40"
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[min(1800px,96%)] z-40 rounded-2xl "
         >
             <div className="bg-white dark:bg-slate-900 border rounded-3xl shadow-lg px-8 py-2 flex items-center justify-between">
                 {/* Left group (mobile: first item) */}
@@ -35,7 +35,7 @@ export default function BottomNav() {
                         aria-label="New chat"
                         onClick={() => router.push('/chat/new')}
                         whileTap={{ scale: 0.96 }}
-                        className="bg-sky-900 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl border-4 border-white dark:border-slate-900 md:w-12 md:h-12 md:border-2"
+                        className="bg-sky-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl border-4 border-white dark:border-slate-900 md:w-12 md:h-12 md:border-2"
                     >
                         <Plus className="w-5 h-5" />
                     </motion.button>
