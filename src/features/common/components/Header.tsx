@@ -13,7 +13,7 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <Link href="/" aria-label="Home">
             <div className="w-15 h-15 relative">
-              <Image src="/chattermind-logo.svg" alt="Logo" fill className="object-contain" />
+              <Image src="/chattermind-logo.svg" alt="Logo" fill className="object-contain cursor-pointer" />
             </div>
           </Link>
         </div>

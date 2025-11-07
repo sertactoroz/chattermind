@@ -29,7 +29,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
             <button
                 aria-haspopup="menu"
                 aria-expanded="false"
-                className="flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
                 id="avatar-trigger"
                 onClick={(e) => {
                     const panel = document.getElementById('avatar-menu-panel');
@@ -82,7 +82,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     <li>
                         <button
                             onClick={handleLogout}
-                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
                             role="menuitem"
                         >
                             {t('logout') || 'Logout'}

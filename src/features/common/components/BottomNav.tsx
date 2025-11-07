@@ -37,7 +37,7 @@ export default function BottomNav() {
                         whileTap={{ scale: 0.96 }}
                         className="bg-sky-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl border-4 border-white dark:border-slate-900 md:w-12 md:h-12 md:border-2"
                     >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-5 h-5 cursor-pointer" />
                     </motion.button>
                 </div>
 
