@@ -5,6 +5,7 @@ import type { MessageRow } from '@/features/chat/services/chatService';
 type Character = {
   id: string;
   name: string;
+  role: string;
   avatar?: string;
   description?: string;
   systemPrompt: string;
