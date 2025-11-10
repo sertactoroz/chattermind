@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { listMessages, addMessage, MessageRow } from '../services/chatService';
-import { subscribeMessages } from '../services/realtime'; // senin realtime util
+import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import { motion } from 'framer-motion';
 
@@ -19,10 +19,15 @@ export default function ChatWindow({ chatId, characterId }: Props) {
     const [aiTyping, setAiTyping] = useState(false);
     const listRef = useRef<HTMLDivElement | null>(null);
 
+    /**
+     * Load initial messages and setup realtime subscription.
+     * Note: messages state is NOT a dependency, so subscription does NOT recreate on every new message.
+     */
     useEffect(() => {
         if (!chatId) return;
         let mounted = true;
 
+        // Load initial messages
         (async () => {
             try {
                 const rows = await listMessages(chatId);
@@ -34,14 +39,23 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             }
         })();
 
+        // Setup realtime subscription for new messages
         const sub = subscribeMessages(chatId, (msg: any) => {
-            // supabase payload shape may be payload.new
-            const m = (msg.record ?? msg) as MessageRow;
-            // avoid duplicates (very simple dedupe)
+            if (!msg) return;
+
+            // Update messages list (deduplicate)
             setMessages(prev => {
-                if (prev.find(p => p.id === m.id)) return prev;
-                return [...prev, m];
+                if (prev.some(p => p.id === msg.id)) return prev;
+                const next = [...prev, msg];
+                next.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+                return next;
             });
+
+            // Stop typing indicator when AI message arrives
+            if (msg.sender === 'ai') {
+                setAiTyping(false);
+            }
+
             scrollToBottom();
         });
 
@@ -49,8 +63,11 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             mounted = false;
             sub.unsubscribe();
         };
-    }, [chatId]);
+    }, [chatId, messages]); // ✅ Only recreate subscription when chatId changes
 
+    /**
+     * Smooth scroll to the bottom of the chat list.
+     */
     const scrollToBottom = () => {
         requestAnimationFrame(() => {
             if (!listRef.current) return;
@@ -58,13 +75,19 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         });
     };
 
+    /**
+     * Handle sending a message.
+     * - Optimistically append user message
+     * - Trigger AI generation
+     * - Manage aiTyping state
+     */
     const handleSend = async () => {
         if (!text.trim() || !user) return;
         const content = text.trim();
         setText('');
         setSending(true);
 
-        // optimistic local add (temporary id)
+        // Optimistic user message
         const tempId = `temp-${Date.now()}`;
         const optimisticMsg: MessageRow = {
             id: tempId,
@@ -77,63 +100,82 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         scrollToBottom();
 
         try {
-            // persist user message
+            // Persist user message
             const saved = await addMessage(chatId, 'user', content);
-            // replace temp message id with saved id
             setMessages(prev => prev.map(m => (m.id === tempId ? saved : m)));
 
-            // trigger AI response via server API (non-blocking)
+            // Trigger AI generation
             setAiTyping(true);
-            await fetch('/api/chat/ai', {
+
+            // Optional fallback in case AI never responds (10s max)
+            const aiTimeout = setTimeout(() => setAiTyping(false), 10000);
+
+            const resp = await fetch('/api/chat/ai', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chatId, userId: user.id, content, characterId }),
             });
-            // server will write AI message; realtime subscription will append it
+
+            if (!resp.ok) {
+                const txt = await resp.text();
+                console.error('AI API error', txt);
+                setAiTyping(false);
+                clearTimeout(aiTimeout);
+            }
+            // AI response will arrive via realtime subscription
         } catch (err) {
             console.error('send error', err);
-            // show inline error (simplest)
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: `err-${Date.now()}`,
-                    chat_id: chatId,
-                    sender: 'ai',
-                    content: 'Failed to send message. Please try again.',
-                    created_at: new Date().toISOString(),
-                } as MessageRow,
-            ]);
+            setAiTyping(false);
         } finally {
             setSending(false);
-            // aiTyping will be cleared when AI message arrives; fallback timeout:
-            setTimeout(() => setAiTyping(false), 5000);
         }
     };
 
     return (
         <div className="flex flex-col h-full min-h-[60vh]">
+            {/* Message list */}
             <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3">
                 {messages.map(m => (
-                    <div key={m.id} className={`max-w-[80%] break-words ${m.sender === 'user' ? 'ml-auto bg-sky-600 text-white' : 'mr-auto bg-slate-100 text-slate-800'} px-3 py-2 rounded-xl`}>
+                    <div
+                        key={m.id}
+                        className={`max-w-[80%] break-words px-3 py-2 rounded-xl ${m.sender === 'user'
+                            ? 'ml-auto bg-sky-600 text-white'
+                            : 'mr-auto bg-slate-100 text-slate-800'
+                            }`}
+                    >
                         <div className="text-sm whitespace-pre-wrap">{m.content}</div>
-                        <div className="text-[10px] mt-1 text-slate-400">{new Date(m.created_at).toLocaleTimeString()}</div>
+                        <div className="text-[10px] mt-1 text-slate-400">
+                            {new Date(m.created_at).toLocaleTimeString()}
+                        </div>
                     </div>
                 ))}
 
+                {/* Typing indicator */}
                 {aiTyping && (
                     <div className="mr-auto bg-slate-100 text-slate-800 px-3 py-2 rounded-xl inline-block">
-                        <motion.div initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ repeat: Infinity, duration: 0.9 }} className="text-sm">
+                        <motion.div
+                            initial={{ opacity: 0.6 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ repeat: Infinity, duration: 0.9 }}
+                            className="text-sm"
+                        >
                             Typing...
                         </motion.div>
                     </div>
                 )}
             </div>
 
+            {/* Input */}
             <div className="p-3 border-t flex items-center gap-3">
                 <input
                     value={text}
                     onChange={e => setText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
                     className="flex-1 rounded-lg border px-3 py-2 text-sm"
                     placeholder="Write a message..."
                     disabled={sending}

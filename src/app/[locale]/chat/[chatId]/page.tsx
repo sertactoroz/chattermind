@@ -1,4 +1,3 @@
-// src/app/chat/[chatId]/page.tsx
 import ChatWindow from '@/features/chat/components/ChatWindow';
 import AuthGuard from '@/features/common/components/AuthGuard'; // varsa; yoksa kaldır
 import { notFound } from 'next/navigation';
@@ -17,7 +16,7 @@ export default async function ChatIdPage({ params }: Props) {
         const { data, error } = await supabaseAdmin
             .from('chats')
             .select('id, title, character_id')
-            .eq('id', chatId)
+            .eq('id', params.chatId)
             .limit(1)
             .single();
 

@@ -1,4 +1,3 @@
-// src/app/api/chat/ai/route.ts
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 import characters from '@/features/characters/data/characters.json';
@@ -13,14 +12,13 @@ type Body = {
 export async function POST(req: Request) {
   try {
     const body: Body = await req.json();
-
     const { chatId, userId, content, characterId } = body ?? {};
     if (!chatId || !content) {
       return NextResponse.json({ error: 'Missing chatId or content' }, { status: 400 });
     }
 
     const apiKey = process.env.GROQ_API_KEY;
-    const base = process.env.NEXT_PUBLIC_GROQ_BASE;
+    const base = process.env.NEXT_PUBLIC_GROQ_BASE; 
     if (!apiKey || !base) {
       console.error('Missing GROQ config');
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
@@ -28,49 +26,51 @@ export async function POST(req: Request) {
 
     // 1) Build system prompt from character if available
     const charDef = characterId ? (characters as any).find((c: any) => c.id === characterId) : null;
-    const systemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant.';
+    const systemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant. Keep replies concise and friendly.';
 
-    // 2) Fetch recent conversation for context (last 10 messages)
+    // 2) Fetch recent conversation for context (last 20 messages)
     const { data: recentMsgs, error: fetchErr } = await supabaseAdmin
       .from('messages')
       .select('sender,content,created_at')
       .eq('chat_id', chatId)
       .order('created_at', { ascending: true })
-      .limit(50); // limit for safety
+      .limit(50);
 
     if (fetchErr) {
       console.warn('Failed to fetch recent messages for context', fetchErr);
     }
 
-    // Compose prompt: system prompt + recent convo (optionally truncated) + new user message
-    let convoContext = '';
+    // Compose messages array in OpenAI chat format
+    const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+      { role: 'system', content: systemPrompt }
+    ];
+
     if (Array.isArray(recentMsgs) && recentMsgs.length) {
-      // include last ~20 messages (or all if small)
+      // include last ~20 messages as user/assistant turns
       const last = recentMsgs.slice(-20);
-      convoContext = last
-        .map((m: any) => `${m.sender === 'user' ? 'User' : 'AI'}: ${m.content}`)
-        .join('\n');
+      for (const m of last) {
+        const role = m.sender === 'user' ? 'user' : 'assistant';
+        messages.push({ role, content: m.content });
+      }
     }
 
-    const promptParts = [
-      `SYSTEM: ${systemPrompt}`,
-      convoContext ? `CONTEXT:\n${convoContext}` : '',
-      `User: ${content}`,
-      'AI:'
-    ].filter(Boolean).join('\n\n');
+    // finally add the new user message
+    messages.push({ role: 'user', content });
 
-    // 3) Call Groq API (adjust per provider)
-    const resp = await fetch(`${base}/v1/generate`, {
+    // 3) Call Groq using OpenAI-compatible chat completions endpoint
+    // endpoint: `${base}/chat/completions`
+    const resp = await fetch(`${base}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gemma-1',
-        input: promptParts,
-        // add model params here if required, e.g. temperature, maxTokens
-        // temperature: 0.8,
+        model: "openai/gpt-oss-20b",
+        messages,
+        max_tokens: 512,
+        temperature: 0.7,
+        // you can add other params like top_p, stop, etc.
       }),
     });
 
@@ -81,23 +81,27 @@ export async function POST(req: Request) {
     }
 
     const json = await resp.json();
-    // parse common shapes; adjust if Groq's response shape differs
-    const aiText = json?.output?.[0]?.content ?? json?.text ?? (typeof json === 'string' ? json : null);
+
+    // Typical OpenAI-compatible response shape: choices[0].message.content
+    const aiText =
+      json?.choices?.[0]?.message?.content ??
+      json?.choices?.[0]?.text ??
+      (typeof json === 'string' ? json : null);
 
     if (!aiText) {
       console.warn('Empty AI response', json);
       return NextResponse.json({ error: 'Empty AI response' }, { status: 502 });
     }
 
-    // 4) Persist AI response to DB
+    // 4) Persist AI response using service role
     const { error: insertError } = await supabaseAdmin
       .from('messages')
       .insert([{ chat_id: chatId, sender: 'ai', content: aiText }]);
 
     if (insertError) {
       console.error('Failed saving AI message', insertError);
-      // still return ai text to client, but warn
-      return NextResponse.json({ ai: aiText, warning: 'AI message saved failed' }, { status: 200 });
+      // return success but warn (client still gets AI text)
+      return NextResponse.json({ ai: aiText, warning: 'AI message save failed' }, { status: 200 });
     }
 
     return NextResponse.json({ ai: aiText }, { status: 200 });
