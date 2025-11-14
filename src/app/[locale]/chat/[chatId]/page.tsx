@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default async function ChatIdPage({ params }: Props) {
-    const { chatId } = params;
+    const { chatId } = await params;
 
     // optional: validate that chat exists and belongs to current user
     // (server-side safety; you can adjust to allow public chats)
@@ -16,7 +16,7 @@ export default async function ChatIdPage({ params }: Props) {
         const { data, error } = await supabaseAdmin
             .from('chats')
             .select('id, title, character_id')
-            .eq('id', params.chatId)
+            .eq('id', chatId)
             .limit(1)
             .single();
 
