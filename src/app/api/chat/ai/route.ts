@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 import characters from '@/features/characters/data/characters.json';
 
+// Define the special content used by the client to signal an initial message request
+const INITIAL_PROMPT_SIGNAL = 'Generate the character\'s opening message to start the conversation.';
+
 type Body = {
   chatId: string;
   userId?: string;
@@ -12,7 +15,10 @@ type Body = {
 export async function POST(req: Request) {
   try {
     const body: Body = await req.json();
-    const { chatId, userId, content, characterId } = body ?? {};
+    console.log("🔵 Incoming body:", body);
+    
+    const { chatId, content, characterId } = body ?? {};
+    
     if (!chatId || !content) {
       return NextResponse.json({ error: 'Missing chatId or content' }, { status: 400 });
     }
@@ -24,11 +30,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
     }
 
-    // 1) Build system prompt from character if available
-    const charDef = characterId ? (characters as any).find((c: any) => c.id === characterId) : null;
-    const systemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant. Keep replies concise and friendly.';
+    // Check if this request is specifically for generating the character's first message
+    const isInitialPrompt = content === INITIAL_PROMPT_SIGNAL;
 
-    // 2) Fetch recent conversation for context (last 20 messages)
+    // 1) Build system prompt from character definition
+    const charDef = characterId ? (characters as any).find((c: any) => c.id === characterId) : null;
+    let finalSystemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant. Keep replies concise and friendly.';
+    
+    // If it's the initial message request, instruct the AI to start the dialogue
+    if (isInitialPrompt) {
+        finalSystemPrompt += " You must now initiate the conversation with your first message. Be engaging and relevant to your role. Do not include any meta-commentary, just write the opening line.";
+    }
+
+    console.log("🟣 Character selected:", characterId);
+    console.log("🟣 System prompt resolved:", finalSystemPrompt);
+
+    // 2) Fetch recent conversation for context (last 50 messages, use the last 20 for context)
     const { data: recentMsgs, error: fetchErr } = await supabaseAdmin
       .from('messages')
       .select('sender,content,created_at')
@@ -42,11 +59,11 @@ export async function POST(req: Request) {
 
     // Compose messages array in OpenAI chat format
     const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-      { role: 'system', content: systemPrompt }
+      { role: 'system', content: finalSystemPrompt } // Use the potentially modified system prompt
     ];
 
     if (Array.isArray(recentMsgs) && recentMsgs.length) {
-      // include last ~20 messages as user/assistant turns
+      // Include last ~20 messages as user/assistant turns for context
       const last = recentMsgs.slice(-20);
       for (const m of last) {
         const role = m.sender === 'user' ? 'user' : 'assistant';
@@ -54,11 +71,13 @@ export async function POST(req: Request) {
       }
     }
 
-    // finally add the new user message
-    messages.push({ role: 'user', content });
+    // ❗ IMPORTANT: Only add the new user message if it's NOT the initial prompt signal.
+    // We prevent the "Generate the character's opening message..." text from being sent to the LLM as user input.
+    if (!isInitialPrompt) {
+        messages.push({ role: 'user', content });
+    }
 
     // 3) Call Groq using OpenAI-compatible chat completions endpoint
-    // endpoint: `${base}/chat/completions`
     const resp = await fetch(`${base}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -96,6 +115,7 @@ export async function POST(req: Request) {
     // 4) Persist AI response using service role
     const { error: insertError } = await supabaseAdmin
       .from('messages')
+      // The sender is always 'ai' here, regardless of whether it's an initial message or a reply.
       .insert([{ chat_id: chatId, sender: 'ai', content: aiText }]);
 
     if (insertError) {

@@ -7,9 +7,9 @@ import { supabase } from '@/lib/supabaseClient';
 export type ChatRow = {
   id: string;
   user_id: string;
-  character_id?: string | null;
-  title?: string | null;
-  last_message?: string | null;
+  character_id: string;
+  title: string ;
+  last_message: string;
   created_at: string;
 };
 
@@ -44,10 +44,10 @@ export async function listChats(userId: string): Promise<ChatRow[]> {
 /**
  * Create a new chat row; returns created ChatRow
  */
-export async function createChat(userId: string, characterId?: string | null, title?: string | null): Promise<ChatRow> {
+export async function createChat(userId: string, characterId: string, title: string): Promise<ChatRow> {
   const res = await supabase
     .from('chats')
-    .insert([{ user_id: userId, character_id: characterId ?? null, title: title ?? null }])
+    .insert([{ user_id: userId, character_id: characterId, title: title ?? null }])
     .select()
     .single();
 
