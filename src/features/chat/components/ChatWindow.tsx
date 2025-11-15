@@ -2,9 +2,14 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { listMessages, addMessage, MessageRow } from '../services/chatService';
-import { subscribeMessages } from '../services/realtime'; // senin realtime util
+import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import { motion } from 'framer-motion';
+
+// Define the structure expected from the AI API response
+type AIMessageResponse = {
+    aiMessage: MessageRow;
+};
 
 type Props = {
     chatId: string;
@@ -19,29 +24,59 @@ export default function ChatWindow({ chatId, characterId }: Props) {
     const [aiTyping, setAiTyping] = useState(false);
     const listRef = useRef<HTMLDivElement | null>(null);
 
+    /**
+     * Smooth scroll to the bottom of the chat list.
+     */
+    const scrollToBottom = () => {
+        // Use requestAnimationFrame for smooth and non-blocking scrolling
+        requestAnimationFrame(() => {
+            if (!listRef.current) return;
+            listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
+        });
+    };
+
+    /**
+     * Load initial messages and setup realtime subscription.
+     * Realtime is kept for incoming messages from other sources (e.g., if we turn this into a multi-user chat later) 
+     * but we rely on the API response for our own AI replies.
+     */
     useEffect(() => {
         if (!chatId) return;
         let mounted = true;
 
+        // Load initial messages
         (async () => {
             try {
                 const rows = await listMessages(chatId);
                 if (!mounted) return;
                 setMessages(rows);
+                // Scroll after initial load
                 scrollToBottom();
             } catch (err) {
                 console.error('listMessages error', err);
             }
         })();
 
-        const sub = subscribeMessages(chatId, (msg: any) => {
-            // supabase payload shape may be payload.new
-            const m = (msg.record ?? msg) as MessageRow;
-            // avoid duplicates (very simple dedupe)
+        // Setup realtime subscription for new messages
+        // This subscription is now secondary, used for general updates or unexpected insertions.
+        const sub = subscribeMessages(chatId, (msg: MessageRow) => {
+            if (!msg) return;
+
+            // Update messages list: add new message and ensure correct sorting/deduplication
             setMessages(prev => {
-                if (prev.find(p => p.id === m.id)) return prev;
-                return [...prev, m];
+                // Ensure message is not already present (crucial for deduplicating API response vs Realtime)
+                if (prev.some(p => p.id === msg.id)) return prev;
+
+                const next = [...prev, msg];
+                next.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+                return next;
             });
+
+            // If the AI message arrives via Realtime, it's a good safety check, but API handles the primary flow.
+            if (msg.sender === 'ai') {
+                setAiTyping(false);
+            }
+
             scrollToBottom();
         });
 
@@ -49,22 +84,19 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             mounted = false;
             sub.unsubscribe();
         };
-    }, [chatId]);
+    }, [chatId]); // Dependency array: ONLY chatId is needed here
 
-    const scrollToBottom = () => {
-        requestAnimationFrame(() => {
-            if (!listRef.current) return;
-            listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-        });
-    };
-
+    /**
+     * Handle sending a message.
+     * We now rely fully on the API response to deliver the AI message object.
+     */
     const handleSend = async () => {
         if (!text.trim() || !user) return;
         const content = text.trim();
         setText('');
         setSending(true);
 
-        // optimistic local add (temporary id)
+        // --- Optimistic Update for User Message (TEMP ID) ---
         const tempId = `temp-${Date.now()}`;
         const optimisticMsg: MessageRow = {
             id: tempId,
@@ -74,73 +106,134 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             created_at: new Date().toISOString(),
         };
         setMessages(prev => [...prev, optimisticMsg]);
-        scrollToBottom();
+        scrollToBottom(); // Scroll after the user message is added
 
         try {
-            // persist user message
-            const saved = await addMessage(chatId, 'user', content);
-            // replace temp message id with saved id
-            setMessages(prev => prev.map(m => (m.id === tempId ? saved : m)));
+            // 1. Persist user message to DB
+            const savedUserMsg = await addMessage(chatId, 'user', content);
+            // Replace temporary message with the saved user message from DB
+            setMessages(prev => prev.map(m => (m.id === tempId ? savedUserMsg : m)));
 
-            // trigger AI response via server API (non-blocking)
+            // 2. Trigger AI generation and wait for the response (which now contains the full AI message object)
             setAiTyping(true);
-            await fetch('/api/chat/ai', {
+            // Scroll again to ensure the "Typing..." indicator is visible at the bottom.
+            scrollToBottom();
+
+            const resp = await fetch('/api/chat/ai', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chatId, userId: user.id, content, characterId }),
             });
-            // server will write AI message; realtime subscription will append it
-        } catch (err) {
-            console.error('send error', err);
-            // show inline error (simplest)
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: `err-${Date.now()}`,
+
+            if (!resp.ok) {
+                const txt = await resp.text();
+                console.error('AI API error', txt);
+                setAiTyping(false);
+                return;
+            }
+
+            // 3. Process the AI API response
+            const responseData: AIMessageResponse = await resp.json();
+
+            // ❗ Debugging log to see the API response structure
+            console.log("AI API Response Data:", responseData);
+
+            let aiMessage = responseData.aiMessage;
+
+            // --- Fallback Mechanism: If the API returns raw text as {ai: "..."} instead of MessageRow ---
+            if (!aiMessage && (responseData as any).ai) {
+                console.warn("Fallback used: API returned raw text under the 'ai' key instead of the MessageRow object. Manually creating message.");
+
+                // Manually create the message object using the raw text
+                aiMessage = {
+                    // Use a temporary ID since this message didn't come from the DB .select()
+                    id: `fallback-ai-${Date.now()}`,
                     chat_id: chatId,
                     sender: 'ai',
-                    content: 'Failed to send message. Please try again.',
+                    content: (responseData as any).ai,
                     created_at: new Date().toISOString(),
-                } as MessageRow,
-            ]);
+                } as MessageRow;
+            }
+            // --- End of Fallback Mechanism ---
+
+
+            if (aiMessage) {
+                // --- FULL OPTIMISTIC UPDATE FOR AI MESSAGE ---
+                // Add the received AI message object directly to the state
+                setMessages(prev => [...prev, aiMessage]);
+                // Clear the typing indicator immediately
+                setAiTyping(false);
+                // Scroll to see the new message
+                scrollToBottom();
+                // --- END OPTIMISTIC UPDATE ---
+            } else {
+                console.error('AI API response missing aiMessage object. Check API logs for database insertion failure.');
+                setAiTyping(false);
+            }
+
+        } catch (err) {
+            console.error('send error (DB or Network)', err);
+            setAiTyping(false);
         } finally {
             setSending(false);
-            // aiTyping will be cleared when AI message arrives; fallback timeout:
-            setTimeout(() => setAiTyping(false), 5000);
         }
     };
 
     return (
         <div className="flex flex-col h-full min-h-[60vh]">
+            {/* Message list */}
             <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3">
                 {messages.map(m => (
-                    <div key={m.id} className={`max-w-[80%] break-words ${m.sender === 'user' ? 'ml-auto bg-sky-600 text-white' : 'mr-auto bg-slate-100 text-slate-800'} px-3 py-2 rounded-xl`}>
+                    <div
+                        key={m.id}
+                        className={`max-w-[80%] break-words px-3 py-2 rounded-xl ${m.sender === 'user'
+                            ? 'ml-auto bg-sky-600 text-white'
+                            : 'mr-auto bg-slate-100 text-slate-800'
+                            }`}
+                    >
                         <div className="text-sm whitespace-pre-wrap">{m.content}</div>
-                        <div className="text-[10px] mt-1 text-slate-400">{new Date(m.created_at).toLocaleTimeString()}</div>
+                        {/* Show time only if not the optimistic temp message */}
+                        {m.id && !m.id.startsWith('temp-') && (
+                            <div className="text-[10px] mt-1 text-slate-400">
+                                {new Date(m.created_at).toLocaleTimeString()}
+                            </div>
+                        )}
                     </div>
                 ))}
 
+                {/* Typing indicator */}
                 {aiTyping && (
                     <div className="mr-auto bg-slate-100 text-slate-800 px-3 py-2 rounded-xl inline-block">
-                        <motion.div initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ repeat: Infinity, duration: 0.9 }} className="text-sm">
+                        <motion.div
+                            initial={{ opacity: 0.6 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ repeat: Infinity, duration: 0.9 }}
+                            className="text-sm"
+                        >
                             Typing...
                         </motion.div>
                     </div>
                 )}
             </div>
 
+            {/* Input */}
             <div className="p-3 border-t flex items-center gap-3">
                 <input
                     value={text}
                     onChange={e => setText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
                     className="flex-1 rounded-lg border px-3 py-2 text-sm"
                     placeholder="Write a message..."
-                    disabled={sending}
+                    disabled={sending || aiTyping} // Disable input while sending or AI is typing
                 />
                 <button
                     onClick={handleSend}
-                    disabled={sending || !text.trim()}
+                    disabled={sending || aiTyping || !text.trim()} // Disable button while AI is typing
                     className="px-3 py-2 rounded bg-sky-600 text-white min-h-[44px]"
                 >
                     {sending ? 'Sending…' : 'Send'}

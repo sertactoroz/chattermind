@@ -33,7 +33,7 @@ export default function BottomNav() {
                 <div className="flex-1 flex items-center justify-center -mt-6 md:-mt-4">
                     <motion.button
                         aria-label="New chat"
-                        onClick={() => router.push('/chat/new')}
+                        onClick={() => router.push('/characters')}
                         whileTap={{ scale: 0.96 }}
                         className="bg-sky-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl border-4 border-white dark:border-slate-900 md:w-12 md:h-12 md:border-2"
                     >

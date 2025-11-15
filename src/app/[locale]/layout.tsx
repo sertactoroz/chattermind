@@ -33,7 +33,7 @@ export default async function RootLayout({
         <NextIntlClientProvider>
           <AuthProvider>
             <Header />
-            <main className="min-h-[calc(100vh-64px)]">{children}</main>
+            <main className="min-h-[calc(100vh-64px)] pt-9 mt-9">{children}</main>
             <BottomNav />
           </AuthProvider>
         </NextIntlClientProvider>

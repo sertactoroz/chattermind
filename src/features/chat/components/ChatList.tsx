@@ -39,20 +39,8 @@ export default function ChatList() {
     return () => { mounted = false; };
   }, [user]);
 
-  const handleNewChat = async () => {
-    if (!user) return;
-    setCreating(true);
-    try {
-      // Optionally let user pick a character — for now create empty chat
-      const chat = await createChat(user.id, null, 'New chat');
-      // redirect to chat page
-      router.push(`/chat/${chat.id}`);
-    } catch (err) {
-      console.error('createChat error', err);
-      alert('Failed to create chat');
-    } finally {
-      setCreating(false);
-    }
+  const handleNewChat = () => {
+    router.push('/chat/select-character');
   };
 
   if (loading || isLoading) {

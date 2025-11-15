@@ -1,4 +1,3 @@
-// src/app/chat/[chatId]/page.tsx
 import ChatWindow from '@/features/chat/components/ChatWindow';
 import AuthGuard from '@/features/common/components/AuthGuard'; // varsa; yoksa kaldır
 import { notFound } from 'next/navigation';
@@ -9,7 +8,7 @@ type Props = {
 };
 
 export default async function ChatIdPage({ params }: Props) {
-    const { chatId } = params;
+    const { chatId } = await params;
 
     // optional: validate that chat exists and belongs to current user
     // (server-side safety; you can adjust to allow public chats)
