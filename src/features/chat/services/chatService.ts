@@ -1,30 +1,9 @@
 import { supabase } from '@/lib/supabaseClient';
 
-/**
- * Lightweight type definitions for our tables.
- * Adjust fields if your DB schema differs.
- */
-export type ChatRow = {
-  id: string;
-  user_id: string;
-  character_id: string;
-  title: string ;
-  last_message: string;
-  created_at: string;
-};
+import type { ChatRow, MessageRow } from '@/features/chat/types/chat.types';
 
-export type MessageRow = {
-  id: string;
-  chat_id: string;
-  sender: 'user' | 'ai' | string;
-  content: string;
-  metadata?: any;
-  created_at: string;
-};
-
-/**
- * List chats for a given user (most recent first)
- */
+ // List chats for a given user (most recent first)
+ 
 export async function listChats(userId: string): Promise<ChatRow[]> {
   const res = await supabase
     .from('chats')
