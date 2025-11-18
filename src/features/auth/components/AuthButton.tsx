@@ -19,13 +19,11 @@ export default function AuthButton() {
     }
 
     if (user) {
+        console.log('user.user_metadata:', user.user_metadata)
         const avatarUrl = (user.user_metadata as any)?.avatar_url ?? null;
         const fullName = (user.user_metadata as any)?.full_name ?? user.email;
         return (
             <div className="flex items-center gap-3">
-                {/* <div className="hidden sm:block text-sm">
-                    <div className="font-medium text-slate-800">{fullName}</div>
-                </div> */}
                 <AvatarMenu userAvatar={avatarUrl} fullName={fullName} />
             </div>
         );

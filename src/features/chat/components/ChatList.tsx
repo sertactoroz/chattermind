@@ -1,101 +1,89 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { listChats, createChat, ChatRow } from '../services/chatService';
+import { listChats } from '../services/chatService';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { useCharacters } from '@/features/characters/hooks/useCharacters';
+import type { Character } from '@/features/characters/types/character.types';
+import ChatItem from './ChatItem';
+import { ChatRow } from '../types/chat.types';
 
 export default function ChatList() {
-  const { user, loading } = useAuthContext();
+  const { user, loading: authLoading } = useAuthContext();
   const router = useRouter();
   const [chats, setChats] = useState<ChatRow[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [creating, setCreating] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { allCharacters, isLoading: charsLoading } = useCharacters();
+  const characterMap: Record<string, Character> = Object.fromEntries(allCharacters.map(c => [c.id, c]));
 
   useEffect(() => {
     if (!user) return;
     let mounted = true;
 
-    const load = async () => {
+    const loadChats = async () => {
       setIsLoading(true);
       try {
         const rows = await listChats(user.id);
         if (!mounted) return;
         setChats(rows);
       } catch (err) {
-        console.error('listChats error', err);
+        console.error('Error loading chats', err);
       } finally {
         if (mounted) setIsLoading(false);
       }
     };
 
-    load();
-
-    // optional: subscribe to chats table changes for this user
-    // if you added realtime for chats you can subscribe here to keep list live
-    // return unsub on cleanup
+    loadChats();
     return () => { mounted = false; };
   }, [user]);
 
-  const handleNewChat = () => {
-    router.push('/chat/select-character');
-  };
+  const handleNewChat = () => router.push('/chat/select-character');
 
-  if (loading || isLoading) {
-    // use Skeleton component for consistent UI
+  if (authLoading || isLoading || charsLoading) {
     return (
-      <div className="p-4">
+      <div className="p-4 max-w-lg mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-10 w-24" />
+        </div>
         <div className="space-y-3">
-          <Skeleton className="h-12 rounded-lg" />
-          <Skeleton className="h-12 rounded-lg" />
-          <Skeleton className="h-12 rounded-lg" />
+          <Skeleton className="h-20 rounded-lg" />
+          <Skeleton className="h-20 rounded-lg" />
+          <Skeleton className="h-20 rounded-lg" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="px-4 py-6">
+    <div className="px-4 py-6 max-w-lg mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Chats</h2>
-        <button
-          onClick={handleNewChat}
-          disabled={creating}
-          className="min-h-[44px] px-3 py-2 rounded-lg bg-sky-600 text-white text-sm shadow"
-        >
-          {creating ? 'Creating…' : 'New chat'}
-        </button>
+        <h2 className="text-xl font-bold">Chats</h2>
+        <Button onClick={handleNewChat}>New chat</Button>
       </div>
 
       {chats.length === 0 ? (
-        <div className="rounded-lg border p-6 text-center text-sm text-slate-600">
-          <p className="mb-3">No chats yet. Start a new conversation to see it here.</p>
-          <button onClick={handleNewChat} className="px-4 py-2 rounded bg-sky-600 text-white">
-            Create first chat
-          </button>
-        </div>
+        <Card className="text-center p-6 border-2 border-dashed">
+          <CardContent className="p-0">
+            <p className="mb-4 text-sm text-muted-foreground">
+              No chats yet. Start a new conversation to see it here.
+            </p>
+            <Button onClick={handleNewChat}>Create first chat</Button>
+          </CardContent>
+        </Card>
       ) : (
         <ul className="space-y-3">
-          {chats.map(c => (
-            <li key={c.id}>
-              <Link
-                href={`/chat/${c.id}`}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg border hover:bg-slate-50"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-md bg-slate-100 flex items-center justify-center text-sm font-medium">
-                    {c.character_id ? c.character_id.slice(0, 2).toUpperCase() : 'AI'}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium truncate">{c.title || 'New chat'}</div>
-                    <div className="text-xs text-slate-500 truncate">{c.last_message || 'No messages yet'}</div>
-                  </div>
-                </div>
-                <div className="text-xs text-slate-400">{new Date(c.created_at).toLocaleDateString()}</div>
-              </Link>
-            </li>
+          {chats.map(chat => (
+            <ChatItem
+              key={chat.id}
+              chat={chat}
+              character={chat.character_id ? characterMap[chat.character_id] : undefined}
+            />
           ))}
         </ul>
       )}

@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { listMessages, addMessage, MessageRow } from '../services/chatService';
+import { listMessages, addMessage } from '../services/chatService';
 import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
-import { motion } from 'framer-motion';
+import MessageItem from './MessageItem';
+import TypingIndicator from './TypingIndicator';
+import type { MessageRow } from '../types/chat.types';
 
 // Define the structure expected from the AI API response
 type AIMessageResponse = {
@@ -35,11 +37,10 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         });
     };
 
-    /**
-     * Load initial messages and setup realtime subscription.
-     * Realtime is kept for incoming messages from other sources (e.g., if we turn this into a multi-user chat later) 
-     * but we rely on the API response for our own AI replies.
-     */
+    //  Load initial messages and setup realtime subscription.
+    //  Realtime is kept for incoming messages from other sources (e.g., if we turn this into a multi-user chat later) 
+    //  but we rely on the API response for our own AI replies.
+
     useEffect(() => {
         if (!chatId) return;
         let mounted = true;
@@ -86,10 +87,9 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         };
     }, [chatId]); // Dependency array: ONLY chatId is needed here
 
-    /**
-     * Handle sending a message.
-     * We now rely fully on the API response to deliver the AI message object.
-     */
+    // Handle sending a message.
+    // We now rely fully on the API response to deliver the AI message object.
+
     const handleSend = async () => {
         if (!text.trim() || !user) return;
         const content = text.trim();
@@ -156,7 +156,6 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             }
             // --- End of Fallback Mechanism ---
 
-
             if (aiMessage) {
                 // --- FULL OPTIMISTIC UPDATE FOR AI MESSAGE ---
                 // Add the received AI message object directly to the state
@@ -184,36 +183,10 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             {/* Message list */}
             <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3">
                 {messages.map(m => (
-                    <div
-                        key={m.id}
-                        className={`max-w-[80%] break-words px-3 py-2 rounded-xl ${m.sender === 'user'
-                            ? 'ml-auto bg-sky-600 text-white'
-                            : 'mr-auto bg-slate-100 text-slate-800'
-                            }`}
-                    >
-                        <div className="text-sm whitespace-pre-wrap">{m.content}</div>
-                        {/* Show time only if not the optimistic temp message */}
-                        {m.id && !m.id.startsWith('temp-') && (
-                            <div className="text-[10px] mt-1 text-slate-400">
-                                {new Date(m.created_at).toLocaleTimeString()}
-                            </div>
-                        )}
-                    </div>
+                    <MessageItem key={m.id} message={m} />
                 ))}
 
-                {/* Typing indicator */}
-                {aiTyping && (
-                    <div className="mr-auto bg-slate-100 text-slate-800 px-3 py-2 rounded-xl inline-block">
-                        <motion.div
-                            initial={{ opacity: 0.6 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ repeat: Infinity, duration: 0.9 }}
-                            className="text-sm"
-                        >
-                            Typing...
-                        </motion.div>
-                    </div>
-                )}
+                {aiTyping && <TypingIndicator />}
             </div>
 
             {/* Input */}
