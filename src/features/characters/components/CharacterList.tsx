@@ -19,6 +19,7 @@ export default function CharacterList() {
 
     const handleStartChat = () => {
         if (!selected) {
+            // Using a theme-friendly alert or toast is recommended in a real app
             alert('Please select a character first.');
             return;
         }
@@ -33,10 +34,12 @@ export default function CharacterList() {
 
     return (
         <div className="px-4 py-6 max-w-md mx-auto">
-            <h2 className="text-2xl font-bold mb-6 text-center">Choose a Character</h2>
+            {/* Header text color: text-foreground ensures the text adapts to the theme. */}
+            <h2 className="text-2xl font-bold mb-6 text-center text-foreground">Choose a Character</h2>
 
             {/* Character List */}
             <div className="space-y-3 mb-6">
+                {/* CharacterCard components should handle their own theme styling (bg-card, border-border, active state) */}
                 {characters.map((c: any) => (
                     <CharacterCard
                         key={c.id}
@@ -53,11 +56,13 @@ export default function CharacterList() {
                     onClick={handleStartChat}
                     className="flex-1" // Make the button take up available space
                     disabled={!selected || loading} // Disable if no character is selected or if loading
+                // Default Button variant uses bg-primary and text-primary-foreground, which should be theme-aware.
                 >
                     {loading ? 'Starting Chat...' : 'Start chat with selected character'}
                 </Button>
 
                 {/* Secondary Button */}
+                {/* Button variant="outline" is theme-aware (uses border-input, text-foreground, hover:bg-accent) */}
                 <Button
                     onClick={() => router.push('/chat')}
                     variant="outline" // Use the 'outline' variant for the secondary action

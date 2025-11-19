@@ -1,5 +1,5 @@
 import ChatWindow from '@/features/chat/components/ChatWindow';
-import AuthGuard from '@/features/common/components/AuthGuard'; // varsa; yoksa kaldır
+import AuthGuard from '@/features/common/components/AuthGuard'; // (if exists, keep it)
 import { notFound } from 'next/navigation';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
@@ -21,18 +21,18 @@ export default async function ChatIdPage({ params }: Props) {
             .single();
 
         if (error || !data) {
-            // chat bulunamazsa 404
+            // If chat is not found, return 404
             return notFound();
         }
 
         const characterId = data.character_id ?? null;
 
-        // render the client ChatWindow; pass chatId and characterId as props
+        // Render the client ChatWindow; pass chatId and characterId as props
         return (
             // wrap in AuthGuard if you use client-side guard; if AuthGuard is a client component,
             // put it INSIDE ChatWindow or use different approach.
             <AuthGuard>
-                <div className="min-h-screen bg-slate-50">
+                <div className="min-h-screen bg-background">
                     <div className="max-w-md mx-auto h-[80vh]">
                         <ChatWindow chatId={chatId} characterId={characterId} />
                     </div>
@@ -40,6 +40,7 @@ export default async function ChatIdPage({ params }: Props) {
             </AuthGuard>
         );
     } catch (err) {
+        // Log chat page error and return 404
         console.error('chat page error', err);
         return notFound();
     }
