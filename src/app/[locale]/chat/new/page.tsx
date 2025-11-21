@@ -79,11 +79,10 @@ export default function ChatNewPage() {
     }, [user, router, searchParams]); // Dependencies list ensures effect runs when these values change
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
             <div className="text-center">
                 <p className="mb-2">Creating chat…</p>
-                {/* Simple loading indicator */}
-                <div className="h-8 w-8 rounded-full bg-slate-200 animate-pulse mx-auto" />
+                <div className="h-8 w-8 rounded-full bg-secondary animate-pulse mx-auto" />
             </div>
         </div>
     );

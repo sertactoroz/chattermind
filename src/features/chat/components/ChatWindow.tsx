@@ -37,9 +37,9 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         });
     };
 
-    //  Load initial messages and setup realtime subscription.
-    //  Realtime is kept for incoming messages from other sources (e.g., if we turn this into a multi-user chat later) 
-    //  but we rely on the API response for our own AI replies.
+    // Load initial messages and setup realtime subscription.
+    // Realtime is kept for incoming messages from other sources (e.g., if we turn this into a multi-user chat later) 
+    // but we rely on the API response for our own AI replies.
 
     useEffect(() => {
         if (!chatId) return;
@@ -179,18 +179,21 @@ export default function ChatWindow({ chatId, characterId }: Props) {
     };
 
     return (
+        // Chat container. The main background is typically set by the body/parent wrapper (bg-background).
         <div className="flex flex-col h-full min-h-[60vh]">
             {/* Message list */}
             <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3">
                 {messages.map(m => (
+                    // MessageItem handles its own theme styling (bg-primary/bg-muted)
                     <MessageItem key={m.id} message={m} />
                 ))}
 
                 {aiTyping && <TypingIndicator />}
             </div>
 
-            {/* Input */}
-            <div className="p-3 border-t flex items-center gap-3">
+            {/* Input Section - Theme-aware border and background */}
+            {/* border-t -> border-t-border; bg-background ensures the input area matches the page theme */}
+            <div className="p-3 border-t border-t-border flex items-center gap-3 ">
                 <input
                     value={text}
                     onChange={e => setText(e.target.value)}
@@ -200,14 +203,17 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                             handleSend();
                         }
                     }}
-                    className="flex-1 rounded-lg border px-3 py-2 text-sm"
+                    // Input styles: border-input, bg-background, text-foreground, focus-visible:ring-ring for theme consistency
+                    className="flex-1 rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm 
+                                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     placeholder="Write a message..."
                     disabled={sending || aiTyping} // Disable input while sending or AI is typing
                 />
                 <button
                     onClick={handleSend}
                     disabled={sending || aiTyping || !text.trim()} // Disable button while AI is typing
-                    className="px-3 py-2 rounded bg-sky-600 text-white min-h-[44px]"
+                    // Button styles: bg-primary and text-primary-foreground (central theme color)
+                    className="px-3 py-2 rounded bg-primary text-primary-foreground min-h-[44px] hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                     {sending ? 'Sending…' : 'Send'}
                 </button>
