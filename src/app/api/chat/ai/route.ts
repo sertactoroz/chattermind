@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     }
 
     const apiKey = process.env.GROQ_API_KEY;
-    const base = process.env.NEXT_PUBLIC_GROQ_BASE; 
+    const base = process.env.NEXT_PUBLIC_GROQ_BASE;
     if (!apiKey || !base) {
       console.error('Missing GROQ config');
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
@@ -36,15 +36,15 @@ export async function POST(req: Request) {
     // 1) Build system prompt from character definition
     const charDef = characterId ? (characters as any).find((c: any) => c.id === characterId) : null;
     let finalSystemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant. Keep replies concise and friendly.';
-    
-      const brevityInstruction = " **Your responses must be short, typically one to two conversational paragraphs long, and must end with a relevant question to keep the dialogue flowing.**";
-    
+
+    const brevityInstruction = " **STRICT RULE: You are a conversational language partner, NOT a writing assistant. Your replies MUST be maximum two short sentences long and MUST end with a question relevant to the user's previous statement to drive the dialogue. Do NOT provide lengthy explanations, lists, or detailed cultural notes.**";
+
     finalSystemPrompt += brevityInstruction;
 
 
     // If it's the initial message request, instruct the AI to start the dialogue
     if (isInitialPrompt) {
-        finalSystemPrompt += " You must now initiate the conversation with your first message. Be engaging and relevant to your role. Do not include any meta-commentary, just write the opening line. ";
+      finalSystemPrompt += " You must now initiate the conversation with your first message. Be engaging and relevant to your role. Do not include any meta-commentary, just write the opening line. ";
     }
 
     console.log("🟣 Character selected:", characterId);
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     // ❗ IMPORTANT: Only add the new user message if it's NOT the initial prompt signal.
     // We prevent the "Generate the character's opening message..." text from being sent to the LLM as user input.
     if (!isInitialPrompt) {
-        messages.push({ role: 'user', content });
+      messages.push({ role: 'user', content });
     }
 
     // 3) Call Groq using OpenAI-compatible chat completions endpoint
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-20b",
+        model: "openai/gpt-oss-safeguard-20b",
         messages,
         max_tokens: 1024,
         temperature: 0.7,

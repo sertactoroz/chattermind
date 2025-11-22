@@ -15,8 +15,8 @@ export default function MessageItem({ message }: Props) {
   return (
     <div
       className={`max-w-[80%] break-words px-3 py-2 rounded-xl ${isUser
-          ? 'ml-auto bg-primary text-primary-foreground' // User's message style: uses the central primary color
-          : 'mr-auto bg-muted text-foreground'          // AI/Other style: uses the muted background and standard foreground text
+        ? 'ml-auto bg-primary text-primary-foreground' // User's message style: uses the central primary color
+        : 'mr-auto bg-muted text-foreground'          // AI/Other style: uses the muted background and standard foreground text
         }`}
     >
       <div className="text-sm whitespace-pre-wrap">{message.content}</div>
