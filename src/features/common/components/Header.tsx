@@ -26,9 +26,8 @@ export default function Header() {
 
         {/* Navigation/Actions */}
         <div className="flex items-center gap-3 px-4">
-          <ThemeToggle />
-          <div className="hidden sm:block">
-            {/* LanguageSwitcher and AuthButton should handle their own theme styles internally */}
+          <div className="hidden sm:flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSwitcher />
           </div>
           <AuthButton />
