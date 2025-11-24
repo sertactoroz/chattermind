@@ -12,7 +12,6 @@ export default function CharacterCard({
     onSelect,
     selected,
 }: {
-    // ✅ Tipi merkezi CharacterData olarak güncelledik
     character: Character;
     onSelect?: (id: string) => void;
     selected?: boolean;
@@ -21,8 +20,10 @@ export default function CharacterCard({
     const cardClasses = cn(
         'w-full text-left transition-all cursor-pointer py-0',
         selected
-            ? 'ring-2 ring-sky-500 bg-sky-50 shadow-md' // Appearance when selected
-            : 'hover:shadow-lg', // Appearance on hover
+            ? // Appearance when selected: Use a subtle accent background and a sky-ring
+            'ring-2 ring-sky-500 bg-accent/30 shadow-md'
+            : // Appearance on hover: Use hover:bg-muted to make the card visibly lift/change color
+            'hover:bg-accent hover:shadow-lg bg-card',
     );
 
     return (
@@ -51,15 +52,9 @@ export default function CharacterCard({
 
                 {/* Content Section: Flex-1 allows the content to take up the remaining space */}
                 <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-base">{character.name}</div>
-
-                    {/* ✅ YENİ: Merkezi tipten gelen 'role' bilgisini kullanıyoruz */}
+                    <div className="font-semibold text-base text-foreground">{character.name}</div>
                     <span className='text-muted-foreground'>{character.role || 'AI Assistant'}</span>
-
-                    {/* Description Section: Allows the description to wrap and take up multiple lines */}
-                    <div className="text-sm text-slate-500 mt-1">
-                        {character.description}
-                    </div>
+                    <div className="text-sm text-muted-foreground mt-1"> {character.description}</div>
                 </div>
             </CardContent>
         </Card>
