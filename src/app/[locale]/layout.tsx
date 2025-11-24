@@ -6,6 +6,7 @@ import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import Header from '@/features/common/components/Header';
 import BottomNav from '@/features/common/components/BottomNav';
+import ThemeProviderWrapper from '@/features/common/components/ThemeProviderClient';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -28,15 +29,17 @@ export default async function RootLayout({
     notFound();
   }
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body className="antialiased bg-background text-foreground">
-        <NextIntlClientProvider>
-          <AuthProvider>
-            <Header />
-            <main className="min-h-[calc(100vh-64px)] pt-9 mt-9">{children}</main>
-            <BottomNav />
-          </AuthProvider>
-        </NextIntlClientProvider>
+        <ThemeProviderWrapper>
+          <NextIntlClientProvider>
+            <AuthProvider>
+              <Header />
+              <main className="min-h-[calc(100vh-64px)] pt-9 mt-9">{children}</main>
+              <BottomNav />
+            </AuthProvider>
+          </NextIntlClientProvider>
+        </ThemeProviderWrapper>
       </body>
     </html>
   );
