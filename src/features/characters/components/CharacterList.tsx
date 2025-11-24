@@ -5,7 +5,6 @@ import characters from '../data/characters.json';
 import CharacterCard from './CharacterCard';
 import { useRouter } from 'next/navigation';
 
-// Import shadcn/ui Button component
 import { Button } from '@/components/ui/button';
 
 export default function CharacterList() {
