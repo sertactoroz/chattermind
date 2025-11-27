@@ -35,10 +35,12 @@ export default async function RootLayout({
           <NextIntlClientProvider>
             <AuthProvider>
               <Header />
-              <main className="min-h-[calc(100vh-64px)] pt-9 mt-9">{children}</main>
+              <main className="min-h-[calc(100vh-64px)] pt-16 pb-16">
+                {children}
+              </main>
               <BottomNav />
               <Toaster position="bottom-right" richColors />
-            </AuthProvider>
+            </AuthProvider>z
           </NextIntlClientProvider>
         </ThemeProviderWrapper>
       </body>
