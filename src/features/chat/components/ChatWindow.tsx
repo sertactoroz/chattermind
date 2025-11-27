@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { listMessages, addMessage } from '../services/chatService';
 import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import MessageItem from './MessageItem';
 import TypingIndicator from './TypingIndicator';
 import type { MessageRow } from '../types/chat.types';
+import { toast } from 'sonner';
 
 // Define the structure expected from the AI API response
 type AIMessageResponse = {
@@ -20,6 +22,7 @@ type Props = {
 
 export default function ChatWindow({ chatId, characterId }: Props) {
     const { user } = useAuthContext();
+    const router = useRouter(); // Kept for consistency
     const [messages, setMessages] = useState<MessageRow[]>([]);
     const [text, setText] = useState('');
     const [sending, setSending] = useState(false);
@@ -38,9 +41,6 @@ export default function ChatWindow({ chatId, characterId }: Props) {
     };
 
     // Load initial messages and setup realtime subscription.
-    // Realtime is kept for incoming messages from other sources (e.g., if we turn this into a multi-user chat later) 
-    // but we rely on the API response for our own AI replies.
-
     useEffect(() => {
         if (!chatId) return;
         let mounted = true;
@@ -55,11 +55,14 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                 scrollToBottom();
             } catch (err) {
                 console.error('listMessages error', err);
+                // Show error toast on failure to load messages
+                toast.error('Failed to load chat history.', {
+                    description: 'The messages for this conversation could not be retrieved.',
+                });
             }
         })();
 
         // Setup realtime subscription for new messages
-        // This subscription is now secondary, used for general updates or unexpected insertions.
         const sub = subscribeMessages(chatId, (msg: MessageRow) => {
             if (!msg) return;
 
@@ -85,11 +88,9 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             mounted = false;
             sub.unsubscribe();
         };
-    }, [chatId]); // Dependency array: ONLY chatId is needed here
+    }, [chatId]);
 
     // Handle sending a message.
-    // We now rely fully on the API response to deliver the AI message object.
-
     const handleSend = async () => {
         if (!text.trim() || !user) return;
         const content = text.trim();
@@ -109,15 +110,27 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         scrollToBottom(); // Scroll after the user message is added
 
         try {
-            // 1. Persist user message to DB
-            const savedUserMsg = await addMessage(chatId, 'user', content);
-            // Replace temporary message with the saved user message from DB
-            setMessages(prev => prev.map(m => (m.id === tempId ? savedUserMsg : m)));
+            let savedUserMsg: MessageRow;
+            try {
+                // 1. Persist user message to DB
+                savedUserMsg = await addMessage(chatId, 'user', content);
+                // Replace temporary message with the saved user message from DB
+                setMessages(prev => prev.map(m => (m.id === tempId ? savedUserMsg : m)));
+            } catch (dbErr) {
+                console.error('DB save user message error', dbErr);
+                // Remove the optimistic message on DB error
+                setMessages(prev => prev.filter(m => m.id !== tempId));
+                // Show error toast for message sending failure
+                toast.error('Failed to send message.', {
+                    description: 'Your message could not be saved to the database.',
+                });
+                setSending(false);
+                return; // Stop the process here
+            }
 
-            // 2. Trigger AI generation and wait for the response (which now contains the full AI message object)
+            // 2. Trigger AI generation and wait for the response
             setAiTyping(true);
-            // Scroll again to ensure the "Typing..." indicator is visible at the bottom.
-            scrollToBottom();
+            scrollToBottom(); // Scroll again to ensure the "Typing..." indicator is visible at the bottom.
 
             const resp = await fetch('/api/chat/ai', {
                 method: 'POST',
@@ -128,50 +141,52 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             if (!resp.ok) {
                 const txt = await resp.text();
                 console.error('AI API error', txt);
+                // Show error toast for AI response failure
+                toast.error('AI response failed.', {
+                    description: 'The character could not generate a reply. Please try again.',
+                });
                 setAiTyping(false);
                 return;
             }
 
             // 3. Process the AI API response
             const responseData: AIMessageResponse = await resp.json();
-
-            // ❗ Debugging log to see the API response structure
-            console.log("AI API Response Data:", responseData);
-
             let aiMessage = responseData.aiMessage;
 
-            // --- Fallback Mechanism: If the API returns raw text as {ai: "..."} instead of MessageRow ---
+            // --- Fallback Mechanism & Error Check ---
             if (!aiMessage && (responseData as any).ai) {
-                console.warn("Fallback used: API returned raw text under the 'ai' key instead of the MessageRow object. Manually creating message.");
-
+                console.warn("Fallback used: API returned raw text. Manually creating message.");
                 // Manually create the message object using the raw text
                 aiMessage = {
-                    // Use a temporary ID since this message didn't come from the DB .select()
                     id: `fallback-ai-${Date.now()}`,
                     chat_id: chatId,
                     sender: 'ai',
                     content: (responseData as any).ai,
                     created_at: new Date().toISOString(),
                 } as MessageRow;
+            } else if (!aiMessage) {
+                console.error('AI API response missing aiMessage object. Check API logs.');
+                // Show warning toast for missing AI message object
+                toast.warning('AI response delivered, but message failed to save.', {
+                    description: 'You may need to refresh the chat.',
+                });
+                setAiTyping(false);
+                return;
             }
-            // --- End of Fallback Mechanism ---
+            // --- End of Fallback Mechanism & Error Check ---
 
-            if (aiMessage) {
-                // --- FULL OPTIMISTIC UPDATE FOR AI MESSAGE ---
-                // Add the received AI message object directly to the state
-                setMessages(prev => [...prev, aiMessage]);
-                // Clear the typing indicator immediately
-                setAiTyping(false);
-                // Scroll to see the new message
-                scrollToBottom();
-                // --- END OPTIMISTIC UPDATE ---
-            } else {
-                console.error('AI API response missing aiMessage object. Check API logs for database insertion failure.');
-                setAiTyping(false);
-            }
+            // --- FULL OPTIMISTIC UPDATE FOR AI MESSAGE ---
+            setMessages(prev => [...prev, aiMessage]);
+            setAiTyping(false);
+            scrollToBottom();
+            // --- END OPTIMISTIC UPDATE ---
 
         } catch (err) {
-            console.error('send error (DB or Network)', err);
+            console.error('send error (Network)', err);
+            // Show generic network error toast
+            toast.error('Network Error.', {
+                description: 'Could not communicate with the server. Check your connection.',
+            });
             setAiTyping(false);
         } finally {
             setSending(false);

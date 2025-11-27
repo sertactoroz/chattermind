@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import Header from '@/features/common/components/Header';
 import BottomNav from '@/features/common/components/BottomNav';
 import ThemeProviderWrapper from '@/features/common/components/ThemeProviderClient';
+import { Toaster } from 'sonner';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -36,6 +37,7 @@ export default async function RootLayout({
               <Header />
               <main className="min-h-[calc(100vh-64px)] pt-9 mt-9">{children}</main>
               <BottomNav />
+              <Toaster position="bottom-right" richColors />
             </AuthProvider>
           </NextIntlClientProvider>
         </ThemeProviderWrapper>

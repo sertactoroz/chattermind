@@ -11,6 +11,7 @@ import { useCharacters } from '@/features/characters/hooks/useCharacters';
 import type { Character } from '@/features/characters/types/character.types';
 import ChatItem from './ChatItem';
 import { ChatRow } from '../types/chat.types';
+import { toast } from 'sonner';
 
 export default function ChatList() {
   const { user, loading: authLoading } = useAuthContext();
@@ -33,6 +34,10 @@ export default function ChatList() {
         setChats(rows);
       } catch (err) {
         console.error('Error loading chats', err);
+        // Show Sonner toast on error
+        toast.error('Failed to load chats.', {
+          description: 'An error occurred while fetching your conversation list.',
+        });
       } finally {
         if (mounted) setIsLoading(false);
       }

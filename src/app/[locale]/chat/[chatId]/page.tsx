@@ -1,6 +1,6 @@
 import ChatWindow from '@/features/chat/components/ChatWindow';
-import AuthGuard from '@/features/common/components/AuthGuard'; // (if exists, keep it)
-import { notFound } from 'next/navigation';
+import AuthGuard from '@/features/common/components/AuthGuard';
+import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
 type Props = {
@@ -10,8 +10,6 @@ type Props = {
 export default async function ChatIdPage({ params }: Props) {
     const { chatId } = await params;
 
-    // optional: validate that chat exists and belongs to current user
-    // (server-side safety; you can adjust to allow public chats)
     try {
         const { data, error } = await supabaseAdmin
             .from('chats')
@@ -21,16 +19,16 @@ export default async function ChatIdPage({ params }: Props) {
             .single();
 
         if (error || !data) {
-            // If chat is not found, return 404
-            return notFound();
+            return (
+                <div className="min-h-screen bg-background flex items-center justify-center">
+                    <NotFoundToast />
+                </div>
+            );
         }
 
         const characterId = data.character_id ?? null;
 
-        // Render the client ChatWindow; pass chatId and characterId as props
         return (
-            // wrap in AuthGuard if you use client-side guard; if AuthGuard is a client component,
-            // put it INSIDE ChatWindow or use different approach.
             <AuthGuard>
                 <div className="min-h-screen bg-background">
                     <div className="max-w-md mx-auto h-[80vh]">
@@ -40,8 +38,11 @@ export default async function ChatIdPage({ params }: Props) {
             </AuthGuard>
         );
     } catch (err) {
-        // Log chat page error and return 404
         console.error('chat page error', err);
-        return notFound();
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <NotFoundToast />
+            </div>
+        );
     }
 }

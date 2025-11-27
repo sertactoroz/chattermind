@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 type AuthContextType = {
     user: User | null;
@@ -26,11 +27,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         (async () => {
             // Get the initial session data
-            const { data } = await supabase.auth.getSession();
-            if (!mounted) return;
-            setSession(data.session ?? null);
-            setUser(data.session?.user ?? null);
-            setLoading(false);
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                if (error) throw error;
+
+                if (!mounted) return;
+                setSession(data.session ?? null);
+                setUser(data.session?.user ?? null);
+            } catch (err) {
+                console.error('Error fetching initial session:', err);
+                toast.error('Session loading failed.', {
+                    description: 'Could not retrieve user session data.',
+                });
+            } finally {
+                if (mounted) setLoading(false);
+            }
         })();
 
         // onAuthStateChange callback: (event, session)
@@ -43,7 +54,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // cleanup: unsubscribe
         return () => {
             mounted = false;
-            // It could be subscriptionData, if it exists, unsubscribe
 
             try {
                 subscriptionData?.subscription?.unsubscribe();
@@ -56,21 +66,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signInWithGoogle = async () => {
         setLoading(true);
         try {
-            await supabase.auth.signInWithOAuth({
+            const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: { redirectTo: window.location.origin },
             });
+
+            if (error) {
+                throw error;
+            }
+
+            // Note: A successful sign-in usually redirects the user or triggers the onAuthStateChange listener.
+            // If an error occurs before the redirect (e.g., in the API call itself):
         } catch (err) {
             console.error('Google sign-in error', err);
+            // Show error toast on sign-in failure
+            toast.error('Sign In Failed.', {
+                description: 'We could not log you in with Google. Please try again.',
+            });
             setLoading(false);
         }
     };
 
     const signOut = async () => {
         setLoading(true);
-        await supabase.auth.signOut();
-        setLoading(false);
-        router.push('/');
+        try {
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+                throw error;
+            }
+
+            // Show success toast on sign-out
+            toast.info('You have been successfully signed out.', {
+                duration: 3000,
+            });
+
+        } catch (err) {
+            console.error('Sign-out error', err);
+            // Show error toast on sign-out failure
+            toast.error('Sign Out Failed.', {
+                description: 'An error occurred during log out. Please try refreshing the page.',
+            });
+        } finally {
+            setLoading(false);
+            router.push('/');
+        }
     };
 
     return (
