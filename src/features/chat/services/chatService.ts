@@ -2,8 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 import type { ChatRow, MessageRow } from '@/features/chat/types/chat.types';
 
- // List chats for a given user (most recent first)
- 
+// List chats for a given user (most recent first)
 export async function listChats(userId: string): Promise<ChatRow[]> {
   const res = await supabase
     .from('chats')
@@ -41,7 +40,7 @@ export async function addMessage(
   chatId: string,
   sender: 'user' | 'ai',
   content: string,
-  metadata?: unknown
+  metadata?: unknown // Using 'unknown' before conversion to Json type
 ): Promise<MessageRow> {
   const res = await supabase
     .from('messages')

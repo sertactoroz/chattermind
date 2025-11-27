@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 import characters from '@/features/characters/data/characters.json';
 
+// Define the structure of the character data loaded from JSON
+interface CharacterData {
+  id: string;
+  systemPrompt?: string;
+  // Include other necessary fields if accessed
+}
+
 // Define the special content used by the client to signal an initial message request
 const INITIAL_PROMPT_SIGNAL = 'Generate the character\'s opening message to start the conversation.';
 
@@ -15,7 +22,7 @@ type Body = {
 export async function POST(req: Request) {
   try {
     const body: Body = await req.json();
-    console.log("🔵 Incoming body:", body);
+    // console.log("🔵 Incoming body:", body); // Removed non-critical console.log
     
     const { chatId, content, characterId } = body ?? {};
     
@@ -34,7 +41,11 @@ export async function POST(req: Request) {
     const isInitialPrompt = content === INITIAL_PROMPT_SIGNAL;
 
     // 1) Build system prompt from character definition
-    const charDef = characterId ? (characters as any).find((c: any) => c.id === characterId) : null;
+    // Replaced 'any' with the defined CharacterData interface
+    const charDef = characterId 
+        ? (characters as CharacterData[]).find((c: CharacterData) => c.id === characterId) 
+        : null;
+        
     let finalSystemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant. Keep replies concise and friendly.';
 
     const brevityInstruction = " **STRICT RULE: You are a conversational language partner, NOT a writing assistant. Your replies MUST be maximum two short sentences long and MUST end with a question relevant to the user's previous statement to drive the dialogue. Do NOT provide lengthy explanations, lists, or detailed cultural notes.**";
@@ -47,8 +58,8 @@ export async function POST(req: Request) {
       finalSystemPrompt += " You must now initiate the conversation with your first message. Be engaging and relevant to your role. Do not include any meta-commentary, just write the opening line. ";
     }
 
-    console.log("🟣 Character selected:", characterId);
-    console.log("🟣 System prompt resolved:", finalSystemPrompt);
+    // console.log("🟣 Character selected:", characterId); // Removed non-critical console.log
+    // console.log("🟣 System prompt resolved:", finalSystemPrompt); // Removed non-critical console.log
 
     // 2) Fetch recent conversation for context (last 50 messages, use the last 20 for context)
     const { data: recentMsgs, error: fetchErr } = await supabaseAdmin
@@ -59,7 +70,7 @@ export async function POST(req: Request) {
       .limit(50);
 
     if (fetchErr) {
-      console.warn('Failed to fetch recent messages for context', fetchErr);
+      console.warn('Failed to fetch recent messages for context', fetchErr); // Kept warning for troubleshooting
     }
 
     // Compose messages array in OpenAI chat format
@@ -100,20 +111,32 @@ export async function POST(req: Request) {
 
     if (!resp.ok) {
       const txt = await resp.text();
-      console.error('Groq error', txt);
+      console.error('Groq error', txt); // Kept error for critical API failure
       return NextResponse.json({ error: 'LLM provider error', details: txt }, { status: 502 });
     }
 
-    const json = await resp.json();
+    const json: unknown = await resp.json(); // Use unknown for initial fetch result
+
+    // Define the type for the expected JSON structure
+    interface GroqResponse {
+      choices: {
+        message: {
+          content: string;
+        };
+        text?: string;
+      }[];
+    }
+    
+    const groqJson = json as GroqResponse; // Cast to the expected structure
 
     // Typical OpenAI-compatible response shape: choices[0].message.content
     const aiText =
-      json?.choices?.[0]?.message?.content ??
-      json?.choices?.[0]?.text ??
+      groqJson?.choices?.[0]?.message?.content ??
+      groqJson?.choices?.[0]?.text ??
       (typeof json === 'string' ? json : null);
 
     if (!aiText) {
-      console.warn('Empty AI response', json);
+      console.warn('Empty AI response', json); // Kept warning for debugging empty response
       return NextResponse.json({ error: 'Empty AI response' }, { status: 502 });
     }
 
@@ -124,14 +147,14 @@ export async function POST(req: Request) {
       .insert([{ chat_id: chatId, sender: 'ai', content: aiText }]);
 
     if (insertError) {
-      console.error('Failed saving AI message', insertError);
+      console.error('Failed saving AI message', insertError); // Kept error for critical DB failure
       // return success but warn (client still gets AI text)
       return NextResponse.json({ ai: aiText, warning: 'AI message save failed' }, { status: 200 });
     }
 
     return NextResponse.json({ ai: aiText }, { status: 200 });
   } catch (err) {
-    console.error('api/chat/ai error', err);
+    console.error('api/chat/ai error', err); // Kept error for general server errors
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

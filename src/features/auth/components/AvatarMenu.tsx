@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react'; // useRef, useEffect, useState eklendi
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion'; // AnimatePresence eklendi
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
@@ -49,6 +48,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
         <div className="relative flex items-center" ref={menuRef}>
             {/* Trigger (Avatar) */}
             <button
+                type="button"
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
                 className="flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
@@ -107,6 +107,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                             </li>
                             <li>
                                 <button
+                                    type="button"
                                     onClick={() => { handleLogout(); setIsOpen(false); }}
                                     className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                                     role="menuitem"

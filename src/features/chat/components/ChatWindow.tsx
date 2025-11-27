@@ -209,7 +209,7 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                     placeholder="Write a message..."
                     disabled={sending || aiTyping} // Disable input while sending or AI is typing
                 />
-                <button
+                <button type="button"
                     onClick={handleSend}
                     disabled={sending || aiTyping || !text.trim()} // Disable button while AI is typing
                     // Button styles: bg-primary and text-primary-foreground (central theme color)

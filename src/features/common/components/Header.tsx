@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import LanguageSwitcher from '@/features/common/components/LanguageSwitcher';
 import AuthButton from '@/features/auth/components/AuthButton';

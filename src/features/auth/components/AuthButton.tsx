@@ -20,6 +20,7 @@ export default function AuthButton() {
 
     if (user) {
         console.log('user.user_metadata:', user.user_metadata)
+        // Note: Supabase user_metadata is a Record<string, any>, so 'as any' is used here for property access.
         const avatarUrl = (user.user_metadata as any)?.avatar_url ?? null;
         const fullName = (user.user_metadata as any)?.full_name ?? user.email;
         return (

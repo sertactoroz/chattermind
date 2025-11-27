@@ -1,5 +1,4 @@
 import '../../styles/globals.css';
-import { ReactNode } from 'react';
 import { AuthProvider } from '@/features/auth/context/AuthProvider';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';

@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
 
@@ -9,9 +8,11 @@ export default async function Home() {
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <Card className="w-full max-w-md mx-auto rounded-2xl shadow-md">
         <CardHeader className="p-6 pt-8 text-center">
-          <span className="text-xl sm:text-2xl font-bold bg-chart-3 bg-clip-text text-transparent p-6">
+          <CardTitle
+            className="text-xl sm:text-2xl font-bold bg-chart-3 bg-clip-text text-transparent p-6"
+          >
             ChatterMind
-          </span>
+          </CardTitle>
           {/* <div className="mx-auto w-28 h-28 relative mb-4">
             <Image src="/chattermind-logo5.svg" alt="Logo" fill className="object-contain" priority />
           </div> */}
