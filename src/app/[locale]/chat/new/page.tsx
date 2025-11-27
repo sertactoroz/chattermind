@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react'; // Added useRef for single-run logic
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import { createChat } from '@/features/chat/services/chatService';
-
-// Imports required for Sonner
+import Image from 'next/image';
 import { toast } from 'sonner';
+
+import characters from '@/features/characters/data/characters.json';
+import type { Character } from '@/features/characters/types/character.types';
 
 // Function to send the initial prompt to the AI to generate the character's opening message
 const sendInitialAIPrompt = async (chatId: string, characterId: string) => {
@@ -56,11 +58,30 @@ export default function ChatNewPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    // State to store the selected character's data using the imported Character type
+    const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+
     // Solution: Use a reference to track if the chat creation logic has already run.
     // This prevents double execution in React Strict Mode (Development environment).
     const hasCreatedChat = useRef(false);
 
     useEffect(() => {
+        const characterId = searchParams.get('character');
+
+        // Find character data immediately when searchParams is available to update the UI
+        if (characterId) {
+            // Assert the type of the characters array to Character[] for correct type checking in find()
+            const char = (characters as Character[]).find(
+                (c) => c.id === characterId
+            );
+
+            if (char) {
+                // Since 'avatar' is optional in the type, we check if it exists before setting the state.
+                // NOTE: If 'avatar' is missing, the image will just show a broken icon.
+                setSelectedCharacter(char);
+            }
+        }
+
         // Check 1: If the flag is already true (meaning creation has started), prevent running again.
         if (hasCreatedChat.current) {
             return;
@@ -72,9 +93,6 @@ export default function ChatNewPage() {
                 router.push('/');
                 return;
             }
-
-            // Get character ID from the URL query parameter
-            const characterId = searchParams.get('character');
 
             if (!characterId) {
                 console.error('Missing character ID in URL');
@@ -111,7 +129,7 @@ export default function ChatNewPage() {
                     duration: 7000
                 });
 
-                // Reset the flag on failure to allow re-running if the user tries again or the component mounts again later.
+                // Reset the flag on failure to allow re-running if the user tries again.
                 hasCreatedChat.current = false;
 
                 // Redirect to the chat list page on failure
@@ -122,9 +140,36 @@ export default function ChatNewPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-6 bg-background">
-            <div className="text-center">
-                <p className="mb-2">Creating chat...</p>
-                <div className="h-8 w-8 rounded-full bg-secondary animate-pulse mx-auto" />
+            <div className="text-center flex flex-col items-center">
+
+                {/* Character Image Display and Custom Message */}
+                {selectedCharacter ? (
+                    <>
+                        <div className="relative h-24 w-24 mb-4 rounded-full overflow-hidden border-4 border-primary shadow-lg">
+                            {/* NOTE: We check for 'avatar' because it's optional in the type */}
+                            {selectedCharacter.avatar && (
+                                <Image
+                                    // Using the correct property: 'avatar'
+                                    src={selectedCharacter.avatar}
+                                    alt={selectedCharacter.name}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    // Optional: Add animation for visual feedback
+                                    className="animate-pulse"
+                                />
+                            )}
+                        </div>
+                        <h1 className="text-xl font-semibold text-foreground mb-4">
+                            Creating chat with {selectedCharacter.name}...
+                        </h1>
+                    </>
+                ) : (
+                    // Default loading state if character data is not loaded yet
+                    <>
+                        <p className="mb-2">Creating chat...</p>
+                        <div className="h-8 w-8 rounded-full bg-secondary animate-pulse mx-auto" />
+                    </>
+                )}
             </div>
         </div>
     );
