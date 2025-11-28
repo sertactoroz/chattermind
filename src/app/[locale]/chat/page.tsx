@@ -1,5 +1,5 @@
 import ChatList from '@/features/chat/components/ChatList';
-import AuthGuard from '@/features/common/components/AuthGuard';
+import AuthGuard from '@/features/auth/components/AuthGuard';
 
 export default function ChatIndexPage() {
     return (

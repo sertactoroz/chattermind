@@ -1,5 +1,5 @@
-import ChatWindow from '@/features/chat/components/ChatWindow';
-import AuthGuard from '@/features/common/components/AuthGuard';
+import ChatWindow from '@/features/chat/containers/ChatWindow';
+import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 

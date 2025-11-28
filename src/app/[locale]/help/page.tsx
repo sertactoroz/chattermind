@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
 
-// Mock FAQ Data
+import BackButton from '@/features/common/components/BackButton';
+
+// TODO: Mock FAQ Data
 const faqs = [
     {
         q: "How can I change the character's personality?",
@@ -22,11 +24,18 @@ const faqs = [
 ];
 
 export default function HelpPage() {
+    // const router = useRouter(); // No longer needed here
+
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-md mx-auto p-4">
 
-                <h1 className="text-3xl font-bold mb-6 mt-4 text-center">Help & Support</h1>
+                <div className="relative flex items-center justify-center pt-4 pb-4">
+                    <BackButton />
+                    <h1 className="text-3xl font-bold text-center">
+                        Help & Support
+                    </h1>
+                </div>
 
                 {/* FAQ Section */}
                 <Card className="mb-8">
@@ -57,7 +66,7 @@ export default function HelpPage() {
                             <p className="text-sm text-muted-foreground">
                                 Couldn't find what you were looking for? Reach out to our dedicated support team.
                             </p>
-                            <Link href="mailto:support@appname.com" passHref legacyBehavior>
+                            <Link href="mailto:sertactoroz@gmail.com" passHref legacyBehavior>
                                 <Button className="w-full">Send an Email</Button>
                             </Link>
                         </CardContent>

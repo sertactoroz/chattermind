@@ -1,9 +1,8 @@
-'use client';
+// 'use client';
 
 import React from 'react';
 import Link from 'next/link';
 
-// Import necessary Shadcn/ui Sheet components
 import {
     Sheet,
     SheetContent,
@@ -26,8 +25,6 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
     const { signOut } = useAuthContext();
     const t = useTranslations('Header');
 
-    // State, ref, and external click logic are removed as the Sheet component handles them internally.
-
     const handleLogout = async () => {
         await signOut();
     };
@@ -42,7 +39,6 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
             <SheetTrigger asChild>
                 <button
                     type="button"
-                    // Removed focus-visible ring styles since the Sheet handles focus management
                     className="flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                 >
                     <Avatar className="w-11 h-11">
@@ -53,7 +49,6 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
             </SheetTrigger>
 
             {/* 3. SheetContent: The content that slides in from the side */}
-            {/* side="right" ensures it slides in from the right, covering the screen on mobile */}
             <SheetContent
                 side="right"
                 className="p-0 flex flex-col" // Remove default padding and use flex for layout control
@@ -68,14 +63,16 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                             <AvatarFallback>{userInitials}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            <span className="font-medium text-foreground text-sm">{userName}</span>
-                            <span className="text-xs text-muted-foreground">Profile</span>
+                            {/* FONT SIZE ADJUSTMENT 1: Increase username size to text-lg */}
+                            <span className="font-medium text-foreground text-lg">{userName}</span>
+                            <span className="text-sm text-muted-foreground">Profile</span>
                         </div>
                     </div>
                 </SheetHeader>
 
                 {/* Menu Items List */}
-                <ul className="py-1 text-sm flex-grow overflow-y-auto"> {/* Allow menu content to scroll */}
+                {/* FONT SIZE ADJUSTMENT 2: Set general list item size to text-lg for better readability */}
+                <ul className="py-1 text-lg flex-grow overflow-y-auto">
                     <li>
                         {/* SheetClose: Ensures the sheet closes when the link is clicked */}
                         <SheetClose asChild>
@@ -106,7 +103,8 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                         <button
                             type="button"
                             onClick={handleLogout}
-                            className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer rounded-md"
+                            // FONT SIZE ADJUSTMENT 3: Increase logout button text size to text-lg
+                            className="w-full text-left px-4 py-2 text-lg text-destructive hover:bg-destructive/10 transition-colors cursor-pointer rounded-md"
                             role="menuitem"
                         >
                             {t('logout') || 'Logout'}

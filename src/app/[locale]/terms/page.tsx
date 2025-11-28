@@ -1,14 +1,22 @@
-// app/terms/page.tsx
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import BackButton from '@/features/common/components/BackButton';
 
 export default function TermsOfServicePage() {
+
     return (
-        // Mobile-friendly container structure
         <div className="min-h-screen bg-background">
             <div className="max-w-md mx-auto p-4">
-                <h1 className="text-3xl font-bold mb-6 mt-4 text-center">Terms of Service</h1>
+
+                <div className="relative flex items-center justify-center pt-4 pb-4">
+                    <BackButton href="/help" />
+                    <h1 className="text-3xl font-bold text-center">
+                        Terms of Service
+                    </h1>
+                </div>
 
                 <p className="text-sm text-muted-foreground mb-6 text-center">
                     Effective Date: November 1, 2025
@@ -45,9 +53,11 @@ export default function TermsOfServicePage() {
                 </section>
 
                 <div className="mt-8 text-center">
-                    <Link href="/settings" passHref legacyBehavior>
+                    {/* The secondary "Back to Settings" link can optionally be kept or removed 
+                        since the top BackButton serves the primary navigation purpose. */}
+                    <Link href="/help" passHref legacyBehavior>
                         <Button variant="outline">
-                            Back to Settings
+                            Back to Help & Support
                         </Button>
                     </Link>
                 </div>

@@ -1,14 +1,24 @@
 // app/privacy/page.tsx
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import BackButton from '@/features/common/components/BackButton';
 
 export default function PrivacyPolicyPage() {
+
     return (
-        // Mobile-friendly container structure
         <div className="min-h-screen bg-background">
             <div className="max-w-md mx-auto p-4">
-                <h1 className="text-3xl font-bold mb-6 mt-4 text-center">Privacy Policy</h1>
+
+
+                <div className="relative flex items-center justify-center pt-4 pb-4">
+                    <BackButton href="/help" />
+                    <h1 className="text-3xl font-bold text-center">
+                        Privacy Policy
+                    </h1>
+                </div>
 
                 <p className="text-sm text-muted-foreground mb-6 text-center">
                     Last updated: November 28, 2025
@@ -45,9 +55,10 @@ export default function PrivacyPolicyPage() {
                 </section>
 
                 <div className="mt-8 text-center">
-                    <Link href="/settings" passHref legacyBehavior>
+                    {/* The secondary "Back to Help & Support" link remains */}
+                    <Link href="/help" passHref legacyBehavior>
                         <Button variant="outline">
-                            Back to Settings
+                            Back to Help & Support
                         </Button>
                     </Link>
                 </div>

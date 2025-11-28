@@ -1,5 +1,5 @@
 import CharacterList from '@/features/characters/components/CharacterList';
-import AuthGuard from '@/features/common/components/AuthGuard';
+import AuthGuard from '@/features/auth/components/AuthGuard';
 
 export default function CharactersPage() {
     return (

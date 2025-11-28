@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
+import BackButton from '@/features/common/components/BackButton';
 
-// Mock user data - in a real app, fetch this from context or API
+// TODO: Mock user data - in a real app, fetch this from context or API
 const mockUser = {
     fullName: "John Doe",
     email: "john.doe@example.com",
@@ -42,12 +43,15 @@ export default function EditProfilePage() {
     };
 
     return (
-
-
         <div className="min-h-screen bg-background">
             <div className="max-w-md mx-auto p-4">
 
-                <h1 className="text-3xl font-bold mb-6 mt-4">Edit Profile</h1>
+                <div className="relative flex items-center justify-center pt-4 pb-4">
+                    <BackButton />
+                    <h1 className="text-3xl font-bold text-center">
+                        Edit Profile
+                    </h1>
+                </div>
 
                 <Card>
                     <CardHeader>
@@ -70,7 +74,6 @@ export default function EditProfilePage() {
                         </div>
 
                         <form onSubmit={handleSaveChanges} className="space-y-4">
-                            {/* Full Name */}
                             <div>
                                 <Label htmlFor="name">Full Name</Label>
                                 <Input
