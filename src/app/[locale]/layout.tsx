@@ -7,6 +7,7 @@ import Header from '@/features/common/components/Header';
 import BottomNav from '@/features/common/components/BottomNav';
 import ThemeProviderWrapper from '@/features/common/components/ThemeProviderClient';
 import { Toaster } from 'sonner';
+import PageTransition from '@/features/common/components/PageTransition';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -35,12 +36,14 @@ export default async function RootLayout({
           <NextIntlClientProvider>
             <AuthProvider>
               <Header />
-              <main className="min-h-[calc(100vh-64px)] pt-16 pb-16">
+              <main className="min-h-[calc(100vh-64px)] pt-16 pb-16 relative">
+                {/* <PageTransition> */}
                 {children}
+                {/* </PageTransition> */}
               </main>
               <BottomNav />
               <Toaster position="bottom-right" richColors />
-            </AuthProvider>z
+            </AuthProvider>
           </NextIntlClientProvider>
         </ThemeProviderWrapper>
       </body>
