@@ -138,6 +138,7 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chatId, userId: user.id, content, characterId }),
             });
+            console.log('RESPONSE', resp);
 
             if (!resp.ok) {
                 const txt = await resp.text();

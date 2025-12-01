@@ -23,9 +23,9 @@ export async function POST(req: Request) {
   try {
     const body: Body = await req.json();
     // console.log("🔵 Incoming body:", body); // Removed non-critical console.log
-    
+
     const { chatId, content, characterId } = body ?? {};
-    
+
     if (!chatId || !content) {
       return NextResponse.json({ error: 'Missing chatId or content' }, { status: 400 });
     }
@@ -42,10 +42,10 @@ export async function POST(req: Request) {
 
     // 1) Build system prompt from character definition
     // Replaced 'any' with the defined CharacterData interface
-    const charDef = characterId 
-        ? (characters as CharacterData[]).find((c: CharacterData) => c.id === characterId) 
-        : null;
-        
+    const charDef = characterId
+      ? (characters as CharacterData[]).find((c: CharacterData) => c.id === characterId)
+      : null;
+
     let finalSystemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant. Keep replies concise and friendly.';
 
     const brevityInstruction = " **STRICT RULE: You are a conversational language partner, NOT a writing assistant. Your replies MUST be maximum two short sentences long and MUST end with a question relevant to the user's previous statement to drive the dialogue. Do NOT provide lengthy explanations, lists, or detailed cultural notes.**";
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
     }
 
     const json: unknown = await resp.json(); // Use unknown for initial fetch result
-
+    2
     // Define the type for the expected JSON structure
     interface GroqResponse {
       choices: {
@@ -126,14 +126,17 @@ export async function POST(req: Request) {
         text?: string;
       }[];
     }
-    
-    const groqJson = json as GroqResponse; // Cast to the expected structure
 
+    const groqJson = json as GroqResponse; // Cast to the expected structure
     // Typical OpenAI-compatible response shape: choices[0].message.content
+    
+    console.log("🔍 Groq raw response:", groqJson); 
+
     const aiText =
       groqJson?.choices?.[0]?.message?.content ??
       groqJson?.choices?.[0]?.text ??
       (typeof json === 'string' ? json : null);
+      // console.log("🔺 AI RESPONSE:", aiText);
 
     if (!aiText) {
       console.warn('Empty AI response', json); // Kept warning for debugging empty response
