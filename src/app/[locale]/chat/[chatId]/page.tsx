@@ -3,14 +3,36 @@ import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
-type Props = {
-    params: Promise<{ chatId: string }>;
+// 1. Define the resolved types for the expected parameters
+type ChatPageResolvedParams = {
+    locale: string; // Including the [locale] segment based on the URL structure
+    chatId: string;
 };
 
-export default async function ChatIdPage({ params }: Props) {
-    const { chatId } = await params;
+type ChatPageSearchParams = {
+    [key: string]: string | string[] | undefined
+};
+
+// 2. Define the Props type, declaring both params and searchParams as Promises
+// This satisfies the Next.js App Router constraint for async Server Components.
+type ChatPageProps = {
+    params: Promise<ChatPageResolvedParams>;
+    searchParams: Promise<ChatPageSearchParams>;
+};
+
+// Next.js Server Component
+export default async function ChatIdPage({ params, searchParams }: ChatPageProps) {
+
+    // 3. Await both props to satisfy the Next.js runtime check (sync dynamic APIs usage)
+    const resolvedParams = await params;
+
+    // searchParams must be awaited even if unused, to resolve the Promise constraint.
+    // const resolvedSearchParams = await searchParams; 
+
+    const { chatId } = resolvedParams;
 
     try {
+        // Fetch chat data from the server
         const { data, error } = await supabaseAdmin
             .from('chats')
             .select('id, title, character_id')
@@ -18,6 +40,7 @@ export default async function ChatIdPage({ params }: Props) {
             .limit(1)
             .single();
 
+        // Handle errors or chat not found
         if (error || !data) {
             return (
                 <div className="min-h-screen bg-background flex items-center justify-center">
@@ -38,6 +61,7 @@ export default async function ChatIdPage({ params }: Props) {
             </AuthGuard>
         );
     } catch (err) {
+        // Log the error during runtime 
         // eslint-disable-next-line no-console
         console.error('chat page error', err);
         return (
