@@ -35,7 +35,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setSession(data.session ?? null);
                 setUser(data.session?.user ?? null);
             } catch (err) {
-                // eslint-disable-next-line no-console
                 console.error('Error fetching initial session:', err);
                 toast.error('Session loading failed.', {
                     description: 'Could not retrieve user session data.',
@@ -79,7 +78,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Note: A successful sign-in usually redirects the user or triggers the onAuthStateChange listener.
         } catch (err) {
-            // eslint-disable-next-line no-console
             console.error('Google sign-in error', err);
             // Show error toast on sign-in failure
             toast.error('Sign In Failed.', {
@@ -97,14 +95,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (error) {
                 throw error;
             }
-
             // Show success toast on sign-out
             toast.info('You have been successfully signed out.', {
                 duration: 3000,
             });
 
         } catch (err) {
-            // eslint-disable-next-line no-console
+
             console.error('Sign-out error', err);
             // Show error toast on sign-out failure
             toast.error('Sign Out Failed.', {
