@@ -2,23 +2,30 @@ import ChatWindow from '@/features/chat/containers/ChatWindow';
 import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
+import { type Metadata, type NextPage } from 'next';
 
-// Defining a custom PageProps interface that conforms to Next.js's internal expectations
-// This is done to resolve the "Type 'Props' does not satisfy the constraint 'PageProps'" error.
-interface PageProps {
-    params: {
-        locale: string; // Dynamic segment from /app/[locale]
-        chatId: string; // Dynamic segment from /chat/[chatId]
-    };
-    searchParams: { [key: string]: string | string[] | undefined }; // Include if search params are expected
-}
+// Define the shape of your dynamic parameters
+type ChatIdPageParams = {
+    locale: string;
+    chatId: string;
+};
 
-// NOTE: We are using 'PageProps' and explicitly avoiding the 'await' keyword on 'params'
-// to resolve the TypeScript error, assuming Next.js handles the async resolution internally.
-export default async function ChatIdPage({ params }: PageProps) {
-    // FIX: Removing 'await' to resolve the Type Error.
-    // Destructure only the necessary variable to avoid 'unused variable' linter errors.
-    const { chatId } = params;
+// Use the standard Next.js PageProps type with your specific params
+type ChatPageProps = {
+    // Correctly reference the new params type name
+    params: ChatIdPageParams;
+    searchParams: { [key: string]: string | string[] | undefined };
+};
+
+// Now, update your function signature to use this derived type
+export default async function ChatIdPage({ params }: ChatPageProps) {
+
+    // FIX: Await the 'params' object before accessing its properties
+    // to resolve the Next.js runtime error "params should be awaited before using its properties."
+    const resolvedParams = (await params) as ChatIdPageParams;
+
+    // Destructure the necessary variable from the AWAITED object
+    const { chatId } = resolvedParams;
 
     try {
         // Fetch chat data from the server
