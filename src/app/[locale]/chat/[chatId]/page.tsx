@@ -3,28 +3,29 @@ import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
-// Define the shape of your dynamic parameters
+// 1. Define the shape of your dynamic parameters (the resolved type)
 type ChatIdPageParams = {
     locale: string;
     chatId: string;
 };
 
-// Use the standard Next.js PageProps type with your specific params
+// 2. Define the PageProps, treating 'params' as a PROMISE of your resolved type
 type ChatPageProps = {
-    // Correctly reference the new params type name
-    params: ChatIdPageParams;
+    // This is the CRITICAL change to satisfy the build constraint
+    params: Promise<ChatIdPageParams>;
     searchParams: { [key: string]: string | string[] | undefined };
 };
 
 // Now, update your function signature to use this derived type
 export default async function ChatIdPage({ params }: ChatPageProps) {
 
-    // FIX: Await the 'params' object before accessing its properties
-    // to resolve the Next.js runtime error "params should be awaited before using its properties."
-    const resolvedParams = (await params) as ChatIdPageParams;
+    // 3. Keep the AWAIT here to satisfy the Next.js runtime check
+    const resolvedParams = await params;
 
     // Destructure the necessary variable from the AWAITED object
     const { chatId } = resolvedParams;
+
+    // ... rest of your logic remains the same (as it was in the previous fix)
 
     try {
         // Fetch chat data from the server
