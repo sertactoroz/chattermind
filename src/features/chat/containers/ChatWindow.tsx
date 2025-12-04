@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { listMessages, addMessage } from '../services/chatService';
 import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
@@ -23,7 +22,6 @@ type Props = {
 
 export default function ChatWindow({ chatId, characterId }: Props) {
     const { user } = useAuthContext();
-    const router = useRouter(); // Kept for consistency
     const [messages, setMessages] = useState<MessageRow[]>([]);
     const [text, setText] = useState('');
     const [sending, setSending] = useState(false);
