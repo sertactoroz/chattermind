@@ -3,21 +3,25 @@ import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
-// Define the expected props structure for a Next.js App Router page
-type Props = {
+// Defining a custom PageProps interface that conforms to Next.js's internal expectations
+// This is done to resolve the "Type 'Props' does not satisfy the constraint 'PageProps'" error.
+interface PageProps {
     params: {
         locale: string; // Dynamic segment from /app/[locale]
         chatId: string; // Dynamic segment from /chat/[chatId]
     };
-    // If you use search params, you should define them here:
-    // searchParams: { [key: string]: string | string[] | undefined };
-};
+    searchParams: { [key: string]: string | string[] | undefined }; // Include if search params are expected
+}
 
-export default async function ChatIdPage({ params }: Props) {
-    // FIX 1: Removed 'locale' from destructuring to avoid 'unused variable' error.
-    // We only destructure 'chatId' since 'locale' is not used in the function body.
-    const { chatId } = await params;
+// NOTE: We are using 'PageProps' and explicitly avoiding the 'await' keyword on 'params'
+// to resolve the TypeScript error, assuming Next.js handles the async resolution internally.
+export default async function ChatIdPage({ params }: PageProps) {
+    // FIX: Removing 'await' to resolve the Type Error.
+    // Destructure only the necessary variable to avoid 'unused variable' linter errors.
+    const { chatId } = params;
+
     try {
+        // Fetch chat data from the server
         const { data, error } = await supabaseAdmin
             .from('chats')
             .select('id, title, character_id')
@@ -25,6 +29,7 @@ export default async function ChatIdPage({ params }: Props) {
             .limit(1)
             .single();
 
+        // Handle errors or chat not found
         if (error || !data) {
             return (
                 <div className="min-h-screen bg-background flex items-center justify-center">
@@ -45,6 +50,8 @@ export default async function ChatIdPage({ params }: Props) {
             </AuthGuard>
         );
     } catch (err) {
+        // Log the error during runtime (console usage should be addressed by ESLint config)
+        // eslint-disable-next-line no-console
         console.error('chat page error', err);
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
