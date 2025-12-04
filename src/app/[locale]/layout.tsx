@@ -1,10 +1,13 @@
 import '../../styles/globals.css';
-import { ReactNode } from 'react';
 import { AuthProvider } from '@/features/auth/context/AuthProvider';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
-
+import Header from '@/features/common/components/Header';
+import BottomNav from '@/features/common/components/BottomNav';
+import ThemeProviderWrapper from '@/features/common/components/ThemeProviderClient';
+import { Toaster } from 'sonner';
+import PageTransition from '@/features/common/components/PageTransition';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -27,13 +30,22 @@ export default async function RootLayout({
     notFound();
   }
   return (
-    <html lang={locale}>
-      <body className="antialiased">
-        <NextIntlClientProvider>
-          <AuthProvider>
-            <main className="min-h-[calc(100vh-64px)]">{children}</main>
-          </AuthProvider>
-        </NextIntlClientProvider>
+    <html lang={locale} suppressHydrationWarning>
+      <body className="antialiased bg-background text-foreground">
+        <ThemeProviderWrapper>
+          <NextIntlClientProvider>
+            <AuthProvider>
+              <Header />
+              <main className="min-h-[calc(100vh-64px)] pt-16 pb-16 relative">
+                {/* <PageTransition> */}
+                {children}
+                {/* </PageTransition> */}
+              </main>
+              <BottomNav />
+              <Toaster position="bottom-right" richColors />
+            </AuthProvider>
+          </NextIntlClientProvider>
+        </ThemeProviderWrapper>
       </body>
     </html>
   );

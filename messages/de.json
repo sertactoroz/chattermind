@@ -9,8 +9,14 @@
         "auth_byContinuing": "Durch die Fortsetzung stimmen Sie der Verwendung Ihres Google-Kontos zur Authentifizierung zu."
     },
     "Auth": {
-        "loading": "Wird geladen…",
-        "signout": "Abmelden",
-        "signin_google": "Mit Google anmelden"
+        "loading": "Wird geladen...",
+        "signin_google": "Anmelden",
+        "signout": "Abmelden"
+    },
+    "Header": {
+        "edit_profile": "Profil bearbeiten",
+        "settings_privacy": "Einstellungen & Datenschutz",
+        "help_support": "Hilfe & Support",
+        "logout": "Abmelden"
     }
 }

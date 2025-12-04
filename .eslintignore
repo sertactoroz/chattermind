@@ -1,0 +1,9 @@
+# .eslintignore
+.next/
+node_modules/
+out/
+build/
+public/
+*.d.ts
+*.d.ts.map
+next.config.*

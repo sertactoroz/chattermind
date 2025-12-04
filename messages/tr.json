@@ -9,8 +9,14 @@
         "auth_byContinuing": "Devam ederek kimlik doğrulama için Google hesabınızı kullanmayı kabul etmiş olursunuz."
     },
     "Auth": {
-        "loading": "Yükleniyor…",
-        "signout": "Çıkış Yap",
-        "signin_google": "Google ile Giriş Yap"
+        "loading": "Yükleniyor...",
+        "signin_google": "Giriş yap",
+        "signout": "Çıkış yap"
+    },
+    "Header": {
+        "edit_profile": "Profili düzenle",
+        "settings_privacy": "Ayarlar & Gizlilik",
+        "help_support": "Yardım & Destek",
+        "logout": "Çıkış"
     }
 }
