@@ -36,9 +36,18 @@ export default function EditProfilePage() {
     // Placeholder function for avatar upload
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            // In a real app, you would upload this file to a service like S3/Firebase
-            // For now, we'll just show a success message.
-            toast.info("Avatar upload feature is under development.", { description: "Simulating successful update." });
+            const file = e.target.files[0];
+
+            // 1. In a real app, you would upload the file to a server/service
+            //    and get a new URL back, then call setAvatarUrl(newUrl).
+
+            // 2. To fix the linter error and simulate a change locally:
+            const newAvatarUrl = URL.createObjectURL(file); // Create a temporary URL for immediate display
+
+            // *** CALL setAvatarUrl HERE ***
+            setAvatarUrl(newAvatarUrl);
+
+            toast.info("Avatar upload simulated.", { description: "Displaying local preview." });
         }
     };
 
