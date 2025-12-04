@@ -70,7 +70,7 @@ export default [
       ...nextPlugin.configs["core-web-vitals"].rules,
 
       // Genel temizlik
-      "no-console": "warn",
+      "no-console": "off",
       "prefer-const": "error",
     },
   },
