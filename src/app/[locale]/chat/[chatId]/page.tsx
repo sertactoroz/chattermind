@@ -16,8 +16,7 @@ type Props = {
 export default async function ChatIdPage({ params }: Props) {
     // FIX 1: Removed 'locale' from destructuring to avoid 'unused variable' error.
     // We only destructure 'chatId' since 'locale' is not used in the function body.
-    const { chatId } = params;
-
+    const { chatId } = await params;
     try {
         const { data, error } = await supabaseAdmin
             .from('chats')
@@ -29,7 +28,6 @@ export default async function ChatIdPage({ params }: Props) {
         if (error || !data) {
             return (
                 <div className="min-h-screen bg-background flex items-center justify-center">
-                    {/* Render NotFoundToast if chat is not found or error occurs */}
                     <NotFoundToast />
                 </div>
             );
