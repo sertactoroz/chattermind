@@ -3,8 +3,7 @@ import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
-// FIX: Added the 'locale' segment to the Props type definition.
-// This resolves the Type Error caused by the path structure /app/[locale]/chat/[chatId]/page.tsx
+// Define the expected props structure for a Next.js App Router page
 type Props = {
     params: {
         locale: string; // Dynamic segment from /app/[locale]
@@ -15,8 +14,9 @@ type Props = {
 };
 
 export default async function ChatIdPage({ params }: Props) {
-    // Destructuring both parameters to satisfy TypeScript and access the values
-    const { chatId, locale } = params;
+    // FIX 1: Removed 'locale' from destructuring to avoid 'unused variable' error.
+    // We only destructure 'chatId' since 'locale' is not used in the function body.
+    const { chatId } = params;
 
     try {
         const { data, error } = await supabaseAdmin
@@ -47,9 +47,6 @@ export default async function ChatIdPage({ params }: Props) {
             </AuthGuard>
         );
     } catch (err) {
-        // WARNING: This console statement might still trigger the 'no-console' linter warning
-        // unless globally disabled or locally suppressed.
-        // eslint-disable-next-line no-console
         console.error('chat page error', err);
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
