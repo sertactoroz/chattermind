@@ -210,7 +210,7 @@ export default function ChatWindow({ chatId, characterId }: Props) {
 
             {/* Input Section - Theme-aware border and background */}
             {/* border-t -> border-t-border; bg-background ensures the input area matches the page theme */}
-            <div className="p-3 border-t border-t-border flex items-center gap-3 ">
+            <div className="p-3 border-t border-t-border flex items-center gap-3 bg-background">
                 <input
                     value={text}
                     onChange={e => setText(e.target.value)}
