@@ -2,7 +2,6 @@ import ChatWindow from '@/features/chat/containers/ChatWindow';
 import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
-import { type Metadata, type NextPage } from 'next';
 
 // Define the shape of your dynamic parameters
 type ChatIdPageParams = {
