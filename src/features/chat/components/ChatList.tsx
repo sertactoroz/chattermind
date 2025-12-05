@@ -47,7 +47,7 @@ export default function ChatList() {
     return () => { mounted = false; };
   }, [user]);
 
-  const handleNewChat = () => router.push('/chat/select-character');
+  const handleNewChat = () => router.push('/characters');
 
   if (authLoading || isLoading || charsLoading) {
     return (
