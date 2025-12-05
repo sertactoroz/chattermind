@@ -1,10 +1,11 @@
+// src/features/common/components/Header.tsx
 'use client';
 
 import Link from 'next/link';
 import LanguageSwitcher from '@/features/common/components/LanguageSwitcher';
-import AuthButton from '@/features/auth/components/AuthButton';
 import ThemeToggle from '@/features/common/components/ThemeToggle';
 import Image from 'next/image';
+import AuthDisplay from '@/features/common/components/AuthDisplay';
 
 export default function Header() {
   return (
@@ -17,9 +18,9 @@ export default function Header() {
             <Image
               src="/chattermind-logo.png"
               alt="ChatterMind"
-              height={36}              // Perfect small header size (32–40 arası idealdir)
-              width={400}              // Wide enough for text logo, will be scaled down
-              className="h-9 w-auto object-contain"  // h-9 = 36px, w-auto = keeps ratio
+              height={36} // Perfect small header size (32–40 arası idealdir)
+              width={400} // Wide enough for text logo, will be scaled down
+              className="h-9 w-auto object-contain" // h-9 = 36px, w-auto = keeps ratio
               priority
             />
           </Link>
@@ -31,7 +32,8 @@ export default function Header() {
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
-          <AuthButton />
+          {/* Display AvatarMenu if user is logged in */}
+          <AuthDisplay />
         </div>
       </div>
     </header>
