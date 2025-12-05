@@ -10,8 +10,14 @@
     },
     "Auth": {
         "loading": "Yükleniyor...",
-        "signin_google": "Giriş yap",
-        "signout": "Çıkış yap"
+        "signin_google": "Google ile Giriş Yap",
+        "signup_email": "E-posta ve Şifre ile Kayıt Ol",
+        "guest_login": "Misafir Olarak Devam Et",
+        "signup_title": "Hesabınızı Oluşturun",
+        "already_have_account": "Zaten bir hesabınız var mı?",
+        "signin_link": "Giriş Yap",
+        "signout": "Çıkış Yap",
+        "or":"veya"
     },
     "Header": {
         "edit_profile": "Profili düzenle",
