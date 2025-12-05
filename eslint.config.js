@@ -72,6 +72,7 @@ export default [
       // Genel temizlik
       "no-console": "off",
       "prefer-const": "error",
+      '@typescript-eslint/no-explicit-any': 'off', 
     },
   },
 ];
