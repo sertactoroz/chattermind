@@ -70,11 +70,13 @@ export function AuthButtons() {
                 <div className="relative flex items-center my-3">
                     <Skeleton className="flex-1 h-px w-auto" />
                     <div className="relative flex items-center text-sm text-muted-foreground ">
-                        <div className="flex-1 h-px bg-border"></div>
+                        <div className="flex-1 h-px bg-border" />
+
                         <span className="px-6 font-medium">
                             {t('or') || 'OR'}
                         </span>
-                        <div className="flex-1 h-px bg-border"></div>
+                        <div className="flex-1 h-px bg-border" />
+
                     </div>
                     <Skeleton className="flex-1 h-px w-auto" />
                 </div>
@@ -105,13 +107,15 @@ export function AuthButtons() {
             </Button>
 
             <div className="relative flex items-center text-sm text-muted-foreground my-3">
-                <div className="flex-1 h-px bg-border"></div>
+                <div className="flex-1 h-px bg-border" />
+
 
                 <span className="px-6 font-medium">
                     {t('or') || 'OR'}
                 </span>
 
-                <div className="flex-1 h-px bg-border"></div>
+                <div className="flex-1 h-px bg-border" />
+
             </div>
 
             {/* 2. Continue as Guest Button (Previously 3) */}
