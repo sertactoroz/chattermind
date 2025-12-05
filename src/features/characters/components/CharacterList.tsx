@@ -34,7 +34,7 @@ export default function CharacterList() {
     return (
         <div className="px-4 py-6 max-w-md mx-auto">
             {/* Header text color: text-foreground ensures the text adapts to the theme. */}
-            <h2 className="text-2xl font-bold mb-6 text-center text-foreground">Choose a Character</h2>
+            <h2 className="text-2xl font-bold mb-6 text-foreground">Choose a Character</h2>
 
             {/* Character List */}
             <div className="space-y-3 mb-6">
@@ -53,7 +53,9 @@ export default function CharacterList() {
             <div className="flex gap-3">
                 <Button
                     onClick={handleStartChat}
-                    className="flex-1" // Make the button take up available space
+                    className="flex-1 bg-brand-500 text-foreground dark:bg-brand-500 dark:text-gray-100 
+                                h-8 w-8 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center cursor-pointer 
+                                transition-colors hover:bg-brand-600 dark:hover:bg-brand-400" // Make the button take up available space
                     disabled={!selected || loading} // Disable if no character is selected or if loading
                 // Default Button variant uses bg-primary and text-primary-foreground, which should be theme-aware.
                 >
@@ -70,6 +72,6 @@ export default function CharacterList() {
                     Cancel
                 </Button> */}
             </div>
-        </div>
+        </div >
     );
 }

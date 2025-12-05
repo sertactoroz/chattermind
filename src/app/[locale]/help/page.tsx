@@ -79,7 +79,7 @@ export default function HelpPage() {
                             <CardTitle className="text-lg">Legal & About</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
-                            <p>Version: v{APP_VERSION}</p>
+                            <p>Version: {APP_VERSION}</p>
                             <Link href="/privacy" className="text-primary hover:underline block">Privacy Policy</Link>
                             <Link href="/terms" className="text-primary hover:underline block">Terms of Service</Link>
                         </CardContent>

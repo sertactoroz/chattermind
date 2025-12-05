@@ -24,7 +24,7 @@ export default function ChatItem({ chat, character }: Props) {
                     <CardContent className="p-4 flex items-start gap-3 min-h-[100px]">
                         <Avatar className="w-20 h-auto self-stretch rounded-xl overflow-hidden shrink-0">
                             {avatarUrl ? (
-                                <AvatarImage src={avatarUrl} alt={character?.name || chat.title || 'Chat'} className="object-cover w-full h-full" />
+                                <AvatarImage src={avatarUrl} alt={character?.name || chat.title || 'Chat'} className="object-cover w-full h-full object-top scale-105" />
                             ) : (
                                 <AvatarFallback className="text-base font-semibold rounded-xl flex items-center justify-center h-full">
                                     {fallbackText}

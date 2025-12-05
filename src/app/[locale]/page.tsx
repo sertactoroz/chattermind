@@ -1,5 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
+import Image from 'next/image';
+
 
 
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'vX.X.X';
@@ -10,16 +12,21 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <Card className="w-full max-w-md mx-auto rounded-2xl shadow-md">
-        <CardHeader className="p-6 pt-8 text-center">
-          <CardTitle
-            className="text-xl sm:text-2xl font-bold bg-chart-3 bg-clip-text text-transparent p-6"
-          >
-            ChatterMind
+        <CardHeader className="mx-6 p-6 pt-8 text-center">
+          <CardTitle className="flex flex-col items-center gap-6">
+            <div className="w-full max-w-2xl px-4">
+              <Image
+                src="/chattermind-logo.png"
+                alt="ChatterMind"
+                height={120}
+                width={1400}
+                className="w-full h-auto object-contain drop-shadow-2xl"
+                priority
+                unoptimized={false}
+              />
+            </div>
           </CardTitle>
-          <h6 className="text-muted-foreground">v{APP_VERSION}</h6>
-          {/* <div className="mx-auto w-28 h-28 relative mb-4">
-            <Image src="/chattermind-logo5.svg" alt="Logo" fill className="object-contain" priority />
-          </div> */}
+          <h6 className="text-muted-foreground">{APP_VERSION}</h6>
           <CardDescription className="text-sm text-muted-foreground mt-1">
             {t('subtitle')}
           </CardDescription>

@@ -29,10 +29,16 @@ export default function BottomNav() {
                 <motion.button
                     aria-label="New chat"
                     onClick={() => router.push('/characters')}
-                    whileTap={{ scale: 0.96 }}
-                    className="bg-primary text-primary-foreground w-14 h-14 rounded-full flex items-center justify-center shadow-xl border-4 border-card -mt-6 md:w-12 md:h-12 md:border-2 md:-mt-4"
+                    whileTap={{ scale: 0.93 }}
+                    whileHover={{ scale: 1.08 }}
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/4 
+                               bg-brand text-white w-16 h-16 rounded-full 
+                               flex items-center justify-center 
+                               shadow-2xl ring-4 ring-brand/30 
+                               border-4 border-background
+                               hover:ring-brand/50 hover:shadow-brand/30"
                 >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-8 h-8 stroke-[2.5]" />
                 </motion.button>
 
                 {/* RIGHT: Characters */}
@@ -61,9 +67,9 @@ function NavItem({ item, active }: {
             >
                 <Icon className={`w-6 h-6 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
 
-                <span className={`text-[11px] mt-1 hidden md:block ${active ? 'text-primary' : 'text-muted-foreground'}`}>
+                {/* <span className={`text-[11px] mt-1 hidden md:block ${active ? 'text-primary' : 'text-muted-foreground'}`}>
                     {item.label}
-                </span>
+                </span> */}
             </Link>
 
             {active && (
