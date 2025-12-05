@@ -23,6 +23,8 @@ const faqs = [
     },
 ];
 
+
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'vX.X.X';
 export default function HelpPage() {
     // const router = useRouter(); // No longer needed here
 
@@ -77,7 +79,7 @@ export default function HelpPage() {
                             <CardTitle className="text-lg">Legal & About</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
-                            <p>Version: v1.0.0</p>
+                            <p>Version: v{APP_VERSION}</p>
                             <Link href="/privacy" className="text-primary hover:underline block">Privacy Policy</Link>
                             <Link href="/terms" className="text-primary hover:underline block">Terms of Service</Link>
                         </CardContent>

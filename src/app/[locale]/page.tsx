@@ -1,6 +1,9 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
 
+
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'vX.X.X';
+
 export default async function Home() {
 
   const t = await getTranslations('Homepage');
@@ -13,6 +16,7 @@ export default async function Home() {
           >
             ChatterMind
           </CardTitle>
+          <h6 className="text-muted-foreground">v{APP_VERSION}</h6>
           {/* <div className="mx-auto w-28 h-28 relative mb-4">
             <Image src="/chattermind-logo5.svg" alt="Logo" fill className="object-contain" priority />
           </div> */}

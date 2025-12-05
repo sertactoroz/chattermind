@@ -69,7 +69,7 @@ export default function ChatList() {
     <div className="px-4 py-6 max-w-lg mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Chats</h2>
-        <Button onClick={handleNewChat}>New chat</Button>
+        {/* <Button onClick={handleNewChat}>New chat</Button> */}
       </div>
 
       {chats.length === 0 ? (

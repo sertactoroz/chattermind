@@ -62,13 +62,13 @@ export default function CharacterList() {
 
                 {/* Secondary Button */}
                 {/* Button variant="outline" is theme-aware (uses border-input, text-foreground, hover:bg-accent) */}
-                <Button
+                {/* <Button
                     onClick={() => router.push('/chat')}
                     variant="outline" // Use the 'outline' variant for the secondary action
                     disabled={loading}
                 >
                     Cancel
-                </Button>
+                </Button> */}
             </div>
         </div>
     );
