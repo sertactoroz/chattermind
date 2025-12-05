@@ -1,4 +1,5 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { AuthButtons } from '@/features/auth/components/AuthButtons';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 
@@ -47,8 +48,10 @@ export default async function Home() {
               <span>{t('feature_realtime')}</span>
             </li>
           </ul>
+          <div className="mt-6 flex justify-center">
+            <AuthButtons />
+          </div>
         </CardContent>
-
         <CardFooter className="flex flex-col gap-3 p-6">
           <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
             <span>{t('footer_note')}</span>
