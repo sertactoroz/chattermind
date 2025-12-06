@@ -28,7 +28,7 @@ export default async function Home() {
               />
             </div>
           </CardTitle>
-          <div className="flex justify-center space-x-4 py-6 ">
+          <div className="flex justify-center -space-x-3 py-6 ">
             {featuredCharacters.map((character, index) => (
               <div
                 key={character.id}
