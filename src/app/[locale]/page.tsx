@@ -77,7 +77,7 @@ export default async function Home() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-3 p-6">
-          <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center justify-center gap-3 text-xs text-center text-muted-foreground">
             <span>{t('footer_note')}</span>
 
           </div>
