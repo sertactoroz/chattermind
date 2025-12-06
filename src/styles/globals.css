@@ -144,3 +144,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 10px 2px rgba(var(--brand-rgb), 0.7); /* Subtle glow */
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 15px 4px rgba(var(--brand-rgb), 1); /* More prominent glow */
+    transform: scale(1.1); /* Slight growth effect */
+  }
+}
