@@ -25,7 +25,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (loading || !user) {
         return (
             // Full screen container to center the spinner
-            <div className="flex items-center justify-center h-screen w-full bg-background">
+            <div className="flex items-center justify-center h-screen w-full">
                 {/* LoaderPinwheel icon is used for the spinner. 
                   animate-spin provides the continuous rotation effect.
                   text-primary applies the primary color from the theme.
