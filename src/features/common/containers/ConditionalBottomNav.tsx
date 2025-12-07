@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
-import BottomNav from './BottomNav'; // Assuming BottomNav is in the same directory
+import BottomNav from '../components/BottomNav'; // Assuming BottomNav is in the same directory
 
 /**
  * Conditionally renders the BottomNav component based on the user's authentication status.
