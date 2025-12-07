@@ -35,7 +35,8 @@ export default async function RootLayout({
           <NextIntlClientProvider>
             <AuthProvider>
               <ConditionalHeader />
-              <main className="h-screen overflow-y-auto relative pb-18 pt-16">
+              {/* <main className="h-screen overflow-y-auto relative pb-18 pt-16"> */}
+              <main className="flex flex-col h-screen overflow-y-auto pb-18 pt-16">
                 {children}
               </main>
               <ConditionalBottomNav />

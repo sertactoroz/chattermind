@@ -12,7 +12,7 @@ export default async function Home() {
 
   const t = await getTranslations('Homepage');
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="min-h-full flex items-center justify-center p-6">
       <Card className="w-full max-w-md mx-auto rounded-2xl shadow-md">
         <CardHeader className="mx-6 p-6 pt-8 text-center">
           <CardTitle className="flex flex-col items-center gap-6">
