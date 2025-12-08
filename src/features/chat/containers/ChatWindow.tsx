@@ -194,8 +194,8 @@ export default function ChatWindow({ chatId, characterId }: Props) {
     };
 
     return (
-        // Chat container. The main background is typically set by the body/parent wrapper (bg-background).
-        <div className="flex flex-col h-full pb-4 min-h-[85vh]">
+        // Chat container 
+        <div className="flex flex-col h-full">
             {/* Message list */}
             <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3">
                 {messages.map(m => (

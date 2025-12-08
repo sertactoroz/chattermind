@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import characters from '../data/characters.json';
 import CharacterCard from './CharacterCard';
 import { useRouter } from 'next/navigation';
@@ -11,14 +11,32 @@ export default function CharacterList() {
     const [selected, setSelected] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-
+    const buttonRef = useRef<HTMLDivElement>(null);
 
     const handleSelect = (id: string) => {
         setSelected(id);
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth'
-        });
+
+        // Scroll to button with extra space below
+        setTimeout(() => {
+            if (buttonRef.current) {
+                const scrollableParent = document.querySelector('main');
+                if (scrollableParent) {
+                    const buttonPosition = buttonRef.current.offsetTop;
+                    const extraSpace = 100; // Ekstra boşluk (piksel cinsinden)
+
+                    scrollableParent.scrollTo({
+                        top: buttonPosition + extraSpace,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    // Fallback
+                    buttonRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center' // veya 'end'
+                    });
+                }
+            }
+        }, 100);
     };
 
     const handleStartChat = () => {
@@ -28,15 +46,13 @@ export default function CharacterList() {
         }
 
         setLoading(true);
-        // Simulate an asynchronous operation before navigating
         setTimeout(() => {
-            // Redirect to chat/new with selected character as query param
             router.push(`/chat/new?character=${selected}`);
         }, 500);
     };
 
     return (
-        <div className="px-4 py-6 max-w-md mx-auto">
+        <div className="p-4 max-w-md mx-auto">
             <h2 className="text-2xl font-bold mb-6 text-foreground">Choose a Character</h2>
 
             {/* Character List */}
@@ -52,7 +68,7 @@ export default function CharacterList() {
             </div>
 
             {/* Action Buttons using shadcn/ui Button */}
-            <div className="flex gap-3">
+            <div ref={buttonRef} className="flex gap-3">
                 <Button
                     onClick={handleStartChat}
                     className="flex-1 bg-brand-500 text-foreground dark:bg-brand-500 dark:text-gray-100 
@@ -63,6 +79,6 @@ export default function CharacterList() {
                     {loading ? 'Starting Chat...' : 'Start chat with selected character'}
                 </Button>
             </div>
-        </div >
+        </div>
     );
 }

@@ -139,35 +139,30 @@ export default function ChatNewPage() {
     }, [user, router, searchParams]); // Dependencies list ensures effect runs when these values change
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="flex items-center justify-center h-full">
             <div className="text-center flex flex-col items-center">
-
                 {/* Character Image Display and Custom Message */}
                 {selectedCharacter ? (
                     <>
                         <div className="relative h-24 w-24 mb-4 rounded-full overflow-hidden border-4 border-primary shadow-lg">
-                            {/* NOTE: We check for 'avatar' because it's optional in the type */}
                             {selectedCharacter.avatar && (
                                 <Image
-                                    // Using the correct property: 'avatar'
                                     src={selectedCharacter.avatar}
                                     alt={selectedCharacter.name}
                                     fill
                                     style={{ objectFit: 'cover' }}
-                                    // Optional: Add animation for visual feedback
                                     className="animate-pulse"
                                 />
                             )}
                         </div>
-                        <h1 className="text-xl font-semibold text-foreground mb-4">
+                        <h1 className="text-xl font-semibold text-foreground">
                             Creating chat with {selectedCharacter.name}...
                         </h1>
                     </>
                 ) : (
-                    // Default loading state if character data is not loaded yet
                     <>
-                        <p className="mb-2">Creating chat...</p>
-                        <div className="h-8 w-8 rounded-full bg-secondary animate-pulse mx-auto" />
+                        <div className="h-24 w-24 rounded-full bg-secondary animate-pulse mb-4" />
+                        <p className="text-foreground">Creating chat...</p>
                     </>
                 )}
             </div>

@@ -30,13 +30,12 @@ export default async function RootLayout({
   }
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className="antialiased bg-background text-foreground">
+      <body className="antialiased bg-background text-foreground flex flex-col h-screen">
         <ThemeProviderWrapper>
           <NextIntlClientProvider>
             <AuthProvider>
               <ConditionalHeader />
-              {/* <main className="h-screen overflow-y-auto relative pb-18 pt-16"> */}
-              <main className="flex flex-col h-screen overflow-y-auto pb-18 pt-16 max-w-md mx-auto ">
+              <main className="flex-1 overflow-y-auto max-w-md mx-auto w-full">
                 {children}
               </main>
               <ConditionalBottomNav />

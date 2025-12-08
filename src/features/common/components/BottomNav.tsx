@@ -16,27 +16,25 @@ export default function BottomNav() {
     ];
 
     return (
-        <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[min(1800px,96%)] z-40 rounded-2xl">
+        <nav className="sticky bottom-4 w-[min(1800px,96%)] z-40 rounded-2xl pt-4 mx-auto">
             <div className="bg-card border border-border rounded-3xl shadow-lg px-8 py-2 flex items-center justify-between">
-
                 {/* LEFT: Chats */}
                 <NavItem
                     item={items[0]}
                     active={pathname?.startsWith(items[0].href)}
                 />
-
                 {/* CENTER: New Chat */}
                 <motion.button
                     aria-label="New chat"
                     onClick={() => router.push('/characters')}
                     whileTap={{ scale: 0.93 }}
                     whileHover={{ scale: 1.08 }}
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/4 
-                               bg-brand text-white w-16 h-16 rounded-full 
-                               flex items-center justify-center 
-                               shadow-2xl ring-4 ring-brand/30 
-                               border-4 border-background
-                               hover:ring-brand/50 hover:shadow-brand/30"
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                       bg-brand text-white w-16 h-16 rounded-full 
+                       flex items-center justify-center 
+                       shadow-2xl ring-4 ring-brand/30 
+                       border-4 border-background
+                       hover:ring-brand/50 hover:shadow-brand/30"
                 >
                     <Plus className="w-8 h-8 stroke-[2.5]" />
                 </motion.button>
