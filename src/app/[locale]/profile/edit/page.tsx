@@ -52,80 +52,77 @@ export default function EditProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-md mx-auto p-4">
+        <div className="max-w-md mx-auto p-4">
+            <div className="relative flex items-center justify-center pt-4 pb-4">
+                <BackButton />
+                <h1 className="text-3xl font-bold text-center">
+                    Edit Profile
+                </h1>
+            </div>
 
-                <div className="relative flex items-center justify-center pt-4 pb-4">
-                    <BackButton />
-                    <h1 className="text-3xl font-bold text-center">
-                        Edit Profile
-                    </h1>
-                </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Public Information</CardTitle>
+                    <CardDescription>Update your name and profile picture.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {/* Avatar Upload Section */}
+                    <div className="flex items-center space-x-4">
+                        <Avatar className="w-20 h-20">
+                            <AvatarImage src={avatarUrl} alt={name} />
+                            <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <Label htmlFor="avatar-upload" className="cursor-pointer">
+                            <Button type="button" variant="outline" asChild>
+                                <span>Change Avatar</span>
+                            </Button>
+                            <Input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+                        </Label>
+                    </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Public Information</CardTitle>
-                        <CardDescription>Update your name and profile picture.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {/* Avatar Upload Section */}
-                        <div className="flex items-center space-x-4">
-                            <Avatar className="w-20 h-20">
-                                <AvatarImage src={avatarUrl} alt={name} />
-                                <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <Label htmlFor="avatar-upload" className="cursor-pointer">
-                                <Button type="button" variant="outline" asChild>
-                                    <span>Change Avatar</span>
-                                </Button>
-                                <Input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                            </Label>
+                    <form onSubmit={handleSaveChanges} className="space-y-4">
+                        <div>
+                            <Label htmlFor="name">Full Name</Label>
+                            <Input
+                                id="name"
+                                value={name}
+                                onChange={(e: { target: { value: SetStateAction<string>; }; }) => setName(e.target.value)}
+                                placeholder="Your Full Name"
+                            />
                         </div>
 
-                        <form onSubmit={handleSaveChanges} className="space-y-4">
-                            <div>
-                                <Label htmlFor="name">Full Name</Label>
-                                <Input
-                                    id="name"
-                                    value={name}
-                                    onChange={(e: { target: { value: SetStateAction<string>; }; }) => setName(e.target.value)}
-                                    placeholder="Your Full Name"
-                                />
-                            </div>
+                        {/* Email (Read-only) */}
+                        <div>
+                            <Label htmlFor="email">Email Address</Label>
+                            <Input
+                                id="email"
+                                value={mockUser.email}
+                                type="email"
+                                readOnly
+                                disabled
+                                className="bg-muted/50 cursor-not-allowed"
+                            />
+                        </div>
 
-                            {/* Email (Read-only) */}
-                            <div>
-                                <Label htmlFor="email">Email Address</Label>
-                                <Input
-                                    id="email"
-                                    value={mockUser.email}
-                                    type="email"
-                                    readOnly
-                                    disabled
-                                    className="bg-muted/50 cursor-not-allowed"
-                                />
-                            </div>
-
-                            <Button type="submit" disabled={loading}>
-                                {loading ? 'Saving Changes...' : 'Save Changes'}
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-
-                {/* Password Change Card */}
-                <Card className="mt-6">
-                    <CardHeader>
-                        <CardTitle>Password Management</CardTitle>
-                        <CardDescription>Secure your account with a strong password.</CardDescription>
-                    </CardHeader>
-                    <CardFooter>
-                        <Button variant="outline" onClick={() => toast.info("Password reset feature coming soon!")}>
-                            Change Password
+                        <Button type="submit" disabled={loading}>
+                            {loading ? 'Saving Changes...' : 'Save Changes'}
                         </Button>
-                    </CardFooter>
-                </Card>
-            </div>
+                    </form>
+                </CardContent>
+            </Card>
+
+            {/* Password Change Card */}
+            <Card className="mt-6">
+                <CardHeader>
+                    <CardTitle>Password Management</CardTitle>
+                    <CardDescription>Secure your account with a strong password.</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <Button variant="outline" onClick={() => toast.info("Password reset feature coming soon!")}>
+                        Change Password
+                    </Button>
+                </CardFooter>
+            </Card>
         </div>
     );
 }

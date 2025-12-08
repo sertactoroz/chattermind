@@ -29,63 +29,61 @@ export default function HelpPage() {
     // const router = useRouter(); // No longer needed here
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-md mx-auto p-4">
+        <div className="max-w-md mx-auto p-4">
+            <div className="relative flex items-center justify-center pt-4 pb-4">
+                <BackButton />
+                <h1 className="text-3xl font-bold text-center">
+                    Help & Support
+                </h1>
+            </div>
 
-                <div className="relative flex items-center justify-center pt-4 pb-4">
-                    <BackButton />
-                    <h1 className="text-3xl font-bold text-center">
-                        Help & Support
-                    </h1>
-                </div>
+            {/* FAQ Section */}
+            <Card className="mb-8">
+                <CardHeader>
+                    <CardTitle className="text-xl">Frequently Asked Questions (FAQ)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Accordion type="single" collapsible className="w-full">
+                        {faqs.map((item, index) => (
+                            <AccordionItem value={`item-${index}`} key={index}>
+                                <AccordionTrigger className="text-left font-medium">{item.q}</AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground">
+                                    {item.a}
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                </CardContent>
+            </Card>
 
-                {/* FAQ Section */}
-                <Card className="mb-8">
+            {/* Contact & Legal Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
                     <CardHeader>
-                        <CardTitle className="text-xl">Frequently Asked Questions (FAQ)</CardTitle>
+                        <CardTitle className="text-lg">Contact Support</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <Accordion type="single" collapsible className="w-full">
-                            {faqs.map((item, index) => (
-                                <AccordionItem value={`item-${index}`} key={index}>
-                                    <AccordionTrigger className="text-left font-medium">{item.q}</AccordionTrigger>
-                                    <AccordionContent className="text-muted-foreground">
-                                        {item.a}
-                                    </AccordionContent>
-                                </AccordionItem>
-                            ))}
-                        </Accordion>
+                    <CardContent className="space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                            Couldn't find what you were looking for? Reach out to our dedicated support team.
+                        </p>
+                        <Link href="mailto:sertactoroz@gmail.com" passHref legacyBehavior>
+                            <Button className="w-full">Send an Email</Button>
+                        </Link>
                     </CardContent>
                 </Card>
 
-                {/* Contact & Legal Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Contact Support</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <p className="text-sm text-muted-foreground">
-                                Couldn't find what you were looking for? Reach out to our dedicated support team.
-                            </p>
-                            <Link href="mailto:sertactoroz@gmail.com" passHref legacyBehavior>
-                                <Button className="w-full">Send an Email</Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Legal & About</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 text-sm">
-                            <p>Version: {APP_VERSION}</p>
-                            <Link href="/privacy" className="text-primary hover:underline block">Privacy Policy</Link>
-                            <Link href="/terms" className="text-primary hover:underline block">Terms of Service</Link>
-                        </CardContent>
-                    </Card>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Legal & About</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm">
+                        <p>Version: {APP_VERSION}</p>
+                        <Link href="/privacy" className="text-primary hover:underline block">Privacy Policy</Link>
+                        <Link href="/terms" className="text-primary hover:underline block">Terms of Service</Link>
+                    </CardContent>
+                </Card>
             </div>
         </div>
+
     );
 }
