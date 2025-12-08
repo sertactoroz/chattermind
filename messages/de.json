@@ -5,7 +5,7 @@
         "feature_animations": "Flüssige Animationen und Nachrichtenübergänge",
         "feature_realtime": "Echtzeit-Synchronisierung, unterstützt durch Supabase",
         "cta_signin": "Mit Google anmelden",
-        "footer_note": "Prototyp • Mobil-Optimiert • Framer Motion • Supabase • Groq",
+        "footer_note": "Mobil-Optimiert • Framer Motion • Supabase • Groq",
         "auth_byContinuing": "Durch die Fortsetzung stimmen Sie der Verwendung Ihres Google-Kontos zur Authentifizierung zu."
     },
     "Auth": {

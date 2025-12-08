@@ -5,7 +5,7 @@
         "feature_animations": "Akıcı animasyonlar ve mesaj geçişleri",
         "feature_realtime": "Supabase destekli gerçek zamanlı senkronizasyon",
         "cta_signin": "Google ile Giriş Yap",
-        "footer_note": "Prototip • Mobil Öncelikli • Framer Motion • Supabase • Groq",
+        "footer_note": "Mobil Öncelikli • Framer Motion • Supabase • Groq",
         "auth_byContinuing": "Devam ederek kimlik doğrulama için Google hesabınızı kullanmayı kabul etmiş olursunuz."
     },
     "Auth": {
