@@ -47,14 +47,14 @@ export default function ChatList() {
     return () => { mounted = false; };
   }, [user]);
 
-  const handleNewChat = () => router.push('/chat/select-character');
+  const handleNewChat = () => router.push('/characters');
 
   if (authLoading || isLoading || charsLoading) {
     return (
       <div className="p-4 max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-4">
           <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-10 w-24" />
+          {/* <Skeleton className="h-10 w-24" /> */}
         </div>
         <div className="space-y-3">
           <Skeleton className="h-20 rounded-lg" />
@@ -68,8 +68,8 @@ export default function ChatList() {
   return (
     <div className="px-4 py-6 max-w-lg mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Chats</h2>
-        <Button onClick={handleNewChat}>New chat</Button>
+        <h2 className="text-xl font-bold text-center text-foreground">Chats</h2>
+        {/* <Button onClick={handleNewChat}>New chat</Button> */}
       </div>
 
       {chats.length === 0 ? (

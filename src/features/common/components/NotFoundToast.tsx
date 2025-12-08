@@ -16,7 +16,7 @@ export default function NotFoundToast() {
         }, 1500);
 
         return () => clearTimeout(t);
-    }, []);
+    }, [router]); // FIX: Added 'router' to the dependency array to satisfy react-hooks/exhaustive-deps rule.
 
     return null; // This component does not render anything visible
 }

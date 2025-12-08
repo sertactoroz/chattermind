@@ -29,7 +29,9 @@ export default function LanguageSwitcher() {
             <DropdownMenu.Trigger asChild>
                 <Button
                     aria-label="Change language"
-                    className="min-w-[px] h-8 w-8 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center cursor-pointer"
+                    className="bg-brand-500 text-white dark:bg-brand-500 dark:text-gray-900 
+                                h-8 w-8 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center cursor-pointer 
+                                transition-colors hover:bg-brand-600 dark:hover:bg-brand-400"
                 >
                     {locale?.toUpperCase() || 'EN'}
                 </Button>

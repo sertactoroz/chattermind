@@ -57,99 +57,96 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-md mx-auto p-4">
+        <div className="max-w-md mx-auto p-4">
+            <div className="relative flex items-center justify-center pt-4 pb-4">
+                <BackButton />
+                <h1 className="text-3xl font-bold text-center">Settings & Privacy</h1>
+            </div>
 
-                <div className="relative flex items-center justify-center pt-4 pb-4">
-                    <BackButton />
-                    <h1 className="text-3xl font-bold text-center">Settings & Privacy</h1>
-                </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>General Settings</CardTitle>
+                    <CardDescription>Configure your application experience.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>General Settings</CardTitle>
-                        <CardDescription>Configure your application experience.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-
-                        {/* Theme Selector (Using next-themes logic) */}
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="theme">Application Theme</Label>
-                            {/* Guard against unmounted state for next-themes */}
-                            {!mounted ? (
-                                <div className="w-[180px] h-10 bg-muted rounded-md animate-pulse" />
-                            ) : (
-                                <Select value={displayTheme} onValueChange={handleThemeChange}>
-                                    <SelectTrigger id="theme" className="w-[180px]">
-                                        <SelectValue placeholder="Select Theme" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="light">Light</SelectItem>
-                                        <SelectItem value="dark">Dark</SelectItem>
-                                        <SelectItem value="system">System Default</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            )}
-                        </div>
-
-                        {/* Language Selector (Using next-intl logic) */}
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="language">Application Language</Label>
-                            <Select value={currentLocale} onValueChange={handleLanguageChange}>
-                                <SelectTrigger id="language" className="w-[180px]">
-                                    <SelectValue placeholder="Select Language" />
+                    {/* Theme Selector (Using next-themes logic) */}
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="theme">Application Theme</Label>
+                        {/* Guard against unmounted state for next-themes */}
+                        {!mounted ? (
+                            <div className="w-[180px] h-10 bg-muted rounded-md animate-pulse" />
+                        ) : (
+                            <Select value={displayTheme} onValueChange={handleThemeChange}>
+                                <SelectTrigger id="theme" className="w-[180px]">
+                                    <SelectValue placeholder="Select Theme" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {LOCALES.map(l => (
-                                        <SelectItem key={l.code} value={l.code}>
-                                            {l.name} ({l.label})
-                                        </SelectItem>
-                                    ))}
+                                    <SelectItem value="light">Light</SelectItem>
+                                    <SelectItem value="dark">Dark</SelectItem>
+                                    <SelectItem value="system">System Default</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        )}
+                    </div>
 
-                        {/* Notifications Toggle */}
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="notifications">Receive Chat Notifications</Label>
-                            <Switch
-                                id="notifications"
-                                checked={notifications}
-                                onCheckedChange={setNotifications}
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
+                    {/* Language Selector (Using next-intl logic) */}
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="language">Application Language</Label>
+                        <Select value={currentLocale} onValueChange={handleLanguageChange}>
+                            <SelectTrigger id="language" className="w-[180px]">
+                                <SelectValue placeholder="Select Language" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {LOCALES.map(l => (
+                                    <SelectItem key={l.code} value={l.code}>
+                                        {l.name} ({l.label})
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                {/* Privacy and Data Card */}
-                <Card className="mt-6">
-                    <CardHeader>
-                        <CardTitle>Data & Privacy</CardTitle>
-                        <CardDescription>Manage your data, history, and security.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {/* Clear History */}
-                        <Button
-                            variant="outline"
-                            className="w-full text-destructive border-destructive hover:bg-destructive/10"
-                            onClick={() => toast.info("Chat history cleared (simulated).")}
-                        >
-                            Clear All Chat History
-                        </Button>
+                    {/* Notifications Toggle */}
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="notifications">Receive Chat Notifications</Label>
+                        <Switch
+                            id="notifications"
+                            checked={notifications}
+                            onCheckedChange={setNotifications}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
-                        {/* Download Data */}
-                        <Button variant="outline" className="w-full" onClick={() => toast.info("Data download link sent to email (simulated).")}>
-                            Download My Data
-                        </Button>
-                    </CardContent>
-                    <CardFooter className="border-t pt-6 flex justify-end">
-                        {/* Delete Account */}
-                        <Button variant="destructive" onClick={handleDeleteAccount}>
-                            Delete Account
-                        </Button>
-                    </CardFooter>
-                </Card>
-            </div>
+            {/* Privacy and Data Card */}
+            <Card className="mt-6">
+                <CardHeader>
+                    <CardTitle>Data & Privacy</CardTitle>
+                    <CardDescription>Manage your data, history, and security.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {/* Clear History */}
+                    <Button
+                        variant="outline"
+                        className="w-full text-destructive border-destructive hover:bg-destructive/10"
+                        onClick={() => toast.info("Chat history cleared (simulated).")}
+                    >
+                        Clear All Chat History
+                    </Button>
+
+                    {/* Download Data */}
+                    <Button variant="outline" className="w-full" onClick={() => toast.info("Data download link sent to email (simulated).")}>
+                        Download My Data
+                    </Button>
+                </CardContent>
+                <CardFooter className="border-t pt-6 flex justify-end">
+                    {/* Delete Account */}
+                    <Button variant="destructive" onClick={handleDeleteAccount}>
+                        Delete Account
+                    </Button>
+                </CardFooter>
+            </Card>
         </div>
     );
 }

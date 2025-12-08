@@ -10,8 +10,14 @@
     },
     "Auth": {
         "loading": "Loading...",
-        "signin_google": "Sign in",
-        "signout": "Sign out"
+        "signin_google": "Sign in with Google",
+        "signup_email": "Sign up with Email & Password",
+        "guest_login": "Continue as Guest",
+        "signup_title": "Create Your Account",
+        "already_have_account": "Already have an account?",
+        "signin_link": "Sign In",
+        "signout": "Sign out",
+        "or":"or"
     },
     "Header": {
         "edit_profile": "Edit profile",

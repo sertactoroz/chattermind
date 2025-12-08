@@ -4,7 +4,7 @@ import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
 type Props = {
-    params: { chatId: string };
+    params: Promise<{ chatId: string }>;
 };
 
 export default async function ChatIdPage({ params }: Props) {
@@ -20,7 +20,7 @@ export default async function ChatIdPage({ params }: Props) {
 
         if (error || !data) {
             return (
-                <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="flex items-center justify-center flex-1">
                     <NotFoundToast />
                 </div>
             );
@@ -30,17 +30,13 @@ export default async function ChatIdPage({ params }: Props) {
 
         return (
             <AuthGuard>
-                <div className="min-h-screen bg-background">
-                    <div className="max-w-md mx-auto h-[80vh]">
-                        <ChatWindow chatId={chatId} characterId={characterId} />
-                    </div>
-                </div>
+                <ChatWindow chatId={chatId} characterId={characterId} />
             </AuthGuard>
         );
     } catch (err) {
         console.error('chat page error', err);
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="flex items-center justify-center flex-1">
                 <NotFoundToast />
             </div>
         );

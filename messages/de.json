@@ -10,8 +10,14 @@
     },
     "Auth": {
         "loading": "Wird geladen...",
-        "signin_google": "Anmelden",
-        "signout": "Abmelden"
+        "signin_google": "Mit Google anmelden",
+        "signup_email": "Mit E-Mail & Passwort registrieren",
+        "guest_login": "Als Gast fortfahren",
+        "signup_title": "Konto erstellen",
+        "already_have_account": "Du hast bereits ein Konto?",
+        "signin_link": "Anmelden",
+        "signout": "Abmelden",
+        "or":"oder"
     },
     "Header": {
         "edit_profile": "Profil bearbeiten",

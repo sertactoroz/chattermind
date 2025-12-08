@@ -194,18 +194,16 @@ export default function ChatWindow({ chatId, characterId }: Props) {
     };
 
     return (
-        // Chat container. The main background is typically set by the body/parent wrapper (bg-background).
-        <div className="flex flex-col h-full min-h-[60vh]">
+        // Chat container 
+        <div className="flex flex-col h-full">
             {/* Message list */}
             <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3">
                 {messages.map(m => (
                     // MessageItem handles its own theme styling (bg-primary/bg-muted)
                     <MessageItem key={m.id} message={m} />
                 ))}
-
                 {aiTyping && <TypingIndicator />}
             </div>
-
             {/* Input Section - Theme-aware border and background */}
             {/* border-t -> border-t-border; bg-background ensures the input area matches the page theme */}
             <div className="p-3 border-t border-t-border flex items-center gap-3 bg-background">
