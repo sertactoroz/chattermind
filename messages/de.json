@@ -1,12 +1,12 @@
 {
     "Homepage": {
-        "subtitle": "Moderner, mobil-optimierter KI-Chat — erleben Sie flüssige Echtzeit-Gespräche mit unterschiedlichen Charakteren.",
-        "feature_mobile": "Mobile-First Chat-UI mit berührungsfreundlichen Steuerelementen",
+        "subtitle": "Moderner, Mobile-First KI-Chat — Erleben Sie Echtzeit-Gespräche mit unterschiedlichen Charakteren.",
+        "feature_mobile": "Mobile-First Chat-Oberfläche mit berührungsfreundlichen Steuerelementen",
         "feature_animations": "Flüssige Animationen und Nachrichtenübergänge",
         "feature_realtime": "Echtzeit-Synchronisierung, unterstützt durch Supabase",
         "cta_signin": "Mit Google anmelden",
-        "footer_note": "Prototyp • Mobil-Optimiert • Framer Motion • Supabase • Groq",
-        "auth_byContinuing": "Durch die Fortsetzung stimmen Sie der Verwendung Ihres Google-Kontos zur Authentifizierung zu."
+        "footer_note": "Mobile-First • Framer Motion • Supabase • Groq",
+        "auth_byContinuing": "Indem Sie fortfahren, stimmen Sie der Nutzung Ihres Google-Kontos zur Authentifizierung zu."
     },
     "Auth": {
         "loading": "Wird geladen...",
@@ -14,15 +14,201 @@
         "signup_email": "Mit E-Mail & Passwort registrieren",
         "guest_login": "Als Gast fortfahren",
         "signup_title": "Konto erstellen",
-        "already_have_account": "Du hast bereits ein Konto?",
+        "already_have_account": "Haben Sie bereits ein Konto?",
         "signin_link": "Anmelden",
         "signout": "Abmelden",
         "or":"oder"
     },
     "Header": {
         "edit_profile": "Profil bearbeiten",
-        "settings_privacy": "Einstellungen & Datenschutz",
+        "settings": "Einstellungen",
         "help_support": "Hilfe & Support",
+        "data_privacy": "Daten & Datenschutz",
+        "legal": "Rechtliches",
+        "about": "Über uns",
         "logout": "Abmelden"
+    },
+    "About": {
+        "title": "Über uns",
+        "appName": "ChatterMind",
+        "p1_part1": "ist eine hochmoderne, mobil-fokussierte KI-Chat-Anwendung, entwickelt von M. Sertaç Toröz.",
+        "p1_part2": "Dieses Projekt demonstriert eine moderne Webanwendungsarchitektur mit Echtzeitkommunikation, responsivem Design und mehrsprachiger Unterstützung.",
+        "p2_part1": "Es basiert auf einer robusten, funktionsbasierten Architektur, die",
+        "p2_part2": "für Backend-Dienste (Auth, Echtzeit) und den Hochgeschwindigkeits-Service",
+        "p2_part3": "für leistungsstarke Gesprächsfunktionen nutzt. Fluidität wird durch",
+        "p2_part4": "für reibungslose, gezielte Animationen erreicht.",
+        "p3_part1": "Diese Anwendung ist Open Source und ihre Entwicklung wird von der Leidenschaft für sauberen Code und moderne Webstandards angetrieben. Der vollständige Quellcode und die detaillierte Dokumentation sind auf GitHub verfügbar:",
+        "viewGithub": "Projekt auf GitHub ansehen",
+        "version": "Version",
+        "faqTitle": "Häufig gestellte Fragen",
+        "faq": [
+            {
+                "q": "Wie kann ich die Persönlichkeit des Charakters ändern?",
+                "a": "Die Kernpersönlichkeit des Charakters wird durch den System-Prompt festgelegt und kann vom Benutzer nicht geändert werden. Sie können nur einen neuen Chat mit einem anderen Charakter starten."
+            },
+            {
+                "q": "Warum wird mein Chat-Verlauf nicht synchronisiert?",
+                "a": "Bitte stellen Sie sicher, dass Sie angemeldet sind. Wenn das Problem weiterhin besteht, wenden Sie sich bitte mit Details zu Ihrem Gerät und Browser an unser Support-Team."
+            },
+            {
+                "q": "Sind meine Gesprächsdaten vertraulich?",
+                "a": "Ja, wir behandeln Ihre Gespräche mit größter Vertraulichkeit. Detaillierte Informationen finden Sie in unserer unten verlinkten Datenschutzerklärung."
+            }
+        ],
+        "legalTitle": "Rechtliches",
+        "privacyPolicy": "Datenschutzerklärung",
+        "termsOfService": "Nutzungsbedingungen"
+    },
+    "CharacterList": {
+        "title": "Wählen Sie einen Charakter",
+        "start_chat_button": "Chat mit ausgewähltem Charakter starten",
+        "loading_button": "Chat wird gestartet...",
+        "alert_selectCharacter": "Bitte wählen Sie zuerst einen Charakter aus."
+    },
+    "CharacterCard": {
+        "fallbackRole": "KI-Assistent"
+    },
+    "Characters": {
+        "herr_bechler_role": "Deutschlehrer",
+        "herr_bechler_description": "Herr Bechler ist ein geduldiger, disziplinierter und freundlicher Deutschlehrer, der Lernenden hilft, Grammatik, Vokabular und Konversation durch klare Erklärungen und sanfte, strukturierte Anleitung zu meistern.",
+        "ms_young_role": "Schema-Psychotherapeutin",
+        "ms_young_description": "Frau Young ist eine warme, geduldige und zutiefst empathische Schema-Psychotherapeutin, die Einzelpersonen hilft, ihre emotionalen Bedürfnisse, frühen Erfahrungen und maladaptiven Muster mithilfe evidenzbasierter Schema-Therapie-Techniken zu verstehen.",
+        "ms_e_young_role": "Schema-Psychotherapie",
+        "ms_e_young_description": "Frau E. Young ist eine mitfühlende, geduldige Führerin, inspiriert von der Schema-Therapie, die Einzelpersonen hilft, ihre emotionalen Bedürfnisse, Verhaltensmuster und frühen Lebenserfahrungen durch reflektierende Fragen und unterstützende Einsichten zu erkunden.",
+        "mr_freeman_role": "ACT-Therapeut",
+        "mr_freeman_description": "Herr Freeman ist ein ruhiger, weiser und mitfühlender ACT-basierter Therapeut, der Einzelpersonen hilft, ihre Emotionen zu verstehen, schwierige Gedanken zu akzeptieren und sinnvolle, werteorientierte Handlungen zu unternehmen.",
+        "ms_riley_role": "Postpartale Beraterin",
+        "ms_riley_description": "Frau Riley ist eine herzliche, erfahrene und beruhigende postpartale Beraterin, die Mütter von 3 Monate alten Babys durch Fütterung, Schlaf und Entwicklung mit praktischer, mitfühlender Unterstützung führt.",
+        "mr_williams_role": "Karriereplaner",
+        "mr_williams_description": "Herr Williams ist ein warmer, inspirierender und sanft humorvoller Karriere-Mentor, der Menschen hilft, Stärken zu entdecken, Ziele zu klären und realistische, motivierende Karriere-Roadmaps mit Optimismus zu erstellen.",
+        "dr_chen_role": "Ernährungsberater",
+        "dr_chen_description": "Dr. Chen ist ein sachkundiger, zugänglicher und persönlicher Ernährungsberater, der evidenzbasierte Ernährungsempfehlungen, Speisepläne und Lifestyle-Tipps bietet, um Einzelpersonen beim Erreichen ihrer Gesundheitsziele zu helfen."
+    },
+    "ChatWindow": {
+        "placeholder": "Eine Nachricht schreiben...",
+        "toast_loadHistoryFailed_title": "Chat-Verlauf konnte nicht geladen werden.",
+        "toast_loadHistoryFailed_desc": "Die Nachrichten für dieses Gespräch konnten nicht abgerufen werden.",
+        "toast_sendFailed_title": "Nachricht konnte nicht gesendet werden.",
+        "toast_sendFailed_desc": "Ihre Nachricht konnte nicht in der Datenbank gespeichert werden.",
+        "toast_aiFailed_title": "KI-Antwort fehlgeschlagen.",
+        "toast_aiFailed_desc": "Der Charakter konnte keine Antwort generieren. Bitte versuchen Sie es erneut.",
+        "toast_aiPartial_title": "KI-Antwort geliefert, aber Speicherung der Nachricht fehlgeschlagen.",
+        "toast_aiPartial_desc": "Möglicherweise müssen Sie den Chat aktualisieren.",
+        "toast_networkError_title": "Netzwerkfehler.",
+        "toast_networkError_desc": "Konnte nicht mit dem Server kommunizieren. Überprüfen Sie Ihre Verbindung."
+    },
+    "DataPrivacy": {
+        "title": "Daten & Datenschutz",
+        "card_title": "Daten & Datenschutz",
+        "card_description": "Verwalten Sie Ihre Daten, Ihren Verlauf und Ihre Sicherheit.",
+        "button_clearHistory": "Gesamten Chat-Verlauf löschen",
+        "toast_historyCleared": "Chat-Verlauf gelöscht (simuliert).",
+        "button_downloadData": "Meine Daten herunterladen",
+        "toast_dataDownloaded": "Daten-Download-Link an E-Mail gesendet (simuliert).",
+        "footer_irreversibleNote": "Diese Aktion ist irreversibel.",
+        "button_deleteAccount": "Konto löschen",
+        "confirm_deleteAccount": "Sind Sie absolut sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "toast_accountDeletion": "Konto-Löschung angefordert. API-Aufruf wird simuliert..."
+    },
+    "Help": {
+        "title": "Hilfe & Support",
+        "faqTitle": "Häufig gestellte Fragen (FAQ)",
+        "faq": [
+            {
+                "q": "Wie kann ich die Persönlichkeit des Charakters ändern?",
+                "a": "Die Kernpersönlichkeit des Charakters wird durch den System-Prompt festgelegt und kann vom Benutzer nicht geändert werden. Sie können nur einen neuen Chat mit einem anderen Charakter starten."
+            },
+            {
+                "q": "Warum wird mein Chat-Verlauf nicht synchronisiert?",
+                "a": "Bitte stellen Sie sicher, dass Sie angemeldet sind. Wenn das Problem weiterhin besteht, wenden Sie sich bitte mit Details zu Ihrem Gerät und Browser an unser Support-Team."
+            },
+            {
+                "q": "Sind meine Gesprächsdaten vertraulich?",
+                "a": "Ja, wir behandeln Ihre Gespräche mit größter Vertraulichkeit. Detaillierte Informationen finden Sie in unserer unten verlinkten Datenschutzerklärung."
+            }
+        ],
+        "contactTitle": "Support kontaktieren",
+        "contactDescription": "Haben Sie nicht gefunden, wonach Sie gesucht haben? Wenden Sie sich an unser engagiertes Support-Team.",
+        "button_sendEmail": "E-Mail senden",
+        "legalTitle": "Rechtliches",
+        "privacyPolicy": "Datenschutzerklärung",
+        "termsOfService": "Nutzungsbedingungen",
+        "version": "Version"
+    },
+    "PrivacyPolicy": {
+        "title": "Datenschutzerklärung",
+        "lastUpdated": "Zuletzt aktualisiert",
+        "date": "28. November 2025",
+        "section1_title": "1. Einführung",
+        "section1_p1": "Willkommen bei [Name Ihrer App]! Wir verpflichten uns zum Schutz Ihrer Privatsphäre. Diese Datenschutzerklärung erklärt, wie wir Ihre Informationen sammeln, verwenden, offenlegen und schützen, wenn Sie unsere KI-Chat-Dienste nutzen.",
+        "section2_title": "2. Gesammelte Daten",
+        "section2_personalData_title": "Persönliche Daten",
+        "section2_personalData_p1": "Ihr Name und Ihre E-Mail-Adresse (über die Registrierung).",
+        "section2_chatData_title": "Chat-Daten",
+        "section2_chatData_p1": "Der Text Ihrer Gespräche mit den KI-Charakteren. Diese Daten werden ausschließlich zur Verbesserung unserer KI-Modelle und der Serviceleistung verwendet.",
+        "section2_usageData_title": "Nutzungsdaten",
+        "section2_usageData_p1": "Informationen darüber, wie Sie auf den Dienst zugreifen und ihn nutzen (z. B. Anmeldezeiten, besuchte Seiten).",
+        "section3_title": "3. Wie wir Ihre Daten verwenden",
+        "section3_p1": "Wir verwenden die gesammelten Informationen, um unsere Dienste bereitzustellen, zu warten und zu verbessern, neue Funktionen zu entwickeln und Sie über Service-Updates und Sicherheitshinweise zu informieren.",
+        "section4_title": "4. Weitergabe Ihrer Informationen",
+        "section4_p1": "Wir geben Ihre Chat-Daten nicht an Drittanbieter von Werbung weiter oder verkaufen sie nicht. Wir können Informationen mit vertrauenswürdigen Drittanbietern von Dienstleistungen (z. B. Hosting, Analysen) teilen, die für den Betrieb des Dienstes erforderlich sind.",
+        "section5_title": "5. Ihre Wahlmöglichkeiten",
+        "section5_p1": "Sie können Ihre persönlichen Informationen überprüfen und ändern, indem Sie sich in Ihren Kontoeinstellungen anmelden. Sie können auch die Löschung Ihres Kontos und aller damit verbundenen Daten beantragen, indem Sie uns kontaktieren.",
+        "button_backToHelp": "Zurück zu Hilfe & Support"
+    },
+    "EditProfile": {
+        "title": "Profil bearbeiten",
+        "publicInfo_title": "Öffentliche Informationen",
+        "publicInfo_description": "Aktualisieren Sie Ihren Namen und Ihr Profilbild.",
+        "button_changeAvatar": "Avatar ändern",
+        "label_fullName": "Vollständiger Name",
+        "placeholder_fullName": "Ihr vollständiger Name",
+        "label_emailAddress": "E-Mail-Adresse",
+        "button_saveChanges": "Änderungen speichern",
+        "button_saving": "Änderungen werden gespeichert...",
+        "password_title": "Passwortverwaltung",
+        "password_description": "Sichern Sie Ihr Konto mit einem starken Passwort.",
+        "button_changePassword": "Passwort ändern",
+        "toast_success": "Profil erfolgreich aktualisiert!",
+        "toast_success_desc": "Neuer Name: {name}",
+        "toast_avatarSimulated_title": "Avatar-Upload simuliert.",
+        "toast_avatarSimulated_desc": "Lokale Vorschau wird angezeigt.",
+        "toast_passwordFeatureComing": "Passwort-Reset-Funktion kommt bald!"
+    },
+    "Settings": {
+        "title": "Einstellungen",
+        "general_title": "Allgemeine Einstellungen",
+        "general_description": "Konfigurieren Sie Ihr Anwendungserlebnis.",
+        "label_theme": "Anwendungsthema",
+        "select_theme_placeholder": "Thema auswählen",
+        "theme_light": "Hell",
+        "theme_dark": "Dunkel",
+        "theme_system": "Systemstandard",
+        "label_language": "Anwendungssprache",
+        "select_language_placeholder": "Sprache auswählen",
+        "language_turkish": "Türkisch",
+        "language_english": "Englisch",
+        "language_german": "Deutsch",
+        "label_notifications": "Chat-Benachrichtigungen erhalten",
+        "toast_theme_changed": "Thema wurde auf {theme} eingestellt.",
+        "toast_language_changed": "Sprache wurde auf {language} eingestellt."
+    },
+    "TermsOfService": {
+        "title": "Nutzungsbedingungen",
+        "effectiveDateTitle": "Gültigkeitsdatum",
+        "effectiveDate": "1. November 2025",
+        "section1_title": "1. Zustimmung zu den Bedingungen",
+        "section1_p1": "Durch den Zugriff auf oder die Nutzung unseres Dienstes erklären Sie sich mit diesen Nutzungsbedingungen einverstanden. Wenn Sie mit einem Teil der Bedingungen nicht einverstanden sind, dürfen Sie den Dienst nicht nutzen.",
+        "section2_title": "2. Nutzung des Dienstes",
+        "section2_li1": "Der Dienst wird nur für den persönlichen, nicht kommerziellen Gebrauch bereitgestellt.",
+        "section2_li2": "Sie stimmen zu, den Dienst nicht für illegale oder nicht autorisierte Zwecke zu nutzen.",
+        "section2_li3": "Sie sind für alle Aktivitäten verantwortlich, die unter Ihrem Konto stattfinden.",
+        "section3_title": "3. Inhalt und Verhalten",
+        "section3_p1": "Sie behalten das Eigentum an allen Inhalten, die Sie über den Dienst einreichen, veröffentlichen oder anzeigen. Durch das Einreichen von Inhalten gewähren Sie uns jedoch eine weltweite, nicht exklusive Lizenz zur Nutzung, Änderung und Verbreitung dieser Inhalte für den Betrieb des Dienstes.",
+        "section4_title": "4. Geistiges Eigentum",
+        "section4_p1": "Der Dienst und seine ursprünglichen Inhalte, Funktionen und Funktionalitäten sind und bleiben das ausschließliche Eigentum von [Name Ihres Unternehmens] und seiner Lizenzgeber.",
+        "section5_title": "5. Kündigung",
+        "section5_p1": "Wir können Ihr Konto sofort und ohne vorherige Ankündigung oder Haftung kündigen oder sperren, und zwar aus beliebigem Grund, einschließlich, aber nicht beschränkt auf den Fall, dass Sie gegen die Bedingungen verstoßen.",
+        "button_backToHelp": "Zurück zu Hilfe & Support"
     }
 }

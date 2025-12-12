@@ -41,6 +41,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     type="button"
                     className="flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                 >
+
                     <Avatar className="w-11 h-11">
                         <AvatarImage src={userAvatar || '/default-avatar.png'} alt={userName} />
                         <AvatarFallback>{userInitials}</AvatarFallback>
@@ -58,7 +59,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     <SheetTitle className="sr-only">User Menu</SheetTitle> {/* Accessible title for screen readers */}
 
                     <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
+                        <Avatar className="w-11 h-11 gap-3 ring-2 ring-brand/40 border-1 border-background hover:ring-brand/50 rounded-full">
                             <AvatarImage src={userAvatar || '/default-avatar.png'} alt={userName} />
                             <AvatarFallback>{userInitials}</AvatarFallback>
                         </Avatar>
@@ -76,7 +77,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     <li>
                         {/* SheetClose: Ensures the sheet closes when the link is clicked */}
                         <SheetClose asChild>
-                            <Link href="/profile/edit" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
+                            <Link href="/profile" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
                                 {t('edit_profile') || 'Edit profile'}
                             </Link>
                         </SheetClose>
@@ -84,7 +85,14 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     <li>
                         <SheetClose asChild>
                             <Link href="/settings" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
-                                {t('settings_privacy') || 'Settings & Privacy'}
+                                {t('settings') || 'Settings'}
+                            </Link>
+                        </SheetClose>
+                    </li>
+                    <li>
+                        <SheetClose asChild>
+                            <Link href="/data-privacy" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
+                                {t('data_privacy') || 'Data & Privacy'}
                             </Link>
                         </SheetClose>
                     </li>
@@ -92,6 +100,13 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                         <SheetClose asChild>
                             <Link href="/help" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
                                 {t('help_support') || 'Help & Support'}
+                            </Link>
+                        </SheetClose>
+                    </li>
+                    <li>
+                        <SheetClose asChild>
+                            <Link href="/about" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
+                                {t('about') || 'About'}
                             </Link>
                         </SheetClose>
                     </li>

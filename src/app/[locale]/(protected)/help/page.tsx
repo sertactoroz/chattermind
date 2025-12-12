@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import BackButton from '@/features/common/components/BackButton';
 
@@ -26,29 +27,30 @@ const faqs = [
 
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'vX.X.X';
 export default function HelpPage() {
-    // const router = useRouter(); // No longer needed here
+    const t = useTranslations('Help');
 
     return (
         <div className="max-w-md mx-auto p-4">
             <div className="relative flex items-center justify-center pt-4 pb-4">
                 <BackButton />
                 <h1 className="text-3xl font-bold text-center">
-                    Help & Support
+                    {t('title')}
                 </h1>
             </div>
 
             {/* FAQ Section */}
             <Card className="mb-8">
                 <CardHeader>
-                    <CardTitle className="text-xl">Frequently Asked Questions (FAQ)</CardTitle>
+                    <CardTitle className="text-xl">{t('faqTitle')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Accordion type="single" collapsible className="w-full">
+                        {/* We use the keys defined in the 'About' section for FAQs */}
                         {faqs.map((item, index) => (
                             <AccordionItem value={`item-${index}`} key={index}>
-                                <AccordionTrigger className="text-left font-medium">{item.q}</AccordionTrigger>
+                                <AccordionTrigger className="text-left font-medium">{t(`faq.${index}.q`)}</AccordionTrigger>
                                 <AccordionContent className="text-muted-foreground">
-                                    {item.a}
+                                    {t(`faq.${index}.a`)}
                                 </AccordionContent>
                             </AccordionItem>
                         ))}
@@ -57,29 +59,35 @@ export default function HelpPage() {
             </Card>
 
             {/* Contact & Legal Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-lg">Contact Support</CardTitle>
+                        <CardTitle className="text-lg">{t('contactTitle')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <p className="text-sm text-muted-foreground">
-                            Couldn't find what you were looking for? Reach out to our dedicated support team.
+                            {t('contactDescription')}
                         </p>
-                        <Link href="mailto:sertactoroz@gmail.com" passHref legacyBehavior>
-                            <Button className="w-full">Send an Email</Button>
-                        </Link>
+                        <a href="mailto:sertactoroz@gmail.com">
+                            <Button className="w-full">{t('button_sendEmail')}</Button>
+                        </a>
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="flex flex-col">
                     <CardHeader>
-                        <CardTitle className="text-lg">Legal & About</CardTitle>
+                        <CardTitle className="text-lg">{t('legalTitle')}</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3 text-sm">
-                        <p>Version: {APP_VERSION}</p>
-                        <Link href="/privacy" className="text-primary hover:underline block">Privacy Policy</Link>
-                        <Link href="/terms" className="text-primary hover:underline block">Terms of Service</Link>
+
+                    <CardContent className="h-full flex flex-col justify-between p-6 pt-0">
+
+                        <div className="space-y-3 text-sm flex-grow">
+                            <Link href="/privacypolicy" className="text-primary hover:underline block">{t('privacyPolicy')}</Link>
+                            <Link href="/terms" className="text-primary hover:underline block">{t('termsOfService')}</Link>
+                        </div>
+
+                        <p className='text-gray-500 pt-4'>{t('version')}: {APP_VERSION}</p>
+
                     </CardContent>
                 </Card>
             </div>

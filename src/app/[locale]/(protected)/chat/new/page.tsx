@@ -101,7 +101,7 @@ export default function ChatNewPage() {
                     description: 'The character to start the chat with could not be found.',
                 });
                 // Redirect back to character selection if ID is missing
-                router.replace('/chat/select-character');
+                router.replace('/chat/characters');
                 return;
             }
 

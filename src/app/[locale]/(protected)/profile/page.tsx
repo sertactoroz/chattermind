@@ -8,15 +8,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import BackButton from '@/features/common/components/BackButton';
+import { useTranslations } from 'next-intl';
 
 // TODO: Mock user data - in a real app, fetch this from context or API
 const mockUser = {
-    fullName: "John Doe",
-    email: "john.doe@example.com",
+    fullName: "Guest User",
+    email: "guest.user@example.com",
     avatarUrl: "/default-avatar.png"
 };
 
 export default function EditProfilePage() {
+    const t = useTranslations('EditProfile');
     const [name, setName] = useState(mockUser.fullName);
     const [avatarUrl, setAvatarUrl] = useState(mockUser.avatarUrl);
     const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ export default function EditProfilePage() {
         setTimeout(() => {
             setLoading(false);
             // In a real app, this is where you'd call your updateProfile API
-            toast.success("Profile updated successfully!", { description: `New name: ${name}` });
+            toast.success(t('toast_success', { name: name }), { description: t('toast_success_desc', { name: name }) });
             // Optionally update mockUser/context state here
         }, 1500);
     };
@@ -47,7 +49,7 @@ export default function EditProfilePage() {
             // *** CALL setAvatarUrl HERE ***
             setAvatarUrl(newAvatarUrl);
 
-            toast.info("Avatar upload simulated.", { description: "Displaying local preview." });
+            toast.info(t('toast_avatarSimulated_title'), { description: t('toast_avatarSimulated_desc') });
         }
     };
 
@@ -56,14 +58,14 @@ export default function EditProfilePage() {
             <div className="relative flex items-center justify-center pt-4 pb-4">
                 <BackButton />
                 <h1 className="text-3xl font-bold text-center">
-                    Edit Profile
+                    {t('title')}
                 </h1>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Public Information</CardTitle>
-                    <CardDescription>Update your name and profile picture.</CardDescription>
+                    <CardTitle>{t('publicInfo_title')}</CardTitle>
+                    <CardDescription>{t('publicInfo_description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Avatar Upload Section */}
@@ -74,7 +76,7 @@ export default function EditProfilePage() {
                         </Avatar>
                         <Label htmlFor="avatar-upload" className="cursor-pointer">
                             <Button type="button" variant="outline" asChild>
-                                <span>Change Avatar</span>
+                                <span>{t('button_changeAvatar')}</span>
                             </Button>
                             <Input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                         </Label>
@@ -82,18 +84,18 @@ export default function EditProfilePage() {
 
                     <form onSubmit={handleSaveChanges} className="space-y-4">
                         <div>
-                            <Label htmlFor="name">Full Name</Label>
+                            <Label className="p-1" htmlFor="name">{t('label_fullName')}</Label>
                             <Input
                                 id="name"
                                 value={name}
                                 onChange={(e: { target: { value: SetStateAction<string>; }; }) => setName(e.target.value)}
-                                placeholder="Your Full Name"
+                                placeholder={t('placeholder_fullName')}
                             />
                         </div>
 
                         {/* Email (Read-only) */}
                         <div>
-                            <Label htmlFor="email">Email Address</Label>
+                            <Label className="p-1" htmlFor="email">{t('label_emailAddress')}</Label>
                             <Input
                                 id="email"
                                 value={mockUser.email}
@@ -105,7 +107,7 @@ export default function EditProfilePage() {
                         </div>
 
                         <Button type="submit" disabled={loading}>
-                            {loading ? 'Saving Changes...' : 'Save Changes'}
+                            {loading ? t('button_saving') : t('button_saveChanges')}
                         </Button>
                     </form>
                 </CardContent>
@@ -114,12 +116,12 @@ export default function EditProfilePage() {
             {/* Password Change Card */}
             <Card className="mt-6">
                 <CardHeader>
-                    <CardTitle>Password Management</CardTitle>
-                    <CardDescription>Secure your account with a strong password.</CardDescription>
+                    <CardTitle>{t('password_title')}</CardTitle>
+                    <CardDescription>{t('password_description')}</CardDescription>
                 </CardHeader>
                 <CardFooter>
-                    <Button variant="outline" onClick={() => toast.info("Password reset feature coming soon!")}>
-                        Change Password
+                    <Button variant="outline" onClick={() => toast.info(t('toast_passwordFeatureComing'))}>
+                        {t('button_changePassword')}
                     </Button>
                 </CardFooter>
             </Card>

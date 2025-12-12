@@ -1,13 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
-
-// ... (AuthContextType ve AuthContext tanımları aynı kalır)
 
 type AuthContextType = {
     user: User | null;
@@ -18,23 +16,28 @@ type AuthContextType = {
     signOut: () => Promise<void>;
 };
 
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
+    const pathname = usePathname();
     const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const hasRedirected = useRef(false); // ✅ Track if we already redirected
 
-    // Load existing session and redirect if user exists
+    // Load existing session
     useEffect(() => {
         const guestId = localStorage.getItem("guest_user_id");
         if (guestId) {
             setUser({ id: guestId, email: null, role: "guest" } as any);
             setLoading(false);
-            // Guest ID varsa, doğrudan karakter sayfasına yönlendir
-            router.replace('/characters');
+
+            // ✅ Only redirect if we're on the homepage (login page)
+            if (!hasRedirected.current && pathname === '/') {
+                hasRedirected.current = true;
+                router.replace('/characters');
+            }
             return;
         }
 
@@ -44,8 +47,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(data.session?.user ?? null);
             setLoading(false);
 
-            // Supabase session varsa, karakter sayfasına yönlendir
-            if (data.session) {
+            // ✅ Only redirect if we're on the homepage (login page)
+            if (data.session && !hasRedirected.current && pathname === '/') {
+                hasRedirected.current = true;
                 router.replace('/characters');
             }
         };
@@ -55,14 +59,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setSession(session ?? null);
             setUser(session?.user ?? null);
 
-            // Supabase Auth state değiştiğinde ve yeni bir oturum oluştuğunda yönlendir
-            if (session && session.user) {
+            // ✅ Only redirect on actual sign-in events, not page reloads
+            if (session && session.user && !hasRedirected.current && pathname === '/') {
+                hasRedirected.current = true;
                 router.replace('/characters');
             }
         });
 
         return () => listener.subscription.unsubscribe();
-    }, [router]);
+    }, [router, pathname]);
 
     // Google sign-in
     const signInWithGoogle = async () => {
@@ -70,12 +75,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
-                options: { redirectTo: `${window.location.origin}/characters` } // ✅ Başarılıysa doğrudan /characters'a dönecek
+                options: { redirectTo: `${window.location.origin}/characters` }
             });
 
             if (error) throw error;
-            // Google OAuth, yönlendirmeyi kendisi hallettiği için burada ekstra router.push() GEREKMEZ.
-            // options: { redirectTo: ... } bunu halleder.
 
         } catch (err) {
             console.error(err);
@@ -107,9 +110,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
             localStorage.setItem('guest_user_id', data.id);
             setUser({ id: data.id, email: null, role: 'guest' } as any);
-            toast.success('Guest account created and saved to DB');
+            toast.success('Guest account created');
 
-            // ✅ Guest kaydı ve state güncellemesi BAŞARILI oldu. Yönlendir.
             router.push('/characters');
 
         } catch (err) {
@@ -121,17 +123,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const signOut = async () => {
-        // 1. Supabase Oturumunu Sonlandır
+        // Sign out from Supabase
         await supabase.auth.signOut();
 
-        // 2. GUEST OTURUMUNU TEMİZLE (Çözüm burada!)
+        // Clear guest session
         localStorage.removeItem("guest_user_id");
 
-        // 3. Kullanıcı state'ini temizle (Opsiyonel, ama iyi bir uygulama)
+        // Clear state
         setUser(null);
         setSession(null);
 
-        // 4. Ana Sayfaya Yönlendir
+        // Reset redirect flag
+        hasRedirected.current = false;
+
+        // Redirect to homepage
         router.push('/');
     };
 

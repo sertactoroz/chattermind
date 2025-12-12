@@ -5,7 +5,7 @@
         "feature_animations": "Smooth animations & message transitions",
         "feature_realtime": "Realtime sync backed by Supabase",
         "cta_signin": "Sign in with Google",
-        "footer_note": "Prototype • Mobile-first • Framer Motion • Supabase • Groq",
+        "footer_note": "Mobile-first • Framer Motion • Supabase • Groq",
         "auth_byContinuing": "By continuing you agree to use your Google account for authentication."
     },
     "Auth": {
@@ -21,8 +21,194 @@
     },
     "Header": {
         "edit_profile": "Edit profile",
-        "settings_privacy": "Settings & Privacy",
+        "settings": "Settings",
         "help_support": "Help & Support",
+        "data_privacy": "Data & Privacy",
+        "legal": "Legal",
+        "about": "About",
         "logout": "Logout"
+    },
+    "About": {
+        "title": "About",
+        "appName": "ChatterMind",
+        "p1_part1": "is a cutting-edge, mobile-first AI chat application developed by M. Sertaç Toröz.",
+        "p1_part2": "This project is a demonstration of modern web application architecture, featuring real-time communication, responsive design, and multilingual support.",
+        "p2_part1": "Built on a robust, feature-based architecture utilizing the",
+        "p2_part2": "for backend services (Auth, Realtime), and the high-speed",
+        "p2_part3": "for powerful conversational capabilities. Fluidity is achieved through",
+        "p2_part4": "for smooth, intentional animations.",
+        "p3_part1": "This application is open-source and its development is driven by a passion for clean code and modern web standards. The complete source code and detailed documentation are available on GitHub:",
+        "viewGithub": "View Project on GitHub",
+        "version": "Version",
+        "faqTitle": "Frequently Asked Questions",
+        "faq": [
+            {
+                "q": "How can I change the character's personality?",
+                "a": "The character's core personality is set by the system prompt and cannot be changed by the user. You can only start a new chat with a different character."
+            },
+            {
+                "q": "Why isn't my chat history syncing?",
+                "a": "Please ensure you are logged in. If the problem persists, contact our support team with details about your device and browser."
+            },
+            {
+                "q": "Is my conversation data confidential?",
+                "a": "Yes, we treat your conversations with the utmost privacy. For detailed information, please refer to our Privacy Policy linked below."
+            }
+        ],
+        "legalTitle": "Legal",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service"
+    },
+    "CharacterList": {
+        "title": "Choose a Character",
+        "start_chat_button": "Start chat with selected character",
+        "loading_button": "Starting Chat...",
+        "alert_selectCharacter": "Please select a character first."
+    },
+    "CharacterCard": {
+        "fallbackRole": "AI Assistant"
+    },
+    "Characters": {
+        "herr_bechler_role": "German Teacher",
+        "herr_bechler_description": "Herr Bechler is a patient, disciplined and kind German teacher who helps learners master grammar, vocabulary and conversation through clear explanations and gentle, structured guidance.",
+        "ms_young_role": "Schema Psychotherapist",
+        "ms_young_description": "Ms. Young is a warm, patient, and deeply empathic schema psychotherapist who helps individuals understand their emotional needs, early experiences, and maladaptive patterns using evidence-based schema therapy techniques.",
+        "ms_e_young_role": "Schema Psychotherapy",
+        "ms_e_young_description": "Ms. E. Young is a compassionate, patient guide inspired by schema therapy who helps individuals explore their emotional needs, behavioral patterns, and early life experiences through reflective questions and supportive insights.",
+        "mr_freeman_role": "ACT Therapist",
+        "mr_freeman_description": "Mr. Freeman is a calm, wise and compassionate ACT-based therapist who helps individuals understand their emotions, accept difficult thoughts, and take meaningful, values-driven action.",
+        "ms_riley_role": "Postpartum Consultant",
+        "ms_riley_description": "Ms. Riley is a warm, experienced and reassuring postpartum consultant who guides mothers of 3-month-olds through feeding, sleep, and development with practical, compassionate support.",
+        "mr_williams_role": "Career Planner",
+        "mr_williams_description": "Mr. Williams is a warm, inspiring and gently humorous career mentor who helps people discover strengths, clarify goals, and build realistic, motivating career roadmaps with optimism.",
+        "dr_chen_role": "Nutritionist",
+        "dr_chen_description": "Dr. Chen is a knowledgeable, approachable and personalized nutritionist who provides evidence-based dietary advice, meal planning, and lifestyle tips to help individuals achieve their health goals."
+    },
+    "ChatWindow": {
+        "placeholder": "Write a message...",
+        "toast_loadHistoryFailed_title": "Failed to load chat history.",
+        "toast_loadHistoryFailed_desc": "The messages for this conversation could not be retrieved.",
+        "toast_sendFailed_title": "Failed to send message.",
+        "toast_sendFailed_desc": "Your message could not be saved to the database.",
+        "toast_aiFailed_title": "AI response failed.",
+        "toast_aiFailed_desc": "The character could not generate a reply. Please try again.",
+        "toast_aiPartial_title": "AI response delivered, but message failed to save.",
+        "toast_aiPartial_desc": "You may need to refresh the chat.",
+        "toast_networkError_title": "Network Error.",
+        "toast_networkError_desc": "Could not communicate with the server. Check your connection."
+    },
+    "DataPrivacy": {
+        "title": "Data & Privacy",
+        "card_title": "Data & Privacy",
+        "card_description": "Manage your data, history, and security.",
+        "button_clearHistory": "Clear All Chat History",
+        "toast_historyCleared": "Chat history cleared (simulated).",
+        "button_downloadData": "Download My Data",
+        "toast_dataDownloaded": "Data download link sent to email (simulated).",
+        "footer_irreversibleNote": "This action is irreversible.",
+        "button_deleteAccount": "Delete Account",
+        "confirm_deleteAccount": "Are you absolutely sure you want to delete your account? This action cannot be undone.",
+        "toast_accountDeletion": "Account deletion requested. Simulating API call..."
+    },
+    "Help": {
+        "title": "Help & Support",
+        "faqTitle": "Frequently Asked Questions (FAQ)",
+        "faq": [
+            {
+                "q": "How can I change the character's personality?",
+                "a": "The character's core personality is set by the system prompt and cannot be changed by the user. You can only start a new chat with a different character."
+            },
+            {
+                "q": "Why isn't my chat history syncing?",
+                "a": "Please ensure you are logged in. If the problem persists, contact our support team with details about your device and browser."
+            },
+            {
+                "q": "Is my conversation data confidential?",
+                "a": "Yes, we treat your conversations with the utmost privacy. For detailed information, please refer to our Privacy Policy linked below."
+            }
+        ],
+        "contactTitle": "Contact Support",
+        "contactDescription": "Couldn't find what you were looking for? Reach out to our dedicated support team.",
+        "button_sendEmail": "Send an Email",
+        "legalTitle": "Legal",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service",
+        "version": "Version"
+    },
+    "PrivacyPolicy": {
+        "title": "Privacy Policy",
+        "lastUpdated": "Last updated",
+        "date": "November 28, 2025",
+        "section1_title": "1. Introduction",
+        "section1_p1": "Welcome to [Your App Name]! We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI chat services.",
+        "section2_title": "2. Data We Collect",
+        "section2_personalData_title": "Personal Data",
+        "section2_personalData_p1": "Your name and email address (via sign-up).",
+        "section2_chatData_title": "Chat Data",
+        "section2_chatData_p1": "The text of your conversations with the AI characters. This data is used solely to improve our AI models and service performance.",
+        "section2_usageData_title": "Usage Data",
+        "section2_usageData_p1": "Information about how you access and use the service (e.g., login times, pages visited).",
+        "section3_title": "3. How We Use Your Data",
+        "section3_p1": "We use the information we collect to provide, maintain, and improve our services, develop new features, and communicate with you about service updates and security notices.",
+        "section4_title": "4. Sharing Your Information",
+        "section4_p1": "We do not share or sell your chat data to third-party advertisers. We may share information with trusted third-party service providers (e.g., hosting, analytics) necessary to operate the service.",
+        "section5_title": "5. Your Choices",
+        "section5_p1": "You can review and change your personal information by logging into your account settings. You can also request the deletion of your account and all associated data by contacting us.",
+        "button_backToHelp": "Back to Help & Support"
+    },
+    "EditProfile": {
+        "title": "Edit Profile",
+        "publicInfo_title": "Public Information",
+        "publicInfo_description": "Update your name and profile picture.",
+        "button_changeAvatar": "Change Avatar",
+        "label_fullName": "Full Name",
+        "placeholder_fullName": "Your Full Name",
+        "label_emailAddress": "Email Address",
+        "button_saveChanges": "Save Changes",
+        "button_saving": "Saving Changes...",
+        "password_title": "Password Management",
+        "password_description": "Secure your account with a strong password.",
+        "button_changePassword": "Change Password",
+        "toast_success": "Profile updated successfully!",
+        "toast_success_desc": "New name: {name}",
+        "toast_avatarSimulated_title": "Avatar upload simulated.",
+        "toast_avatarSimulated_desc": "Displaying local preview.",
+        "toast_passwordFeatureComing": "Password reset feature coming soon!"
+    },
+    "Settings": {
+        "title": "Settings",
+        "general_title": "General Settings",
+        "general_description": "Configure your application experience.",
+        "label_theme": "Application Theme",
+        "select_theme_placeholder": "Select Theme",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "theme_system": "System Default",
+        "label_language": "Application Language",
+        "select_language_placeholder": "Select Language",
+        "language_turkish": "Türkçe",
+        "language_english": "English",
+        "language_german": "Deutsch",
+        "label_notifications": "Receive Chat Notifications",
+        "toast_theme_changed": "Theme set to {theme}.",
+        "toast_language_changed": "Language set to {language}."
+    },
+    "TermsOfService": {
+        "title": "Terms of Service",
+        "effectiveDateTitle": "Effective Date",
+        "effectiveDate": "November 1, 2025",
+        "section1_title": "1. Agreement to Terms",
+        "section1_p1": "By accessing or using our service, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you may not access the service.",
+        "section2_title": "2. Use of Service",
+        "section2_li1": "The service is provided for personal, non-commercial use only.",
+        "section2_li2": "You agree not to use the service for any illegal or unauthorized purpose.",
+        "section2_li3": "You are responsible for all activities that occur under your account.",
+        "section3_title": "3. Content and Conduct",
+        "section3_p1": "You retain ownership of any content you submit, post, or display on or through the service. However, by submitting content, you grant us a worldwide, non-exclusive license to use, modify, and distribute such content for the operation of the service.",
+        "section4_title": "4. Intellectual Property",
+        "section4_p1": "The service and its original content, features, and functionality are and will remain the exclusive property of [Your Company Name] and its licensors.",
+        "section5_title": "5. Termination",
+        "section5_p1": "We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.",
+        "button_backToHelp": "Back to Help & Support"
     }
 }

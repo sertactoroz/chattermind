@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,18 +9,21 @@ import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import BackButton from '@/features/common/components/BackButton';
 
-import { useTheme } from 'next-themes'; // From ThemeToggle
-import { usePathname, useRouter } from '@/i18n/navigation'; // From LanguageSwitcher
-import { useLocale } from 'next-intl'; // From LanguageSwitcher
+import { useTheme } from 'next-themes';
+import { usePathname, useRouter } from '@/i18n/navigation';
+import { useLocale, useTranslations } from 'next-intl'; // useTranslations'ı ekledik
 
 const LOCALES = [
-    { code: 'tr', label: 'TR', name: 'Türkçe' },
-    { code: 'en', label: 'EN', name: 'English' },
-    { code: 'de', 'label': 'DE', name: 'Deutsch' },
+    // Bu array JSON'a taşınmamalı, uygulama mantığı için burada kalmalı,
+    // ancak label ve name alanları çeviri anahtarı olarak kullanılabilir.
+    { code: 'tr', label: 'TR', nameKey: 'turkish' },
+    { code: 'en', label: 'EN', nameKey: 'english' },
+    { code: 'de', 'label': 'DE', nameKey: 'german' },
 ];
-// --------------------------------------------------
 
 export default function SettingsPage() {
+    const t = useTranslations('Settings'); // Translations initialization
+
     // --- Language Switcher Hooks ---
     const currentLocale = useLocale();
     const router = useRouter();
@@ -30,7 +33,7 @@ export default function SettingsPage() {
     const { theme, setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
-    // Use the theme value that should be displayed in the Select component
+    // Determine the theme to display in the Select component
     const displayTheme = theme === 'system' ? 'system' : (resolvedTheme || 'light');
     // -----------------------------
 
@@ -39,52 +42,58 @@ export default function SettingsPage() {
 
     const handleThemeChange = (value: string) => {
         setTheme(value);
-        toast.info(`Theme set to ${value}.`);
+        // Toast message using translation keys
+        toast.info(t('toast_theme_changed', { theme: t(`theme_${value}`) }));
     };
 
     const handleLanguageChange = async (newLocale: string) => {
         if (newLocale === currentLocale) return;
-        // Logic copied from LanguageSwitcher
+
+        const localeName = LOCALES.find(l => l.code === newLocale)?.nameKey;
+
+        // Logic copied from LanguageSwitcher: replace path with new locale
         await router.replace(pathname, { locale: newLocale });
         router.refresh();
-        toast.info(`Language set to ${LOCALES.find(l => l.code === newLocale)?.name || newLocale}.`);
+
+        // Toast message using translation keys
+        toast.info(t('toast_language_changed', { language: t(`language_${localeName}`) }));
     };
 
-    const handleDeleteAccount = () => {
-        if (window.confirm("Are you absolutely sure you want to delete your account? This action cannot be undone.")) {
-            toast.error("Account deletion requested. Simulating API call...", { duration: 3000 });
-        }
+    const handleGoToDataPrivacy = () => {
+        // Navigate the user to the new DataPrivacyPage.
+        // NOTE: Adjust the path '/data-privacy' to match your application's actual route structure.
+        router.push('/data-privacy');
     };
+
 
     return (
         <div className="max-w-md mx-auto p-4">
             <div className="relative flex items-center justify-center pt-4 pb-4">
                 <BackButton />
-                <h1 className="text-3xl font-bold text-center">Settings & Privacy</h1>
+                <h1 className="text-3xl font-bold text-center">{t('title')}</h1>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>General Settings</CardTitle>
-                    <CardDescription>Configure your application experience.</CardDescription>
+                    <CardTitle>{t('general_title')}</CardTitle>
+                    <CardDescription>{t('general_description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
 
                     {/* Theme Selector (Using next-themes logic) */}
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="theme">Application Theme</Label>
-                        {/* Guard against unmounted state for next-themes */}
+                        <Label htmlFor="theme">{t('label_theme')}</Label>
                         {!mounted ? (
                             <div className="w-[180px] h-10 bg-muted rounded-md animate-pulse" />
                         ) : (
                             <Select value={displayTheme} onValueChange={handleThemeChange}>
                                 <SelectTrigger id="theme" className="w-[180px]">
-                                    <SelectValue placeholder="Select Theme" />
+                                    <SelectValue placeholder={t('select_theme_placeholder')} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="light">Light</SelectItem>
-                                    <SelectItem value="dark">Dark</SelectItem>
-                                    <SelectItem value="system">System Default</SelectItem>
+                                    <SelectItem value="light">{t('theme_light')}</SelectItem>
+                                    <SelectItem value="dark">{t('theme_dark')}</SelectItem>
+                                    <SelectItem value="system">{t('theme_system')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         )}
@@ -92,15 +101,15 @@ export default function SettingsPage() {
 
                     {/* Language Selector (Using next-intl logic) */}
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="language">Application Language</Label>
+                        <Label htmlFor="language">{t('label_language')}</Label>
                         <Select value={currentLocale} onValueChange={handleLanguageChange}>
                             <SelectTrigger id="language" className="w-[180px]">
-                                <SelectValue placeholder="Select Language" />
+                                <SelectValue placeholder={t('select_language_placeholder')} />
                             </SelectTrigger>
                             <SelectContent>
                                 {LOCALES.map(l => (
                                     <SelectItem key={l.code} value={l.code}>
-                                        {l.name} ({l.label})
+                                        {t(`language_${l.nameKey}`)} ({l.label})
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -109,7 +118,7 @@ export default function SettingsPage() {
 
                     {/* Notifications Toggle */}
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="notifications">Receive Chat Notifications</Label>
+                        <Label htmlFor="notifications">{t('label_notifications')}</Label>
                         <Switch
                             id="notifications"
                             checked={notifications}
@@ -117,35 +126,6 @@ export default function SettingsPage() {
                         />
                     </div>
                 </CardContent>
-            </Card>
-
-            {/* Privacy and Data Card */}
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle>Data & Privacy</CardTitle>
-                    <CardDescription>Manage your data, history, and security.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {/* Clear History */}
-                    <Button
-                        variant="outline"
-                        className="w-full text-destructive border-destructive hover:bg-destructive/10"
-                        onClick={() => toast.info("Chat history cleared (simulated).")}
-                    >
-                        Clear All Chat History
-                    </Button>
-
-                    {/* Download Data */}
-                    <Button variant="outline" className="w-full" onClick={() => toast.info("Data download link sent to email (simulated).")}>
-                        Download My Data
-                    </Button>
-                </CardContent>
-                <CardFooter className="border-t pt-6 flex justify-end">
-                    {/* Delete Account */}
-                    <Button variant="destructive" onClick={handleDeleteAccount}>
-                        Delete Account
-                    </Button>
-                </CardFooter>
             </Card>
         </div>
     );
