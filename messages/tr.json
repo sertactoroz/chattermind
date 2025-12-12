@@ -1,28 +1,214 @@
 {
     "Homepage": {
-        "subtitle": "Modern, mobil öncelikli yapay zeka sohbeti — özgün karakterlerle gerçek zamanlı, akıcı konuşmaları deneyimleyin.",
-        "feature_mobile": "Dokunmatik kontrollere sahip mobil öncelikli sohbet arayüzü",
+        "subtitle": "Modern, mobil öncelikli yapay zeka sohbeti — özgün karakterlerle gerçek zamanlı, akıcı sohbetler deneyimleyin.",
+        "feature_mobile": "Dokunmatik dostu kontrollere sahip mobil öncelikli sohbet arayüzü",
         "feature_animations": "Akıcı animasyonlar ve mesaj geçişleri",
         "feature_realtime": "Supabase destekli gerçek zamanlı senkronizasyon",
-        "cta_signin": "Google ile Giriş Yap",
+        "cta_signin": "Google ile giriş yap",
         "footer_note": "Mobil Öncelikli • Framer Motion • Supabase • Groq",
-        "auth_byContinuing": "Devam ederek kimlik doğrulama için Google hesabınızı kullanmayı kabul etmiş olursunuz."
+        "auth_byContinuing": "Devam ederek kimlik doğrulama için Google hesabınızı kullanmayı kabul ediyorsunuz."
     },
     "Auth": {
         "loading": "Yükleniyor...",
         "signin_google": "Google ile Giriş Yap",
-        "signup_email": "E-posta ve Şifre ile Kayıt Ol",
+        "signup_email": "E-posta ve Şifre ile Kaydol",
         "guest_login": "Misafir Olarak Devam Et",
         "signup_title": "Hesabınızı Oluşturun",
-        "already_have_account": "Zaten bir hesabınız var mı?",
+        "already_have_account": "Zaten hesabınız var mı?",
         "signin_link": "Giriş Yap",
         "signout": "Çıkış Yap",
         "or":"veya"
     },
     "Header": {
-        "edit_profile": "Profili düzenle",
-        "settings_privacy": "Ayarlar & Gizlilik",
+        "edit_profile": "Profili Düzenle",
+        "settings": "Ayarlar",
         "help_support": "Yardım & Destek",
-        "logout": "Çıkış"
+        "data_privacy": "Veri & Gizlilik",
+        "legal": "Yasal",
+        "about": "Hakkında",
+        "logout": "Çıkış Yap"
+    },
+    "About": {
+        "title": "Hakkında",
+        "appName": "ChatterMind",
+        "p1_part1": "M. Sertaç Toröz tarafından geliştirilmiş, son teknoloji, mobil öncelikli bir yapay zeka sohbet uygulamasıdır.",
+        "p1_part2": "Bu proje, gerçek zamanlı iletişim, duyarlı tasarım ve çok dilli desteğe sahip modern bir web uygulaması mimarisinin bir gösterimidir.",
+        "p2_part1": "Arka uç hizmetleri (Kimlik Doğrulama, Gerçek Zamanlı) için",
+        "p2_part2": "ve güçlü sohbet yetenekleri için yüksek hızlı",
+        "p2_part3": "kullanılarak sağlam, özellik tabanlı bir mimari üzerine inşa edilmiştir. Akıcılık, pürüzsüz ve kasıtlı animasyonlar için",
+        "p2_part4": "aracılığıyla sağlanır.",
+        "p3_part1": "Bu uygulama açık kaynaktır ve geliştirilmesi temiz kod ve modern web standartlarına olan tutkuyla yürütülmektedir. Tüm kaynak kodu ve ayrıntılı belgeler GitHub'da mevcuttur:",
+        "viewGithub": "Projeyi GitHub'da Görüntüle",
+        "version": "Sürüm",
+        "faqTitle": "Sıkça Sorulan Sorular",
+        "faq": [
+            {
+                "q": "Karakterin kişiliğini nasıl değiştirebilirim?",
+                "a": "Karakterin temel kişiliği sistem istemi tarafından belirlenir ve kullanıcı tarafından değiştirilemez. Yalnızca farklı bir karakterle yeni bir sohbet başlatabilirsiniz."
+            },
+            {
+                "q": "Sohbet geçmişim neden senkronize olmuyor?",
+                "a": "Lütfen giriş yaptığınızdan emin olun. Sorun devam ederse, cihazınız ve tarayıcınız hakkındaki ayrıntılarla birlikte destek ekibimizle iletişime geçin."
+            },
+            {
+                "q": "Konuşma verilerim gizli mi?",
+                "a": "Evet, konuşmalarınızı azami gizlilikle ele alıyoruz. Ayrıntılı bilgi için lütfen aşağıda bağlantısı bulunan Gizlilik Politikamıza bakın."
+            }
+        ],
+        "legalTitle": "Yasal",
+        "privacyPolicy": "Gizlilik Politikası",
+        "termsOfService": "Hizmet Şartları"
+    },
+    "CharacterList": {
+        "title": "Bir Karakter Seçin",
+        "start_chat_button": "Seçilen karakterle sohbete başla",
+        "loading_button": "Sohbet Başlatılıyor...",
+        "alert_selectCharacter": "Lütfen önce bir karakter seçin."
+    },
+    "CharacterCard": {
+        "fallbackRole": "YZ Asistanı"
+    },
+    "Characters": {
+        "herr_bechler_role": "Almanca Öğretmeni",
+        "herr_bechler_description": "Herr Bechler, net açıklamalar ve nazik, yapılandırılmış rehberlik yoluyla öğrencilerin dil bilgisi, kelime dağarcığı ve konuşma konularında ustalaşmalarına yardımcı olan sabırlı, disiplinli ve nazik bir Almanca öğretmenidir.",
+        "ms_young_role": "Şema Psikoterapisti",
+        "ms_young_description": "Bayan Young, kanıta dayalı şema terapi tekniklerini kullanarak bireylerin duygusal ihtiyaçlarını, erken deneyimlerini ve uyum bozucu kalıplarını anlamalarına yardımcı olan sıcak, sabırlı ve derinlemesine empatik bir şema psikoterapistidir.",
+        "ms_e_young_role": "Şema Psikoterapisi",
+        "ms_e_young_description": "Bayan E. Young, bireylerin yansıtıcı sorular ve destekleyici içgörüler aracılığıyla duygusal ihtiyaçlarını, davranış kalıplarını ve erken yaşam deneyimlerini keşfetmelerine yardımcı olan, şema terapisinden ilham alan şefkatli, sabırlı bir rehberdir.",
+        "mr_freeman_role": "ACT Terapisti",
+        "mr_freeman_description": "Bay Freeman, bireylerin duygularını anlamalarına, zor düşünceleri kabul etmelerine ve anlamlı, değer odaklı eylemler yapmalarına yardımcı olan sakin, bilge ve şefkatli, ACT tabanlı bir terapisttir.",
+        "ms_riley_role": "Doğum Sonrası Danışman",
+        "ms_riley_description": "Bayan Riley, 3 aylık bebek annelerine beslenme, uyku ve gelişim konularında pratik, şefkatli destekle rehberlik eden sıcak, deneyimli ve güven veren bir doğum sonrası danışmanıdır.",
+        "mr_williams_role": "Kariyer Planlayıcısı",
+        "mr_williams_description": "Bay Williams, insanların güçlü yönlerini keşfetmelerine, hedeflerini netleştirmelerine ve iyimserlikle gerçekçi, motive edici kariyer yol haritaları oluşturmalarına yardımcı olan sıcak, ilham verici ve nazikçe mizahi bir kariyer mentorudur.",
+        "dr_chen_role": "Beslenme Uzmanı",
+        "dr_chen_description": "Dr. Chen, bireylerin sağlık hedeflerine ulaşmalarına yardımcı olmak için kanıta dayalı beslenme tavsiyeleri, yemek planlaması ve yaşam tarzı ipuçları sunan bilgili, ulaşılabilir ve kişiselleştirilmiş bir beslenme uzmanıdır."
+    },
+    "ChatWindow": {
+        "placeholder": "Bir mesaj yazın...",
+        "toast_loadHistoryFailed_title": "Sohbet geçmişi yüklenemedi.",
+        "toast_loadHistoryFailed_desc": "Bu konuşmanın mesajları alınamadı.",
+        "toast_sendFailed_title": "Mesaj gönderilemedi.",
+        "toast_sendFailed_desc": "Mesajınız veritabanına kaydedilemedi.",
+        "toast_aiFailed_title": "YZ yanıtı başarısız oldu.",
+        "toast_aiFailed_desc": "Karakter bir yanıt oluşturamadı. Lütfen tekrar deneyin.",
+        "toast_aiPartial_title": "YZ yanıtı teslim edildi ancak mesaj kaydedilemedi.",
+        "toast_aiPartial_desc": "Sohbeti yenilemeniz gerekebilir.",
+        "toast_networkError_title": "Ağ Hatası.",
+        "toast_networkError_desc": "Sunucuyla iletişim kurulamadı. Bağlantınızı kontrol edin."
+    },
+    "DataPrivacy": {
+        "title": "Veri & Gizlilik",
+        "card_title": "Veri & Gizlilik",
+        "card_description": "Verilerinizi, geçmişinizi ve güvenliğinizi yönetin.",
+        "button_clearHistory": "Tüm Sohbet Geçmişini Temizle",
+        "toast_historyCleared": "Sohbet geçmişi temizlendi (simülasyon).",
+        "button_downloadData": "Verilerimi İndir",
+        "toast_dataDownloaded": "Veri indirme bağlantısı e-postaya gönderildi (simülasyon).",
+        "footer_irreversibleNote": "Bu işlem geri alınamaz.",
+        "button_deleteAccount": "Hesabı Sil",
+        "confirm_deleteAccount": "Hesabınızı silmek istediğinizden kesinlikle emin misiniz? Bu eylem geri alınamaz.",
+        "toast_accountDeletion": "Hesap silme talebi alındı. API çağrısı simüle ediliyor..."
+    },
+    "Help": {
+        "title": "Yardım & Destek",
+        "faqTitle": "Sıkça Sorulan Sorular (SSS)",
+        "faq": [
+            {
+                "q": "Karakterin kişiliğini nasıl değiştirebilirim?",
+                "a": "Karakterin temel kişiliği sistem istemi tarafından belirlenir ve kullanıcı tarafından değiştirilemez. Yalnızca farklı bir karakterle yeni bir sohbet başlatabilirsiniz."
+            },
+            {
+                "q": "Sohbet geçmişim neden senkronize olmuyor?",
+                "a": "Lütfen giriş yaptığınızdan emin olun. Sorun devam ederse, cihazınız ve tarayıcınız hakkındaki ayrıntılarla birlikte destek ekibimizle iletişime geçin."
+            },
+            {
+                "q": "Konuşma verilerim gizli mi?",
+                "a": "Evet, konuşmalarınızı azami gizlilikle ele alıyoruz. Ayrıntılı bilgi için lütfen aşağıda bağlantısı bulunan Gizlilik Politikamıza bakın."
+            }
+        ],
+        "contactTitle": "Destek Ekibiyle İletişime Geçin",
+        "contactDescription": "Aradığınızı bulamadınız mı? Özel destek ekibimizle iletişime geçin.",
+        "button_sendEmail": "E-posta Gönder",
+        "legalTitle": "Yasal",
+        "privacyPolicy": "Gizlilik Politikası",
+        "termsOfService": "Hizmet Şartları",
+        "version": "Sürüm"
+    },
+    "PrivacyPolicy": {
+        "title": "Gizlilik Politikası",
+        "lastUpdated": "Son Güncelleme",
+        "date": "28 Kasım 2025",
+        "section1_title": "1. Giriş",
+        "section1_p1": "[Uygulama Adınız]'a hoş geldiniz! Gizliliğinizi korumayı taahhüt ediyoruz. Bu Gizlilik Politikası, yapay zeka sohbet hizmetlerimizi kullanırken bilgilerinizi nasıl topladığımızı, kullandığımızı, ifşa ettiğimizi ve koruduğumuzu açıklar.",
+        "section2_title": "2. Topladığımız Veriler",
+        "section2_personalData_title": "Kişisel Veriler",
+        "section2_personalData_p1": "Adınız ve e-posta adresiniz (kayıt yoluyla).",
+        "section2_chatData_title": "Sohbet Verileri",
+        "section2_chatData_p1": "Yapay zeka karakterleriyle yaptığınız konuşmaların metni. Bu veriler yalnızca yapay zeka modellerimizi ve hizmet performansımızı iyileştirmek için kullanılır.",
+        "section2_usageData_title": "Kullanım Verileri",
+        "section2_usageData_p1": "Hizmete nasıl eriştiğiniz ve kullandığınız hakkındaki bilgiler (örneğin, giriş saatleri, ziyaret edilen sayfalar).",
+        "section3_title": "3. Verilerinizi Nasıl Kullanıyoruz",
+        "section3_p1": "Topladığımız bilgileri hizmetlerimizi sağlamak, sürdürmek ve iyileştirmek, yeni özellikler geliştirmek ve hizmet güncellemeleri ve güvenlik bildirimleri hakkında sizinle iletişim kurmak için kullanırız.",
+        "section4_title": "4. Bilgilerinizi Paylaşma",
+        "section4_p1": "Sohbet verilerinizi üçüncü taraf reklam verenlerle paylaşmayız veya satmayız. Hizmeti işletmek için gerekli olan güvenilir üçüncü taraf hizmet sağlayıcılarla (örneğin, barındırma, analiz) bilgi paylaşabiliriz.",
+        "section5_title": "5. Seçimleriniz",
+        "section5_p1": "Hesap ayarlarınıza giriş yaparak kişisel bilgilerinizi inceleyebilir ve değiştirebilirsiniz. Ayrıca bizimle iletişime geçerek hesabınızın ve ilgili tüm verilerin silinmesini talep edebilirsiniz.",
+        "button_backToHelp": "Yardım & Destek'e Geri Dön"
+    },
+    "EditProfile": {
+        "title": "Profili Düzenle",
+        "publicInfo_title": "Profil Bilgileri",
+        "publicInfo_description": "Adınızı ve profil resminizi güncelleyin.",
+        "button_changeAvatar": "Avatarı Değiştir",
+        "label_fullName": "Ad Soyad",
+        "placeholder_fullName": "Adınız Soyadınız",
+        "label_emailAddress": "E-posta Adresi",
+        "button_saveChanges": "Değişiklikleri Kaydet",
+        "button_saving": "Değişiklikler Kaydediliyor...",
+        "password_title": "Şifre Yönetimi",
+        "password_description": "Hesabınızı güçlü bir şifreyle güvence altına alın.",
+        "button_changePassword": "Şifreyi Değiştir",
+        "toast_success": "Profil başarıyla güncellendi!",
+        "toast_success_desc": "Yeni ad: {name}",
+        "toast_avatarSimulated_title": "Avatar yükleme simüle edildi.",
+        "toast_avatarSimulated_desc": "Yerel önizleme gösteriliyor.",
+        "toast_passwordFeatureComing": "Şifre sıfırlama özelliği yakında geliyor!"
+    },
+    "Settings": {
+        "title": "Ayarlar",
+        "general_title": "Genel Ayarlar",
+        "general_description": "Uygulama deneyiminizi yapılandırın.",
+        "label_theme": "Uygulama Teması",
+        "select_theme_placeholder": "Tema Seçin",
+        "theme_light": "Açık",
+        "theme_dark": "Koyu",
+        "theme_system": "Sistem Varsayılanı",
+        "label_language": "Uygulama Dili",
+        "select_language_placeholder": "Dil Seçin",
+        "language_turkish": "Türkçe",
+        "language_english": "İngilizce",
+        "language_german": "Almanca",
+        "label_notifications": "Sohbet Bildirimlerini Al",
+        "toast_theme_changed": "Tema {theme} olarak ayarlandı.",
+        "toast_language_changed": "Dil {language} olarak ayarlandı."
+    },
+    "TermsOfService": {
+        "title": "Hizmet Şartları",
+        "effectiveDateTitle": "Yürürlük Tarihi",
+        "effectiveDate": "1 Kasım 2025",
+        "section1_title": "1. Şartların Kabulü",
+        "section1_p1": "Hizmetimize erişerek veya hizmetimizi kullanarak, bu Hizmet Şartlarına bağlı kalmayı kabul etmiş olursunuz. Şartların herhangi bir kısmına katılmıyorsanız, hizmete erişemeyebilirsiniz.",
+        "section2_title": "2. Hizmetin Kullanımı",
+        "section2_li1": "Hizmet yalnızca kişisel, ticari olmayan kullanım için sağlanmıştır.",
+        "section2_li2": "Hizmeti herhangi bir yasa dışı veya yetkisiz amaç için kullanmamayı kabul ediyorsunuz.",
+        "section2_li3": "Hesabınız altında gerçekleşen tüm faaliyetlerden siz sorumlusunuz.",
+        "section3_title": "3. İçerik ve Davranış",
+        "section3_p1": "Hizmet aracılığıyla gönderdiğiniz, yayınladığınız veya görüntülediğiniz herhangi bir içeriğin mülkiyeti sizde kalır. Ancak, içerik göndererek, söz konusu içeriği hizmetin işletilmesi için kullanmamız, değiştirmemiz ve dağıtmamız için bize dünya çapında, münhasır olmayan bir lisans vermiş olursunuz.",
+        "section4_title": "4. Fikri Mülkiyet",
+        "section4_p1": "Hizmet ve orijinal içeriği, özellikleri ve işlevselliği, [Şirket Adınız] ve lisans verenlerinin münhasır mülkiyeti olmaya devam edecektir.",
+        "section5_title": "5. Fesih",
+        "section5_p1": "Şartları ihlal etmeniz dahil ancak bunlarla sınırlı olmamak üzere herhangi bir nedenle, önceden bildirim veya yükümlülük olmaksızın hesabınızı derhal sonlandırabilir veya askıya alabiliriz.",
+        "button_backToHelp": "Yardım & Destek'e Geri Dön"
     }
 }
