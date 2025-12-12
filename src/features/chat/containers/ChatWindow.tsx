@@ -179,7 +179,7 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             }
 
             // 3. Process the AI API response
-            const responseData: any = await resp.json();
+            const responseData: AIMessageResponse = await resp.json();
             let aiMessage = responseData.aiMessage;
 
             // --- Fallback Mechanism & Error Check ---
