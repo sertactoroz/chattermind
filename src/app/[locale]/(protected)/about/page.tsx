@@ -1,25 +1,9 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 import BackButton from '@/features/common/components/BackButton';
 import { useTranslations } from 'next-intl';
-
-// TODO: Mock FAQ Data
-const faqs = [
-    {
-        q: "How can I change the character's personality?",
-        a: "The character's core personality is set by the system prompt and cannot be changed by the user. You can only start a new chat with a different character."
-    },
-    {
-        q: "Why isn't my chat history syncing?",
-        a: "Please ensure you are logged in. If the problem persists, contact our support team with details about your device and browser."
-    },
-    {
-        q: "Is my conversation data confidential?",
-        a: "Yes, we treat your conversations with the utmost privacy. For detailed information, please refer to our Privacy Policy linked below."
-    },
-];
 
 
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'vX.X.X';
@@ -53,7 +37,6 @@ export default function AboutPage() {
                             <strong> Groq LLM</strong> {t('p2_part3')}
                             <strong>Framer Motion</strong> {t('p2_part4')}
                         </p>
-
                         <p>
                             {t('p3_part1')}
                             <br />
