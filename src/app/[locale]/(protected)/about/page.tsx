@@ -22,8 +22,6 @@ export default function AboutPage() {
             {/* Contact & Legal Section */}
             <div className="grid grid-cols-1 md:grid-cols-1 gap-6 text-center">
                 <Card>
-                    <CardHeader>
-                    </CardHeader>
                     <CardContent className="space-y-3 text-sm">
                         <p>
                             <strong>{t('appName')}</strong> {t('p1_part1')}
