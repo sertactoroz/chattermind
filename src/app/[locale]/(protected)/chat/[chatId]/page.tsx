@@ -1,5 +1,4 @@
 import ChatWindow from '@/features/chat/containers/ChatWindow';
-import AuthGuard from '@/features/auth/components/AuthGuard';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
@@ -28,13 +27,10 @@ export default async function ChatIdPage({ params }: Props) {
 
         const characterId = data.character_id ?? null;
 
-        return (
-            <AuthGuard>
-                <ChatWindow chatId={chatId} characterId={characterId} />
-            </AuthGuard>
-        );
+        return <ChatWindow chatId={chatId} characterId={characterId} />;
+
     } catch (err) {
-        console.error('chat page error', err);
+        console.error('Chat page error:', err);
         return (
             <div className="flex items-center justify-center flex-1">
                 <NotFoundToast />

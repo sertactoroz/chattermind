@@ -76,7 +76,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     <li>
                         {/* SheetClose: Ensures the sheet closes when the link is clicked */}
                         <SheetClose asChild>
-                            <Link href="/profile/edit" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
+                            <Link href="/profile" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
                                 {t('edit_profile') || 'Edit profile'}
                             </Link>
                         </SheetClose>
@@ -84,7 +84,14 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     <li>
                         <SheetClose asChild>
                             <Link href="/settings" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
-                                {t('settings_privacy') || 'Settings & Privacy'}
+                                {t('settings') || 'Settings'}
+                            </Link>
+                        </SheetClose>
+                    </li>
+                    <li>
+                        <SheetClose asChild>
+                            <Link href="/data-privacy" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
+                                {t('data_privacy') || 'Data & Privacy'}
                             </Link>
                         </SheetClose>
                     </li>
@@ -92,6 +99,13 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                         <SheetClose asChild>
                             <Link href="/help" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
                                 {t('help_support') || 'Help & Support'}
+                            </Link>
+                        </SheetClose>
+                    </li>
+                    <li>
+                        <SheetClose asChild>
+                            <Link href="/about" className="block px-4 py-3 hover:bg-accent transition-colors" role="menuitem">
+                                {t('about') || 'About'}
                             </Link>
                         </SheetClose>
                     </li>
