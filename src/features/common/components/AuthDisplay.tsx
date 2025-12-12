@@ -17,7 +17,7 @@ export default function AuthDisplay() {
     const fullName = (user.user_metadata as any)?.full_name ?? user.email;
 
     return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ring-2 ring-brand/40 border-1 border-background hover:ring-brand/50 rounded-full">
             <AvatarMenu userAvatar={avatarUrl} fullName={fullName} />
         </div>
     );

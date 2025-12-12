@@ -41,6 +41,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     type="button"
                     className="flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                 >
+
                     <Avatar className="w-11 h-11">
                         <AvatarImage src={userAvatar || '/default-avatar.png'} alt={userName} />
                         <AvatarFallback>{userInitials}</AvatarFallback>
@@ -58,7 +59,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                     <SheetTitle className="sr-only">User Menu</SheetTitle> {/* Accessible title for screen readers */}
 
                     <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
+                        <Avatar className="w-11 h-11 gap-3 ring-2 ring-brand/40 border-1 border-background hover:ring-brand/50 rounded-full">
                             <AvatarImage src={userAvatar || '/default-avatar.png'} alt={userName} />
                             <AvatarFallback>{userInitials}</AvatarFallback>
                         </Avatar>
