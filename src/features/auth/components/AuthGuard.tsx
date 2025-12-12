@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
-import { LoaderPinwheel } from 'lucide-react'; // 💡 LoaderPinwheel simgesini import ediyoruz
+import { LoaderPinwheel } from 'lucide-react';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
     // Destructure user and loading state from the authentication context

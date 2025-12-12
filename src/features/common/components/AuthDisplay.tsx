@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
-import AvatarMenu from '@/features/auth/components/AvatarMenu';
+import AvatarMenu from '@/features/common/components/AvatarMenu';
 
 export default function AuthDisplay() {
     const { user, loading } = useAuthContext();
