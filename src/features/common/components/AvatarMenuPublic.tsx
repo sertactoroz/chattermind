@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/sheet';
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import { useTranslations } from 'next-intl';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';

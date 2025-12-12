@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -57,12 +56,6 @@ export default function SettingsPage() {
 
         // Toast message using translation keys
         toast.info(t('toast_language_changed', { language: t(`language_${localeName}`) }));
-    };
-
-    const handleGoToDataPrivacy = () => {
-        // Navigate the user to the new DataPrivacyPage.
-        // NOTE: Adjust the path '/data-privacy' to match your application's actual route structure.
-        router.push('/data-privacy');
     };
 
 
