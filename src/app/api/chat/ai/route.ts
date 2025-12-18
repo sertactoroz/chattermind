@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 import characters from '@/features/characters/data/characters.json';
+import { loadCharacterPrompts } from '@/lib/loadCharacterPrompts';
 
-// Define the structure of the character data loaded from JSON
+/* ------------------------------------------------------------------ */
+/* Types */
+/* ------------------------------------------------------------------ */
+
 interface CharacterData {
   id: string;
-  systemPrompt?: string;
-  // Include other necessary fields if accessed
+  promptKey: string;
 }
-
-// Define the special content used by the client to signal an initial message request
-const INITIAL_PROMPT_SIGNAL = 'Generate the character\'s opening message to start the conversation.';
 
 type Body = {
   chatId: string;
@@ -19,81 +19,139 @@ type Body = {
   characterId?: string | null;
 };
 
+/* ------------------------------------------------------------------ */
+/* Constants */
+/* ------------------------------------------------------------------ */
+
+// Client uses this exact string to request the opening message
+const INITIAL_PROMPT_SIGNAL =
+  "Generate the character's opening message to start the conversation.";
+
+// Shared brevity instruction (intentionally NOT in env)
+const BREVITY_INSTRUCTION = `
+STRICT RULE:
+You are a conversational language partner, NOT a writing assistant.
+Your replies MUST be maximum two short sentences long
+and MUST end with a question relevant to the user's previous statement.
+Do NOT provide lengthy explanations, lists, or cultural notes.
+`;
+
+/* ------------------------------------------------------------------ */
+/* Route */
+/* ------------------------------------------------------------------ */
+
 export async function POST(req: Request) {
   try {
-    const body: Body = await req.json();
-    // console.log("🔵 Incoming body:", body); // Removed non-critical console.log
+    // 🔑 Load all character env prompts (server-only)
+    loadCharacterPrompts();
 
+    const body: Body = await req.json();
     const { chatId, content, characterId } = body ?? {};
 
     if (!chatId || !content) {
-      return NextResponse.json({ error: 'Missing chatId or content' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing chatId or content' },
+        { status: 400 }
+      );
     }
+
+    /* -------------------------------------------------------------- */
+    /* LLM config */
+    /* -------------------------------------------------------------- */
 
     const apiKey = process.env.GROQ_API_KEY;
     const base = process.env.NEXT_PUBLIC_GROQ_BASE;
+
     if (!apiKey || !base) {
-      console.error('Missing GROQ config');
-      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+      console.error('❌ Missing GROQ configuration');
+      return NextResponse.json(
+        { error: 'Server misconfiguration' },
+        { status: 500 }
+      );
     }
 
-    // Check if this request is specifically for generating the character's first message
     const isInitialPrompt = content === INITIAL_PROMPT_SIGNAL;
 
-    // 1) Build system prompt from character definition
-    // Replaced 'any' with the defined CharacterData interface
-    const charDef = characterId
-      ? (characters as CharacterData[]).find((c: CharacterData) => c.id === characterId)
-      : null;
+    /* -------------------------------------------------------------- */
+    /* Resolve character system prompt (ENV-based) */
+    /* -------------------------------------------------------------- */
 
-    let finalSystemPrompt = charDef?.systemPrompt ?? 'You are a helpful AI assistant. Keep replies concise and friendly.';
+    let systemPrompt =
+      'You are a helpful AI assistant. Keep replies concise and friendly.';
 
-    const brevityInstruction = " **STRICT RULE: You are a conversational language partner, NOT a writing assistant. Your replies MUST be maximum two short sentences long and MUST end with a question relevant to the user's previous statement to drive the dialogue. Do NOT provide lengthy explanations, lists, or detailed cultural notes.**";
+    if (characterId) {
+      const charDef = (characters as CharacterData[]).find(
+        (c) => c.id === characterId
+      );
 
-    finalSystemPrompt += brevityInstruction;
+      if (charDef?.promptKey) {
+        const resolvedPrompt = process.env[charDef.promptKey];
 
-
-    // If it's the initial message request, instruct the AI to start the dialogue
-    if (isInitialPrompt) {
-      finalSystemPrompt += " You must now initiate the conversation with your first message. Be engaging and relevant to your role. Do not include any meta-commentary, just write the opening line. ";
+        if (resolvedPrompt) {
+          systemPrompt = resolvedPrompt;
+        } else {
+          console.warn(
+            `⚠️ Missing env prompt for key: ${charDef.promptKey}`
+          );
+        }
+      }
     }
 
-    // console.log("🟣 Character selected:", characterId); // Removed non-critical console.log
-    // console.log("🟣 System prompt resolved:", finalSystemPrompt); // Removed non-critical console.log
+    // Append brevity rule
+    systemPrompt += `\n${BREVITY_INSTRUCTION}`;
 
-    // 2) Fetch recent conversation for context (last 50 messages, use the last 20 for context)
+    // Initial message instruction
+    if (isInitialPrompt) {
+      systemPrompt += `
+You must now initiate the conversation with your first message.
+Be engaging and relevant to your role.
+Do NOT include meta-commentary or explanations.
+`;
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Load recent conversation context */
+    /* -------------------------------------------------------------- */
+
     const { data: recentMsgs, error: fetchErr } = await supabaseAdmin
       .from('messages')
-      .select('sender,content,created_at')
+      .select('sender, content, created_at')
       .eq('chat_id', chatId)
       .order('created_at', { ascending: true })
       .limit(50);
 
     if (fetchErr) {
-      console.warn('Failed to fetch recent messages for context', fetchErr); // Kept warning for troubleshooting
+      console.warn(
+        '⚠️ Failed to fetch recent messages for context',
+        fetchErr
+      );
     }
 
-    // Compose messages array in OpenAI chat format
-    const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-      { role: 'system', content: finalSystemPrompt } // Use the potentially modified system prompt
-    ];
+    const messages: Array<{
+      role: 'system' | 'user' | 'assistant';
+      content: string;
+    }> = [{ role: 'system', content: systemPrompt }];
 
-    if (Array.isArray(recentMsgs) && recentMsgs.length) {
-      // Include last ~20 messages as user/assistant turns for context
-      const last = recentMsgs.slice(-20);
-      for (const m of last) {
-        const role = m.sender === 'user' ? 'user' : 'assistant';
-        messages.push({ role, content: m.content });
+    if (Array.isArray(recentMsgs) && recentMsgs.length > 0) {
+      const lastMessages = recentMsgs.slice(-20);
+
+      for (const msg of lastMessages) {
+        messages.push({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.content,
+        });
       }
     }
 
-    // ❗ IMPORTANT: Only add the new user message if it's NOT the initial prompt signal.
-    // We prevent the "Generate the character's opening message..." text from being sent to the LLM as user input.
+    // Do NOT send the initial signal as user input
     if (!isInitialPrompt) {
       messages.push({ role: 'user', content });
     }
 
-    // 3) Call Groq using OpenAI-compatible chat completions endpoint
+    /* -------------------------------------------------------------- */
+    /* Call Groq (OpenAI-compatible) */
+    /* -------------------------------------------------------------- */
+
     const resp = await fetch(`${base}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -101,63 +159,65 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-safeguard-20b",
+        model: 'openai/gpt-oss-safeguard-20b',
         messages,
-        max_tokens: 1024,
         temperature: 0.7,
-        // you can add other params like top_p, stop, etc.
+        max_tokens: 1024,
       }),
     });
 
     if (!resp.ok) {
       const txt = await resp.text();
-      console.error('Groq error', txt); // Kept error for critical API failure
-      return NextResponse.json({ error: 'LLM provider error', details: txt }, { status: 502 });
+      console.error('❌ Groq API error:', txt);
+      return NextResponse.json(
+        { error: 'LLM provider error', details: txt },
+        { status: 502 }
+      );
     }
 
-    const json: unknown = await resp.json(); // Use unknown for initial fetch result
-    2
-    // Define the type for the expected JSON structure
-    interface GroqResponse {
-      choices: {
-        message: {
-          content: string;
-        };
-        text?: string;
-      }[];
-    }
-
-    const groqJson = json as GroqResponse; // Cast to the expected structure
-    // Typical OpenAI-compatible response shape: choices[0].message.content
-    
-    console.log("🔍 Groq raw response:", groqJson); 
+    const json = await resp.json();
 
     const aiText =
-      groqJson?.choices?.[0]?.message?.content ??
-      groqJson?.choices?.[0]?.text ??
-      (typeof json === 'string' ? json : null);
-      // console.log("🔺 AI RESPONSE:", aiText);
+      json?.choices?.[0]?.message?.content ??
+      json?.choices?.[0]?.text ??
+      null;
 
     if (!aiText) {
-      console.warn('Empty AI response', json); // Kept warning for debugging empty response
-      return NextResponse.json({ error: 'Empty AI response' }, { status: 502 });
+      console.warn('⚠️ Empty AI response', json);
+      return NextResponse.json(
+        { error: 'Empty AI response' },
+        { status: 502 }
+      );
     }
 
-    // 4) Persist AI response using service role
+    /* -------------------------------------------------------------- */
+    /* Persist AI message */
+    /* -------------------------------------------------------------- */
+
     const { error: insertError } = await supabaseAdmin
       .from('messages')
-      // The sender is always 'ai' here, regardless of whether it's an initial message or a reply.
-      .insert([{ chat_id: chatId, sender: 'ai', content: aiText }]);
+      .insert([
+        {
+          chat_id: chatId,
+          sender: 'ai',
+          content: aiText,
+        },
+      ]);
 
     if (insertError) {
-      console.error('Failed saving AI message', insertError); // Kept error for critical DB failure
-      // return success but warn (client still gets AI text)
-      return NextResponse.json({ ai: aiText, warning: 'AI message save failed' }, { status: 200 });
+      console.error('❌ Failed to save AI message', insertError);
+      return NextResponse.json(
+        { ai: aiText, warning: 'AI message save failed' },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json({ ai: aiText }, { status: 200 });
   } catch (err) {
-    console.error('api/chat/ai error', err); // Kept error for general server errors
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    console.error('❌ api/chat/ai error', err);
+    return NextResponse.json(
+      { error: 'Server error' },
+      { status: 500 }
+    );
   }
 }
