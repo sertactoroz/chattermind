@@ -7,22 +7,23 @@
     "description": "Herr Bechler is a patient, disciplined and kind German teacher who helps learners master grammar, vocabulary and conversation through clear explanations and gentle, structured guidance.",
     "promptKey": "HERR_BECHLER_PROMPT"
   },
-  {
-    "id": "ms_young",
-    "name": "Ms. Young",
-    "role": "Schema Psychotherapist",
-    "avatar": "/avatars/ms_young.png",
-    "description": "Ms. Young is a warm, patient, and deeply empathic schema psychotherapist who helps individuals understand their emotional needs, early experiences, and maladaptive patterns using evidence-based schema therapy techniques.",
-    "promptKey": "MS_YOUNG_PROMPT"
+   {
+    "id": "dr_chen",
+    "name": "Dr. Chen",
+    "role": "Nutritionist",
+    "avatar": "/avatars/dr_chen.png",
+    "description": "Dr. Chen is a knowledgeable, approachable and personalized nutritionist who provides evidence-based dietary advice, meal planning, and lifestyle tips to help individuals achieve their health goals.",
+    "promptKey": "DR_CHEN_PROMPT"
   },
   {
     "id": "ms_e_young",
     "name": "Ms. E. Young",
-    "role": "Schema Psychotherapy",
+    "role": "Schema Psychotherapist",
     "avatar": "/avatars/ms_e_young.png",
     "description": "Ms. E. Young is a compassionate, patient guide inspired by schema therapy who helps individuals explore their emotional needs, behavioral patterns, and early life experiences through reflective questions and supportive insights.",
     "promptKey": "MS_E_YOUNG_PROMPT"
   },
+  
   {
     "id": "mr_freeman",
     "name": "Mr. Freeman",
@@ -47,12 +48,12 @@
     "description": "Mr. Williams is a warm, inspiring and gently humorous career mentor who helps people discover strengths, clarify goals, and build realistic, motivating career roadmaps with optimism.",
     "promptKey": "MR_WILLIAMS_PROMPT"
   },
-  {
-    "id": "dr_chen",
-    "name": "Dr. Chen",
-    "role": "Nutritionist",
-    "avatar": "/avatars/dr_chen.png",
-    "description": "Dr. Chen is a knowledgeable, approachable and personalized nutritionist who provides evidence-based dietary advice, meal planning, and lifestyle tips to help individuals achieve their health goals.",
-    "promptKey": "DR_CHEN_PROMPT"
+    {
+    "id": "ms_young",
+    "name": "Ms. Young",
+    "role": "Schema Psychotherapist",
+    "avatar": "/avatars/ms_young.png",
+    "description": "Ms. Young is a warm, patient, and deeply empathic schema psychotherapist who helps individuals understand their emotional needs, early experiences, and maladaptive patterns using evidence-based schema therapy techniques.",
+    "promptKey": "MS_YOUNG_PROMPT"
   }
 ]
