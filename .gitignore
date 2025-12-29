@@ -26,6 +26,8 @@ build
 .env
 .env.*
 !.env.example  
+!env/characters/*
+
 
 # --------------------------------------------------
 # 🧪 Testing & Coverage
