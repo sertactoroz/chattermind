@@ -7,21 +7,21 @@ import nextPlugin from "@next/eslint-plugin-next";
 
 export default [
   {
-    // Sadece senin yazdığın dosyaları lint et
+    // Apply to all JavaScript and TypeScript files
     files: ["**/*.{js,jsx,ts,tsx}"],
 
-    // .next, types, config dosyaları vs. tamamen yok sayılır → parsing error = 0
+    // Ignore build outputs, dependencies, and generated files
     ignores: [
-      ".next/**",
-      "node_modules/**",
-      "out/**",
-      "build/**",
-      "public/**",
-      "**/*.d.ts",
-      "**/*.d.ts.map",
-      "next.config.*",
-      ".next/types/**",
-      "eslint.config.js",
+      ".next/**",              // Next.js build output
+      "node_modules/**",       // Dependencies
+      "out/**",                // Export output
+      "build/**",              // Build directory
+      "public/**",             // Static files
+      "**/*.d.ts",             // TypeScript declaration files
+      "**/*.d.ts.map",         // Declaration source maps
+      "next.config.*",         // Next.js config files
+      ".next/types/**",        // Next.js generated types
+      "eslint.config.js",      // This config file itself
     ],
 
     languageOptions: {
@@ -46,17 +46,19 @@ export default [
     },
 
     rules: {
-      // React & Hooks
+      // React Hooks - Enforce hooks best practices
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
+
+      // React - Code quality and consistency
       "react/self-closing-comp": "error",
       "react/button-has-type": "error",
 
-      // TypeScript
+      // TypeScript - Type safety
       "@typescript-eslint/no-unused-vars": "error",
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off", // Allow 'any' type when needed
 
-      // Accessibility (kritik olanlar error)
+      // Accessibility - WCAG compliance (critical rules as errors)
       ...jsxA11y.configs.recommended.rules,
       "jsx-a11y/alt-text": "error",
       "jsx-a11y/anchor-is-valid": "error",
@@ -65,14 +67,13 @@ export default [
       "jsx-a11y/label-has-associated-control": "error",
       "jsx-a11y/no-redundant-roles": "error",
 
-      // Next.js resmi kuralları
+      // Next.js - Framework-specific optimizations and best practices
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
 
-      // Genel temizlik
-      "no-console": "off",
-      "prefer-const": "error",
-      '@typescript-eslint/no-explicit-any': 'off', 
+      // General code quality
+      "no-console": "off",      // Allow console statements for debugging
+      "prefer-const": "error",  // Enforce const for variables that are never reassigned
     },
   },
 ];
