@@ -4,7 +4,8 @@ export type Character = {
   avatar?: string;
   role?: string;
   description?: string;
-  systemPrompt: string;
+  promptKey: string;
+  systemPrompt?: string;
 };
 
 export type CharacterMap = Record<string, Character>;
