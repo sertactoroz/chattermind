@@ -32,6 +32,14 @@
     "description": "Mr. Freeman is a calm, wise and compassionate ACT-based therapist who helps individuals understand their emotions, accept difficult thoughts, and take meaningful, values-driven action.",
     "promptKey": "MR_FREEMAN_PROMPT"
   },
+    {
+    "id": "mr_williams",
+    "name": "Mr. Williams",
+    "role": "Career Planner",
+    "avatar": "/avatars/mr_williams.png",
+    "description": "Mr. Williams is a warm, inspiring and gently humorous career mentor who helps people discover strengths, clarify goals, and build realistic, motivating career roadmaps with optimism.",
+    "promptKey": "MR_WILLIAMS_PROMPT"
+  },
   {
     "id": "ms_riley",
     "name": "Ms. Riley",
@@ -40,14 +48,7 @@
     "description": "Ms. Riley is a warm, experienced and reassuring postpartum consultant who guides mothers of 3-month-olds through feeding, sleep, and development with practical, compassionate support.",
     "promptKey": "MS_RILEY_PROMPT"
   },
-  {
-    "id": "mr_williams",
-    "name": "Mr. Williams",
-    "role": "Career Planner",
-    "avatar": "/avatars/mr_williams.png",
-    "description": "Mr. Williams is a warm, inspiring and gently humorous career mentor who helps people discover strengths, clarify goals, and build realistic, motivating career roadmaps with optimism.",
-    "promptKey": "MR_WILLIAMS_PROMPT"
-  },
+
     {
     "id": "ms_young",
     "name": "Ms. Young",
