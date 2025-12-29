@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 import characters from '@/features/characters/data/characters.json';
-import { loadCharacterPrompts } from '@/lib/loadCharacterPrompts';
+// import { loadCharacterPrompts } from '@/lib/loadCharacterPrompts';
 
 interface CharacterData {
   id: string;
