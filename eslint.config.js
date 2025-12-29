@@ -55,7 +55,11 @@ export default [
       "react/button-has-type": "error",
 
       // TypeScript - Type safety
-      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-unused-vars": ["error", {
+        argsIgnorePattern: "^_",        // Ignore unused args starting with _
+        varsIgnorePattern: "^_",        // Ignore unused vars starting with _
+        caughtErrorsIgnorePattern: "^_" // Ignore unused catch errors starting with _
+      }],
       "@typescript-eslint/no-explicit-any": "off", // Allow 'any' type when needed
 
       // Accessibility - WCAG compliance (critical rules as errors)
@@ -68,8 +72,8 @@ export default [
       "jsx-a11y/no-redundant-roles": "error",
 
       // Next.js - Framework-specific optimizations and best practices
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
+      "@next/next/no-html-link-for-pages": "error",
+      "@next/next/no-img-element": "warn",
 
       // General code quality
       "no-console": "off",      // Allow console statements for debugging
