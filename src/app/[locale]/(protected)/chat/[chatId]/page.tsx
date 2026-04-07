@@ -1,6 +1,7 @@
 import ChatWindow from '@/features/chat/containers/ChatWindow';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
 import { supabaseAdmin } from '@/lib/supabaseServer';
+import characters from '@/features/characters/data/characters.json';
 import type { Character } from '@/features/characters/types/character.types';
 
 type Props = {
@@ -30,14 +31,7 @@ export default async function ChatIdPage({ params }: Props) {
 
         let character: Character | null = null;
         if (characterId) {
-            const { data: charData, error: charError } = await supabaseAdmin
-                .from('characters')
-                .select('*')
-                .eq('id', characterId)
-                .maybeSingle();
-
-            if (charError) console.error('Character fetch error:', charError);
-            character = charData as Character ?? null;
+            character = (characters as Character[]).find(c => c.id === characterId) ?? null;
         }
 
         return (
