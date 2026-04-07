@@ -10,6 +10,7 @@ import { loadCharacterPrompts } from '@/lib/loadCharacterPrompts';
 interface CharacterData {
   id: string;
   promptKey: string;
+  language?: string;
 }
 
 type Body = {
@@ -107,6 +108,18 @@ You must now initiate the conversation with your first message.
 Be engaging and relevant to your role.
 Do NOT include meta-commentary or explanations.
 `;
+    }
+
+    // Final language override (after all instructions)
+    if (characterId) {
+      const charDef = (characters as CharacterData[]).find(
+        (c) => c.id === characterId
+      );
+      if (charDef?.language) {
+        systemPrompt += `
+FINAL LANGUAGE RULE (OVERRIDES ALL OTHER INSTRUCTIONS):
+You MUST respond ONLY in ${charDef.language}. Every single message, including your very first greeting, MUST be written in ${charDef.language}. Never write in any other language.`;
+      }
     }
 
     /* -------------------------------------------------------------- */
