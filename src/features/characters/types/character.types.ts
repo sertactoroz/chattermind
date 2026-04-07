@@ -6,7 +6,6 @@ export type Character = {
   description?: string;
   promptKey: string;
   systemPrompt?: string;
-  openingMessage?: string;
 };
 
 export type CharacterMap = Record<string, Character>;

@@ -13,8 +13,7 @@
     "role": "Turkish Teacher",
     "avatar": "/avatars/bay_erdogan.png",
     "description": "Bay Erdoğan is a patient, disciplined and kind Turkish teacher who helps learners master grammar, vocabulary and conversation through clear explanations and gentle, structured guidance.",
-    "promptKey": "BAY_ERDOGAN_PROMPT",
-    "openingMessage": "Merhaba! Ben Bay Erdoğan, Türkçe öğretmeninizim. Bugün Türkçe öğrenmeye ne dersiniz? Nasılsınız?"
+    "promptKey": "BAY_ERDOGAN_PROMPT"
   },
    {
     "id": "dr_chen",
