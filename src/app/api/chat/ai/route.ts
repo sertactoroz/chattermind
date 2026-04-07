@@ -10,6 +10,7 @@ import { loadCharacterPrompts } from '@/lib/loadCharacterPrompts';
 interface CharacterData {
   id: string;
   promptKey: string;
+  openingMessage?: string;
 }
 
 type Body = {
@@ -55,6 +56,33 @@ export async function POST(req: Request) {
       );
     }
 
+    const isInitialPrompt = content === INITIAL_PROMPT_SIGNAL;
+
+    /* -------------------------------------------------------------- */
+    /* Hardcoded opening message (skip LLM) */
+    /* -------------------------------------------------------------- */
+
+    if (isInitialPrompt && characterId) {
+      const charDef = (characters as CharacterData[]).find(
+        (c) => c.id === characterId
+      );
+      if (charDef?.openingMessage) {
+        const { error: insertError } = await supabaseAdmin
+          .from('messages')
+          .insert([
+            {
+              chat_id: chatId,
+              sender: 'ai',
+              content: charDef.openingMessage,
+            },
+          ]);
+        if (insertError) {
+          console.error('❌ Failed to save opening message', insertError);
+        }
+        return NextResponse.json({ ai: charDef.openingMessage }, { status: 200 });
+      }
+    }
+
     /* -------------------------------------------------------------- */
     /* LLM config */
     /* -------------------------------------------------------------- */
@@ -69,8 +97,6 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
-
-    const isInitialPrompt = content === INITIAL_PROMPT_SIGNAL;
 
     /* -------------------------------------------------------------- */
     /* Resolve character system prompt (ENV-based) */
