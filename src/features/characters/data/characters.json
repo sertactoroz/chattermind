@@ -7,6 +7,14 @@
     "description": "Herr Bechler is a patient, disciplined and kind German teacher who helps learners master grammar, vocabulary and conversation through clear explanations and gentle, structured guidance.",
     "promptKey": "HERR_BECHLER_PROMPT"
   },
+  {
+    "id": "bay_erdogan",
+    "name": "Bay Erdoğan",
+    "role": "Turkish Teacher",
+    "avatar": "/avatars/bay_erdogan.png",
+    "description": "Bay Erdoğan is a patient, disciplined and kind Turkish teacher who helps learners master grammar, vocabulary and conversation through clear explanations and gentle, structured guidance.",
+    "promptKey": "BAY_ERDOGAN_PROMPT"
+  },
    {
     "id": "dr_chen",
     "name": "Dr. Chen",
