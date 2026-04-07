@@ -97,7 +97,11 @@
         "toast_aiPartial_title": "AI response delivered, but message failed to save.",
         "toast_aiPartial_desc": "You may need to refresh the chat.",
         "toast_networkError_title": "Network Error.",
-        "toast_networkError_desc": "Could not communicate with the server. Check your connection."
+        "toast_networkError_desc": "Could not communicate with the server. Check your connection.",
+        "voice_controls": "Voice Controls",
+        "voice_stop": "Stop",
+        "voice_listening": "Listening...",
+        "voice_recording": "Recording"
     },
     "DataPrivacy": {
         "title": "Data & Privacy",

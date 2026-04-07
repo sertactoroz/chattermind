@@ -97,7 +97,11 @@
         "toast_aiPartial_title": "KI-Antwort geliefert, aber Speicherung der Nachricht fehlgeschlagen.",
         "toast_aiPartial_desc": "Möglicherweise müssen Sie den Chat aktualisieren.",
         "toast_networkError_title": "Netzwerkfehler.",
-        "toast_networkError_desc": "Konnte nicht mit dem Server kommunizieren. Überprüfen Sie Ihre Verbindung."
+        "toast_networkError_desc": "Konnte nicht mit dem Server kommunizieren. Überprüfen Sie Ihre Verbindung.",
+        "voice_controls": "Sprachsteuerung",
+        "voice_stop": "Stopp",
+        "voice_listening": "Hört zu...",
+        "voice_recording": "Aufnahme"
     },
     "DataPrivacy": {
         "title": "Daten & Datenschutz",

@@ -1,15 +1,29 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { listMessages, addMessage } from '../services/chatService';
 import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import MessageItem from '../components/MessageItem';
 import TypingIndicator from '../components/TypingIndicator';
 import type { MessageRow } from '../types/chat.types';
+import type { Character } from '@/features/characters/types/character.types';
 import { toast } from 'sonner';
 import { SendButton } from '../components/SendButton';
-import { useTranslations } from 'next-intl'; // Import useTranslations
+import { useTranslations } from 'next-intl';
+import { useSpeechRecognition } from '@/features/speech/hooks/useSpeechRecognition';
+import { useSpeechSynthesis } from '@/features/speech/hooks/useSpeechSynthesis';
+import { MicrophoneButton } from '@/features/speech/components/MicrophoneButton';
+import { VoiceSettingsDialog } from '@/features/speech/components/VoiceSettingsDialog';
+import { SpeechToggle } from '@/features/speech/components/SpeechToggle';
+import { Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+const LANGUAGE_MAP: Record<string, string> = {
+    German: 'de-DE',
+    Turkish: 'tr-TR',
+    English: 'en-US',
+};
 
 type AIMessageResponse = {
     aiMessage: MessageRow;
@@ -18,24 +32,66 @@ type AIMessageResponse = {
 type Props = {
     chatId: string;
     characterId?: string | null;
+    character?: Character | null;
 };
 
-export default function ChatWindow({ chatId, characterId }: Props) {
-    const t = useTranslations('ChatWindow'); // Initialize translations
+export default function ChatWindow({ chatId, characterId, character }: Props) {
+    const t = useTranslations('ChatWindow');
     const { user } = useAuthContext();
     const [messages, setMessages] = useState<MessageRow[]>([]);
     const [text, setText] = useState('');
     const [sending, setSending] = useState(false);
     const [aiTyping, setAiTyping] = useState(false);
+    const [enableTTS, setEnableTTS] = useState(true);
     const listRef = useRef<HTMLDivElement | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-    // State to track if the user is currently scrolled to the bottom (for smart scrolling).
     const [isAtBottom, setIsAtBottom] = useState(true);
 
-    /**
-     * Smooth scroll to the bottom of the chat list.
-     */
+    const speechLang = useMemo(
+        () => LANGUAGE_MAP[character?.language ?? ''] ?? 'en-US',
+        [character?.language]
+    );
+
+    const speechRecognition = useSpeechRecognition({
+        language: speechLang,
+        continuous: false,
+        interimResults: true,
+    });
+
+    const speechSynthesis = useSpeechSynthesis({
+        pitch: 1,
+        rate: 1,
+        volume: 1,
+    });
+
+    useEffect(() => {
+        console.log('Character Debug:', {
+            character,
+            characterId,
+            hasAvatar: !!character?.avatar,
+            avatarUrl: character?.avatar,
+            speechLang,
+        });
+    }, [character, characterId, speechLang]);
+
+    useEffect(() => {
+        if (speechRecognition.transcript && !speechRecognition.isListening) {
+            setText(prev => {
+                const newText = prev + ' ' + speechRecognition.transcript;
+                return newText.trim();
+            });
+            speechRecognition.resetTranscript();
+            textareaRef.current?.focus();
+        }
+    }, [speechRecognition.transcript, speechRecognition.isListening, speechRecognition.resetTranscript]);
+
+    useEffect(() => {
+        if (speechRecognition.interimTranscript) {
+            const baseText = text;
+            setText(baseText + (baseText ? ' ' : '') + speechRecognition.interimTranscript);
+        }
+    }, [speechRecognition.interimTranscript]);
+
     const scrollToBottom = () => {
         requestAnimationFrame(() => {
             if (!listRef.current) return;
@@ -43,46 +99,27 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         });
     };
 
-    /**
-     * Checks if the user is currently scrolled to the bottom.
-     * @returns {boolean} True if scrolled to bottom (with a small tolerance), false otherwise.
-     */
     const checkScrollPosition = (): boolean => {
         if (!listRef.current) return false;
         const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-        // Use a small tolerance (e.g., 5 pixels) for better UX
         const tolerance = 5;
         return scrollHeight - clientHeight - scrollTop <= tolerance;
     };
 
-    /**
-     * Auto resize textarea height based on content, up to the CSS max-height limit.
-     * Ensures the internal scroll remains at the bottom to show the latest input line 
-     * when the max height is reached.
-     */
     const autoResize = () => {
         const el = textareaRef.current;
         if (!el) return;
-
-        // 1. Reset height to calculate the correct scrollHeight
         el.style.height = "auto";
-
-        // 2. Apply calculated height (CSS max-height will limit this if scrollHeight is too big)
         el.style.height = `${el.scrollHeight}px`;
-
-        // 3. CRITICAL: If the textarea content exceeds the visible area (max-height hit), 
-        // scroll its internal content to the bottom so the user sees the latest line typed.
         if (el.scrollHeight > el.clientHeight) {
             el.scrollTop = el.scrollHeight;
         }
     };
 
-    // Load initial messages and setup realtime subscription.
     useEffect(() => {
         if (!chatId) return;
         let mounted = true;
 
-        // Load initial messages
         (async () => {
             try {
                 const rows = await listMessages(chatId);
@@ -97,7 +134,6 @@ export default function ChatWindow({ chatId, characterId }: Props) {
             }
         })();
 
-        // Setup realtime subscription for new messages
         const sub = subscribeMessages(chatId, (msg: MessageRow) => {
             if (!msg) return;
 
@@ -110,9 +146,11 @@ export default function ChatWindow({ chatId, characterId }: Props) {
 
             if (msg.sender === 'ai') {
                 setAiTyping(false);
+                if (enableTTS && msg.content) {
+                    speechSynthesis.speak(msg.content);
+                }
             }
 
-            // Smart Scroll: Only scroll if the user was already at the bottom when the message arrived.
             if (checkScrollPosition()) {
                 scrollToBottom();
             }
@@ -121,20 +159,19 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         return () => {
             mounted = false;
             sub.unsubscribe();
+            speechSynthesis.cancel();
         };
-    }, [chatId, t]); // Added t to dependency array
+    }, [chatId, t, enableTTS, speechSynthesis]);
 
-    // Handle sending a message.
     const handleSend = async () => {
         if (!text.trim() || !user) return;
         const content = text.trim();
         setText('');
+        speechRecognition.resetTranscript();
         autoResize();
-        // Unconditional scroll after sending to ensure user sees their sent message (which is added optimistically)
         scrollToBottom();
         setSending(true);
 
-        // --- Optimistic Update for User Message (TEMP ID) ---
         const tempId = `temp-${Date.now()}`;
         const optimisticMsg: MessageRow = {
             id: tempId,
@@ -149,7 +186,6 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         try {
             let savedUserMsg: MessageRow;
             try {
-                // 1. Persist user message to DB
                 savedUserMsg = await addMessage(chatId, 'user', content);
                 setMessages(prev => prev.map(m => (m.id === tempId ? savedUserMsg : m)));
             } catch (dbErr) {
@@ -160,7 +196,6 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                 return;
             }
 
-            // 2. Trigger AI generation and wait for the response
             setAiTyping(true);
             scrollToBottom();
 
@@ -178,11 +213,9 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                 return;
             }
 
-            // 3. Process the AI API response
             const responseData: AIMessageResponse = await resp.json();
             let aiMessage = responseData.aiMessage;
 
-            // --- Fallback Mechanism & Error Check ---
             if (!aiMessage && (responseData as any).ai) {
                 console.warn("Fallback used: API returned raw text. Manually creating message.");
                 aiMessage = {
@@ -199,7 +232,6 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                 return;
             }
 
-            // --- FULL OPTIMISTIC UPDATE FOR AI MESSAGE ---
             setMessages(prev => [...prev, aiMessage]);
             setAiTyping(false);
             scrollToBottom();
@@ -213,54 +245,115 @@ export default function ChatWindow({ chatId, characterId }: Props) {
         }
     };
 
-    return (
-        // Chat container (Flex Container: Ensures full height and column layout)
-        <div className="flex flex-col h-full pb-4">
+    const handleMicClick = () => {
+        if (speechRecognition.isListening) {
+            speechRecognition.stopListening();
+        } else {
+            speechRecognition.startListening();
+        }
+    };
 
-            {/* Message list (Flex Item: Shrinks as input grows, allows scrolling) */}
+    const handleTestVoice = (testText: string) => {
+        speechSynthesis.speak(testText);
+    };
+
+    return (
+        <div className="flex flex-col h-full pb-4">
+            {speechRecognition.isSupported && (
+                <div className="px-4 py-2 border-b border-border flex items-center justify-between bg-background">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-muted-foreground">{t('voice_controls')}</span>
+                        <div className="h-4 w-px bg-border" />
+                        {speechSynthesis.isSupported && (
+                            <>
+                                <SpeechToggle
+                                    isPlaying={speechSynthesis.isSpeaking}
+                                    isSupported={speechSynthesis.isSupported}
+                                    onToggle={() => setEnableTTS(!enableTTS)}
+                                    onCancel={() => speechSynthesis.cancel()}
+                                />
+                                {speechSynthesis.isSpeaking && (
+                                    <button
+                                        type="button"
+                                        onClick={() => speechSynthesis.cancel()}
+                                        className="text-xs text-muted-foreground hover:text-foreground"
+                                    >
+                                        {t('voice_stop')}
+                                    </button>
+                                )}
+                            </>
+                        )}
+                    </div>
+                    {speechSynthesis.isSupported && (
+                        <VoiceSettingsDialog
+                            voices={speechSynthesis.voices}
+                            config={speechSynthesis.config}
+                            onConfigChange={speechSynthesis.setConfig}
+                            onTestVoice={handleTestVoice}
+                            isSpeaking={speechSynthesis.isSpeaking}
+                        >
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Settings className="w-4 h-4" />
+                            </Button>
+                        </VoiceSettingsDialog>
+                    )}
+                </div>
+            )}
+
             <div
                 ref={listRef}
-                // flex-1: Allows it to take available space and shrink.
-                // min-h-0: CRITICAL for Flexbox to allow shrinking below content height.
                 className="flex-1 overflow-auto p-4 space-y-3 min-h-0"
-                // Listen for scroll events to update smart scrolling state
                 onScroll={() => setIsAtBottom(checkScrollPosition())}
             >
                 {messages.map(m => (
-                    <MessageItem key={m.id} message={m} />
+                    <MessageItem
+                        key={m.id}
+                        message={m}
+                        character={m.sender === 'ai' ? (character || { name: 'Assistant', avatar: null } as any) : undefined}
+                    />
                 ))}
                 {aiTyping && <TypingIndicator />}
             </div>
 
-            {/* Input Section (Flex Item: Fixed height determined by content/textarea) */}
             <div className="p-3 border-t border-t-border flex items-center gap-3 bg-background">
-
-                <textarea
-                    ref={textareaRef}
-                    value={text}
-                    onChange={e => {
-                        setText(e.target.value);
-                        autoResize();
-
-                        // Smart scroll: Only scroll to bottom if the user was already at the bottom (`isAtBottom`).
-                        if (isAtBottom) {
-                            scrollToBottom();
-                        }
-                    }}
-                    onKeyDown={e => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend();
-                        }
-                    }}
-                    rows={1}
-                    // max-h-52 (e.g., ~8 lines) limits growth. 
-                    // overflow-y-auto ensures internal scroll when max height is hit.
-                    className="flex-1 resize-none overflow-y-auto rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm 
-                                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-h-52"
-                    placeholder={t('placeholder')}
-                    disabled={sending || aiTyping}
-                />
+                {speechRecognition.isSupported && (
+                    <MicrophoneButton
+                        isListening={speechRecognition.isListening}
+                        isSupported={speechRecognition.isSupported}
+                        onClick={handleMicClick}
+                        disabled={sending || aiTyping}
+                    />
+                )}
+                <div className="flex-1 relative">
+                    <textarea
+                        ref={textareaRef}
+                        value={text}
+                        onChange={e => {
+                            setText(e.target.value);
+                            autoResize();
+                            if (isAtBottom) {
+                                scrollToBottom();
+                            }
+                        }}
+                        onKeyDown={e => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                        rows={1}
+                        className="flex-1 resize-none overflow-y-auto rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm
+                                    focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-h-52 w-full"
+                        placeholder={speechRecognition.isListening ? t('voice_listening') : t('placeholder')}
+                        disabled={sending || aiTyping}
+                    />
+                    {speechRecognition.isListening && (
+                        <div className="absolute bottom-1 right-2 flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                            <span className="text-xs text-muted-foreground">{t('voice_recording')}</span>
+                        </div>
+                    )}
+                </div>
 
                 <SendButton
                     onSend={handleSend}
@@ -269,6 +362,12 @@ export default function ChatWindow({ chatId, characterId }: Props) {
                     loading={sending}
                 />
             </div>
+
+            {speechRecognition.error && (
+                <div className="absolute bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg text-sm shadow-lg">
+                    {speechRecognition.error}
+                </div>
+            )}
         </div>
     );
 }

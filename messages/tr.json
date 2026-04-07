@@ -97,7 +97,11 @@
         "toast_aiPartial_title": "YZ yanıtı teslim edildi ancak mesaj kaydedilemedi.",
         "toast_aiPartial_desc": "Sohbeti yenilemeniz gerekebilir.",
         "toast_networkError_title": "Ağ Hatası.",
-        "toast_networkError_desc": "Sunucuyla iletişim kurulamadı. Bağlantınızı kontrol edin."
+        "toast_networkError_desc": "Sunucuyla iletişim kurulamadı. Bağlantınızı kontrol edin.",
+        "voice_controls": "Ses Kontrolleri",
+        "voice_stop": "Durdur",
+        "voice_listening": "Dinleniyor...",
+        "voice_recording": "Kaydediliyor"
     },
     "DataPrivacy": {
         "title": "Veri & Gizlilik",
