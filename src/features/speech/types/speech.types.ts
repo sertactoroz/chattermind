@@ -16,6 +16,7 @@ export interface VoiceOption {
   name: string;
   lang: string;
   voiceURI: string;
+  localService: boolean;
 }
 
 export type SpeechRecognitionStatus = 'idle' | 'listening' | 'processing' | 'error';

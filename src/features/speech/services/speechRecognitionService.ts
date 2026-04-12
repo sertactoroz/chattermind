@@ -62,7 +62,9 @@ class SpeechRecognitionServiceClass {
     };
 
     this.recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
+      if (event.error !== 'aborted' && event.error !== 'no-speech') {
+        console.error('Speech recognition error:', event.error);
+      }
       this.status = 'error';
       this.callbacks.onError?.(event.error);
       this.callbacks.onStatusChange?.(this.status);

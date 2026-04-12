@@ -32,7 +32,7 @@ export function loadCharacterPrompts() {
     // Load each .env file
     files.forEach(file => {
       // Only load .env files
-      if (!file.endsWith('.env')) {
+      if (!file.startsWith('.env')) {
         return;
       }
 

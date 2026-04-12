@@ -58,13 +58,17 @@ export function useSpeechRecognition(
       onStatusChange: (newStatus) => {
         setStatus(newStatus);
         if (newStatus === 'error') {
-          setError('Speech recognition error');
+          setError(null);
         } else {
           setError(null);
         }
       },
       onError: (errorMsg) => {
-        setError(errorMsg);
+        if (errorMsg === 'aborted' || errorMsg === 'no-speech') {
+          setError(null);
+        } else {
+          setError('Speech recognition is not available. Please use Chrome or Edge on HTTPS.');
+        }
       },
     });
 

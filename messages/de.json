@@ -101,7 +101,10 @@
         "voice_controls": "Sprachsteuerung",
         "voice_stop": "Stopp",
         "voice_listening": "Hört zu...",
-        "voice_recording": "Aufnahme"
+        "voice_recording": "Aufnahme",
+        "turn_user_speaking": "Sie sprechen...",
+        "turn_ai_thinking": "Denkt nach...",
+        "turn_ai_speaking": "Spricht..."
     },
     "DataPrivacy": {
         "title": "Daten & Datenschutz",

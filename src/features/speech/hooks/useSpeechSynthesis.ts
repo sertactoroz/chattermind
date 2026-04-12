@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { speechSynthesisService } from '../services/speechSynthesisService';
 import type { VoiceOption, SpeechSynthesisConfig } from '../types/speech.types';
 
@@ -9,13 +9,12 @@ interface UseSpeechSynthesisOptions {
   pitch?: number;
   rate?: number;
   volume?: number;
+  lang?: string;
 }
 
 interface UseSpeechSynthesisReturn {
   speak: (text: string) => void;
-  cancel: () => void;
-  pause: () => void;
-  resume: () => void;
+  stop: () => void;
   isSpeaking: boolean;
   isSupported: boolean;
   voices: VoiceOption[];
@@ -31,10 +30,11 @@ export function useSpeechSynthesis(
     pitch = 1,
     rate = 1,
     volume = 1,
+    lang,
   } = options;
 
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [voices, setVoices] = useState<VoiceOption[]>([]);
+  const [allVoices, setAllVoices] = useState<VoiceOption[]>([]);
   const [config, setConfigState] = useState<SpeechSynthesisConfig>({
     voiceURI,
     pitch,
@@ -44,17 +44,21 @@ export function useSpeechSynthesis(
 
   const isSupported = speechSynthesisService.isSupported();
 
+  const voices = useMemo(() => {
+    if (!lang || !allVoices.length) return allVoices;
+    const prefix = lang.split('-')[0];
+    return allVoices.filter(v => v.lang.startsWith(prefix));
+  }, [allVoices, lang]);
+
   useEffect(() => {
     if (!isSupported) return;
 
     const updateVoices = () => {
-      setVoices(speechSynthesisService.getAvailableVoices());
+      setAllVoices(speechSynthesisService.getAvailableVoices());
     };
 
-    // Initial voice load
     updateVoices();
 
-    // Listen for voice changes
     const synth = window.speechSynthesis;
     if (synth.onvoiceschanged !== undefined) {
       synth.addEventListener('voiceschanged', updateVoices);
@@ -80,19 +84,11 @@ export function useSpeechSynthesis(
   }, []);
 
   const speak = useCallback((text: string) => {
-    speechSynthesisService.speak(text);
-  }, []);
+    speechSynthesisService.speak(text, lang);
+  }, [lang]);
 
-  const cancel = useCallback(() => {
-    speechSynthesisService.cancel();
-  }, []);
-
-  const pause = useCallback(() => {
-    speechSynthesisService.pause();
-  }, []);
-
-  const resume = useCallback(() => {
-    speechSynthesisService.resume();
+  const stop = useCallback(() => {
+    speechSynthesisService.stop();
   }, []);
 
   const setConfig = useCallback((newConfig: Partial<SpeechSynthesisConfig>) => {
@@ -101,9 +97,7 @@ export function useSpeechSynthesis(
 
   return {
     speak,
-    cancel,
-    pause,
-    resume,
+    stop,
     isSpeaking,
     isSupported,
     voices,

@@ -101,7 +101,10 @@
         "voice_controls": "Voice Controls",
         "voice_stop": "Stop",
         "voice_listening": "Listening...",
-        "voice_recording": "Recording"
+        "voice_recording": "Recording",
+        "turn_user_speaking": "You are speaking...",
+        "turn_ai_thinking": "Thinking...",
+        "turn_ai_speaking": "Speaking..."
     },
     "DataPrivacy": {
         "title": "Data & Privacy",

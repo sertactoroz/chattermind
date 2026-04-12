@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { listMessages, addMessage } from '../services/chatService';
 import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
@@ -15,9 +15,9 @@ import { useSpeechRecognition } from '@/features/speech/hooks/useSpeechRecogniti
 import { useSpeechSynthesis } from '@/features/speech/hooks/useSpeechSynthesis';
 import { MicrophoneButton } from '@/features/speech/components/MicrophoneButton';
 import { VoiceSettingsDialog } from '@/features/speech/components/VoiceSettingsDialog';
-import { SpeechToggle } from '@/features/speech/components/SpeechToggle';
-import { Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { speechSynthesisService } from '@/features/speech/services/speechSynthesisService';
+import type { VoiceOption } from '@/features/speech/types/speech.types';
+import { Volume2, VolumeOff, Settings } from 'lucide-react';
 
 const LANGUAGE_MAP: Record<string, string> = {
     German: 'de-DE',
@@ -28,6 +28,8 @@ const LANGUAGE_MAP: Record<string, string> = {
 type AIMessageResponse = {
     aiMessage: MessageRow;
 };
+
+type ConversationTurn = 'idle' | 'user_speaking' | 'ai_thinking' | 'ai_speaking';
 
 type Props = {
     chatId: string;
@@ -40,12 +42,18 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
     const { user } = useAuthContext();
     const [messages, setMessages] = useState<MessageRow[]>([]);
     const [text, setText] = useState('');
+    const [interimText, setInterimText] = useState('');
     const [sending, setSending] = useState(false);
     const [aiTyping, setAiTyping] = useState(false);
     const [enableTTS, setEnableTTS] = useState(true);
     const listRef = useRef<HTMLDivElement | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [isAtBottom, setIsAtBottom] = useState(true);
+    const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+    const [turn, setTurn] = useState<ConversationTurn>('idle');
+    const [allVoices, setAllVoices] = useState<VoiceOption[]>([]);
+    const autoSendTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const pendingSpeechText = useRef('');
 
     const speechLang = useMemo(
         () => LANGUAGE_MAP[character?.language ?? ''] ?? 'en-US',
@@ -58,52 +66,107 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
         interimResults: true,
     });
 
+    const savedVoiceConfig = useMemo(() => {
+        if (typeof window === 'undefined') return {};
+        try {
+            const saved = localStorage.getItem('chattermind_voice_config');
+            if (saved) return JSON.parse(saved);
+        } catch {}
+        return {};
+    }, []);
+
     const speechSynthesis = useSpeechSynthesis({
-        pitch: 1,
-        rate: 1,
-        volume: 1,
+        pitch: savedVoiceConfig.pitch ?? 1,
+        rate: savedVoiceConfig.rate ?? 1,
+        volume: savedVoiceConfig.volume ?? 1,
+        lang: speechLang,
+        voiceURI: savedVoiceConfig.voiceURI ?? '',
     });
 
+    const speechSynthesisRef = useRef(speechSynthesis);
+    speechSynthesisRef.current = speechSynthesis;
+    const messagesRef = useRef(messages);
+    messagesRef.current = messages;
+
     useEffect(() => {
-        console.log('Character Debug:', {
-            character,
-            characterId,
-            hasAvatar: !!character?.avatar,
-            avatarUrl: character?.avatar,
-            speechLang,
-        });
-    }, [character, characterId, speechLang]);
+        if (speechRecognition.isListening) {
+            setTurn('user_speaking');
+        } else if (!aiTyping && !speechSynthesis.isSpeaking && !sending) {
+            setTurn('idle');
+        }
+    }, [speechRecognition.isListening, aiTyping, speechSynthesis.isSpeaking, sending]);
+
+    useEffect(() => {
+        if (aiTyping) {
+            setTurn('ai_thinking');
+        } else if (speechSynthesis.isSpeaking) {
+            setTurn('ai_speaking');
+        } else if (!speechRecognition.isListening && !sending) {
+            setTurn('idle');
+        }
+    }, [aiTyping, speechSynthesis.isSpeaking, speechRecognition.isListening, sending]);
+
+    useEffect(() => {
+        if (speechRecognition.interimTranscript && speechRecognition.isListening) {
+            setInterimText(speechRecognition.interimTranscript);
+        } else if (!speechRecognition.isListening) {
+            setInterimText('');
+        }
+    }, [speechRecognition.interimTranscript, speechRecognition.isListening]);
 
     useEffect(() => {
         if (speechRecognition.transcript && !speechRecognition.isListening) {
-            setText(prev => {
-                const newText = prev + ' ' + speechRecognition.transcript;
-                return newText.trim();
-            });
+            const finalText = speechRecognition.transcript.trim();
+            if (finalText) {
+                pendingSpeechText.current = finalText;
+            }
             speechRecognition.resetTranscript();
-            textareaRef.current?.focus();
         }
     }, [speechRecognition.transcript, speechRecognition.isListening, speechRecognition.resetTranscript]);
 
     useEffect(() => {
-        if (speechRecognition.interimTranscript) {
-            const baseText = text;
-            setText(baseText + (baseText ? ' ' : '') + speechRecognition.interimTranscript);
-        }
-    }, [speechRecognition.interimTranscript]);
+        const updateVoices = () => {
+            setAllVoices(speechSynthesisService.getAvailableVoices());
+        };
 
-    const scrollToBottom = () => {
+        updateVoices();
+
+        const synth = window.speechSynthesis;
+        if (synth.onvoiceschanged !== undefined) {
+            synth.addEventListener('voiceschanged', updateVoices);
+        }
+
+        return () => {
+            if (synth.onvoiceschanged !== undefined) {
+                synth.removeEventListener('voiceschanged', updateVoices);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!speechRecognition.isListening && pendingSpeechText.current && !sending && !aiTyping) {
+            const speechText = pendingSpeechText.current;
+            pendingSpeechText.current = '';
+            setInterimText('');
+            const newText = text.trim() ? text.trim() + ' ' + speechText : speechText;
+            setText(newText);
+            autoSendTimer.current = setTimeout(() => {
+                setText(newText);
+            }, 100);
+        }
+    }, [speechRecognition.isListening, sending, aiTyping]);
+
+    const scrollToBottom = useCallback(() => {
         requestAnimationFrame(() => {
             if (!listRef.current) return;
             listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
         });
-    };
+    }, []);
 
     const checkScrollPosition = (): boolean => {
         if (!listRef.current) return false;
         const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-        const tolerance = 5;
-        return scrollHeight - clientHeight - scrollTop <= tolerance;
+        return scrollHeight - clientHeight - scrollTop <= 5;
     };
 
     const autoResize = () => {
@@ -136,21 +199,20 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
 
         const sub = subscribeMessages(chatId, (msg: MessageRow) => {
             if (!msg) return;
-
+            const isNew = !messagesRef.current.some(p => p.id === msg.id);
             setMessages(prev => {
                 if (prev.some(p => p.id === msg.id)) return prev;
                 const next = [...prev, msg];
                 next.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
                 return next;
             });
-
-            if (msg.sender === 'ai') {
+            if (msg.sender === 'ai' && isNew) {
                 setAiTyping(false);
                 if (enableTTS && msg.content) {
-                    speechSynthesis.speak(msg.content);
+                    speechSynthesisRef.current.speak(msg.content);
+                    setSpeakingMessageId(msg.id);
                 }
             }
-
             if (checkScrollPosition()) {
                 scrollToBottom();
             }
@@ -159,18 +221,25 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
         return () => {
             mounted = false;
             sub.unsubscribe();
-            speechSynthesis.cancel();
+            speechSynthesisRef.current.stop();
         };
-    }, [chatId, t, enableTTS, speechSynthesis]);
+    }, [chatId, enableTTS]);
 
-    const handleSend = async () => {
+    const handleSend = useCallback(async () => {
         if (!text.trim() || !user) return;
         const content = text.trim();
         setText('');
+        setInterimText('');
         speechRecognition.resetTranscript();
+        pendingSpeechText.current = '';
+        if (autoSendTimer.current) {
+            clearTimeout(autoSendTimer.current);
+            autoSendTimer.current = null;
+        }
         autoResize();
-        scrollToBottom();
         setSending(true);
+        setTurn('user_speaking');
+        scrollToBottom();
 
         const tempId = `temp-${Date.now()}`;
         const optimisticMsg: MessageRow = {
@@ -184,15 +253,15 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
         scrollToBottom();
 
         try {
-            let savedUserMsg: MessageRow;
             try {
-                savedUserMsg = await addMessage(chatId, 'user', content);
-                setMessages(prev => prev.map(m => (m.id === tempId ? savedUserMsg : m)));
+                await addMessage(chatId, 'user', content);
+                setMessages(prev => prev.map(m => (m.id === tempId ? { ...m, id: m.id } : m)));
             } catch (dbErr) {
                 console.error('DB save user message error', dbErr);
                 setMessages(prev => prev.filter(m => m.id !== tempId));
                 toast.error(t('toast_sendFailed_title'), { description: t('toast_sendFailed_desc') });
                 setSending(false);
+                setTurn('idle');
                 return;
             }
 
@@ -210,6 +279,7 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
                 console.error('AI API error', txt);
                 toast.error(t('toast_aiFailed_title'), { description: t('toast_aiFailed_desc') });
                 setAiTyping(false);
+                setTurn('idle');
                 return;
             }
 
@@ -217,7 +287,6 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
             let aiMessage = responseData.aiMessage;
 
             if (!aiMessage && (responseData as any).ai) {
-                console.warn("Fallback used: API returned raw text. Manually creating message.");
                 aiMessage = {
                     id: `fallback-ai-${Date.now()}`,
                     chat_id: chatId,
@@ -226,9 +295,9 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
                     created_at: new Date().toISOString(),
                 } as MessageRow;
             } else if (!aiMessage) {
-                console.error('AI API response missing aiMessage object. Check API logs.');
                 toast.warning(t('toast_aiPartial_title'), { description: t('toast_aiPartial_desc') });
                 setAiTyping(false);
+                setTurn('idle');
                 return;
             }
 
@@ -236,67 +305,109 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
             setAiTyping(false);
             scrollToBottom();
 
+            if (enableTTS && aiMessage.content) {
+                speechSynthesisRef.current.speak(aiMessage.content);
+                setSpeakingMessageId(aiMessage.id);
+            }
         } catch (err) {
-            console.error('send error (Network)', err);
+            console.error('send error', err);
             toast.error(t('toast_networkError_title'), { description: t('toast_networkError_desc') });
             setAiTyping(false);
+            setTurn('idle');
         } finally {
             setSending(false);
         }
-    };
+    }, [text, user, chatId, characterId, t, scrollToBottom]);
+
+    useEffect(() => {
+        if (!speechRecognition.isListening && text.trim() && !sending && !aiTyping && !speechRecognition.transcript) {
+            const timer = setTimeout(() => {
+                handleSend();
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [speechRecognition.isListening, text, sending, aiTyping, speechRecognition.transcript, handleSend]);
 
     const handleMicClick = () => {
         if (speechRecognition.isListening) {
             speechRecognition.stopListening();
         } else {
+            setText('');
+            setInterimText('');
+            speechRecognition.resetTranscript();
+            pendingSpeechText.current = '';
+            speechSynthesis.stop();
+            setSpeakingMessageId(null);
             speechRecognition.startListening();
         }
     };
 
-    const handleTestVoice = (testText: string) => {
-        speechSynthesis.speak(testText);
+    const handleSpeakMessage = (messageId: string, content: string) => {
+        if (speakingMessageId === messageId) {
+            speechSynthesis.stop();
+            setSpeakingMessageId(null);
+        } else {
+            speechSynthesis.stop();
+            speechSynthesis.speak(content);
+            setSpeakingMessageId(messageId);
+            setEnableTTS(true);
+        }
     };
+
+    const handleToggleTTS = () => {
+        if (enableTTS) {
+            speechSynthesis.stop();
+            setSpeakingMessageId(null);
+            setEnableTTS(false);
+        } else {
+            setEnableTTS(true);
+        }
+    };
+
+    const handleVoiceConfigChange = (newConfig: Partial<{ voiceURI: string; pitch: number; rate: number; volume: number }>) => {
+        speechSynthesis.setConfig(newConfig);
+        try {
+            localStorage.setItem('chattermind_voice_config', JSON.stringify({ ...speechSynthesis.config, ...newConfig }));
+        } catch {}
+    };
+
+    const TEST_TEXTS: Record<string, string> = {
+        'de-DE': 'Hallo! Ich bin Ihr Sprachlehrer. Wie geht es Ihnen heute?',
+        'tr-TR': 'Merhaba! Ben dil öğretmeninizim. Bugün nasılsınız?',
+        'en-US': 'Hello! I am your language teacher. How are you today?',
+    };
+
+    const handlePlayPreview = (voiceURI: string) => {
+        speechSynthesis.stop();
+        speechSynthesis.setConfig({ voiceURI });
+        speechSynthesis.speak(TEST_TEXTS[speechLang] || TEST_TEXTS['en-US']);
+    };
+
+    const turnLabels: Record<string, string> = {
+        user_speaking: t('turn_user_speaking'),
+        ai_thinking: t('turn_ai_thinking'),
+        ai_speaking: t('turn_ai_speaking'),
+    };
+
+    const showTurnIndicator = turn !== 'idle';
 
     return (
         <div className="flex flex-col h-full pb-4">
-            {speechRecognition.isSupported && (
-                <div className="px-4 py-2 border-b border-border flex items-center justify-between bg-background">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-muted-foreground">{t('voice_controls')}</span>
-                        <div className="h-4 w-px bg-border" />
-                        {speechSynthesis.isSupported && (
-                            <>
-                                <SpeechToggle
-                                    isPlaying={speechSynthesis.isSpeaking}
-                                    isSupported={speechSynthesis.isSupported}
-                                    onToggle={() => setEnableTTS(!enableTTS)}
-                                    onCancel={() => speechSynthesis.cancel()}
-                                />
-                                {speechSynthesis.isSpeaking && (
-                                    <button
-                                        type="button"
-                                        onClick={() => speechSynthesis.cancel()}
-                                        className="text-xs text-muted-foreground hover:text-foreground"
-                                    >
-                                        {t('voice_stop')}
-                                    </button>
-                                )}
-                            </>
+            {showTurnIndicator && (
+                <div className="flex items-center justify-center py-1.5 bg-muted/50 border-b border-border">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {turn === 'ai_thinking' && (
+                            <div className="flex gap-1">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
+                            </div>
                         )}
+                        {turn === 'ai_speaking' && (
+                            <Volume2 className="w-3.5 h-3.5 text-primary animate-pulse" />
+                        )}
+                        <span>{turnLabels[turn]}</span>
                     </div>
-                    {speechSynthesis.isSupported && (
-                        <VoiceSettingsDialog
-                            voices={speechSynthesis.voices}
-                            config={speechSynthesis.config}
-                            onConfigChange={speechSynthesis.setConfig}
-                            onTestVoice={handleTestVoice}
-                            isSpeaking={speechSynthesis.isSpeaking}
-                        >
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <Settings className="w-4 h-4" />
-                            </Button>
-                        </VoiceSettingsDialog>
-                    )}
                 </div>
             )}
 
@@ -310,57 +421,100 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
                         key={m.id}
                         message={m}
                         character={m.sender === 'ai' ? (character || { name: 'Assistant', avatar: null } as any) : undefined}
+                        onSpeak={m.sender === 'ai' && speechSynthesis.isSupported ? () => handleSpeakMessage(m.id, m.content) : undefined}
+                        isSpeaking={speakingMessageId === m.id}
                     />
                 ))}
                 {aiTyping && <TypingIndicator />}
             </div>
 
-            <div className="p-3 border-t border-t-border flex items-center gap-3 bg-background">
-                {speechRecognition.isSupported && (
-                    <MicrophoneButton
-                        isListening={speechRecognition.isListening}
-                        isSupported={speechRecognition.isSupported}
-                        onClick={handleMicClick}
-                        disabled={sending || aiTyping}
-                    />
-                )}
-                <div className="flex-1 relative">
-                    <textarea
-                        ref={textareaRef}
-                        value={text}
-                        onChange={e => {
-                            setText(e.target.value);
-                            autoResize();
-                            if (isAtBottom) {
-                                scrollToBottom();
-                            }
-                        }}
-                        onKeyDown={e => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSend();
-                            }
-                        }}
-                        rows={1}
-                        className="flex-1 resize-none overflow-y-auto rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm
-                                    focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-h-52 w-full"
-                        placeholder={speechRecognition.isListening ? t('voice_listening') : t('placeholder')}
-                        disabled={sending || aiTyping}
-                    />
-                    {speechRecognition.isListening && (
-                        <div className="absolute bottom-1 right-2 flex items-center gap-1">
-                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                            <span className="text-xs text-muted-foreground">{t('voice_recording')}</span>
-                        </div>
+            <div className="p-4 border-t border-border bg-background">
+                <div className="relative flex items-end gap-2 rounded-2xl border border-input bg-muted/30 px-3 py-2 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
+                    {speechRecognition.isSupported && (
+                        <MicrophoneButton
+                            isListening={speechRecognition.isListening}
+                            isSupported={speechRecognition.isSupported}
+                            onClick={handleMicClick}
+                            disabled={sending || aiTyping}
+                        />
                     )}
+
+                    <div className="flex-1 relative">
+                        <textarea
+                            ref={textareaRef}
+                            value={text + (interimText ? (text ? ' ' : '') + interimText : '')}
+                            onChange={e => {
+                                setText(e.target.value);
+                                autoResize();
+                                if (isAtBottom) scrollToBottom();
+                            }}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSend();
+                                }
+                            }}
+                            rows={1}
+                            className="w-full resize-none overflow-y-auto bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none max-h-32 py-1.5"
+                            placeholder={speechRecognition.isListening ? t('voice_listening') : t('placeholder')}
+                            disabled={sending || aiTyping}
+                        />
+                        {speechRecognition.isListening && (
+                            <div className="absolute bottom-0 right-0 flex items-center gap-1.5">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                                </span>
+                                <span className="text-[11px] font-medium text-red-500">{t('voice_recording')}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <SendButton
+                        onSend={handleSend}
+                        isEmpty={!text.trim() && !interimText.trim()}
+                        aiTyping={aiTyping}
+                        loading={sending}
+                    />
                 </div>
 
-                <SendButton
-                    onSend={handleSend}
-                    isEmpty={!text.trim()}
-                    aiTyping={aiTyping}
-                    loading={sending}
-                />
+                {speechSynthesis.isSupported && (
+                    <div className="flex items-center justify-center gap-1 mt-2">
+                        <button
+                            type="button"
+                            onClick={handleToggleTTS}
+                            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                                enableTTS
+                                    ? 'text-primary bg-primary/5 hover:bg-primary/10'
+                                    : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                        >
+                            {enableTTS ? (
+                                <Volume2 className="w-3 h-3" />
+                            ) : (
+                                <VolumeOff className="w-3 h-3" />
+                            )}
+                            {enableTTS ? 'Voice On' : 'Voice Off'}
+                        </button>
+
+                        <VoiceSettingsDialog
+                            voices={allVoices}
+                            config={speechSynthesis.config}
+                            onConfigChange={handleVoiceConfigChange}
+                            onPlayPreview={handlePlayPreview}
+                            isSpeaking={speechSynthesis.isSpeaking}
+                            lang={speechLang}
+                        >
+                            <button
+                                type="button"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
+                            >
+                                <Settings className="w-3.5 h-3.5" />
+                                Ses Karakterleri
+                            </button>
+                        </VoiceSettingsDialog>
+                    </div>
+                )}
             </div>
 
             {speechRecognition.error && (

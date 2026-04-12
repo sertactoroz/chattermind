@@ -101,7 +101,10 @@
         "voice_controls": "Ses Kontrolleri",
         "voice_stop": "Durdur",
         "voice_listening": "Dinleniyor...",
-        "voice_recording": "Kaydediliyor"
+        "voice_recording": "Kaydediliyor",
+        "turn_user_speaking": "Sen konuşuyorsun...",
+        "turn_ai_thinking": "Düşünüyor...",
+        "turn_ai_speaking": "Konuşuyor..."
     },
     "DataPrivacy": {
         "title": "Veri & Gizlilik",
