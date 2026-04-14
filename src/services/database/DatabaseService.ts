@@ -130,6 +130,36 @@ export class DatabaseService {
       createdAt: msg.created_at,
     }));
   }
+
+  async listChats(userId: string): Promise<ChatRow[]> {
+    const { data, error } = await supabaseAdmin
+      .from('chats')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to list chats:', error);
+      throw new Error('Database operation failed');
+    }
+
+    return (data ?? []) as ChatRow[];
+  }
+
+  async listMessages(chatId: string): Promise<MessageRow[]> {
+    const { data, error } = await supabaseAdmin
+      .from('messages')
+      .select('*')
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Failed to list messages:', error);
+      throw new Error('Database operation failed');
+    }
+
+    return (data ?? []) as MessageRow[];
+  }
 }
 
 let databaseServiceInstance: DatabaseService | null = null;
