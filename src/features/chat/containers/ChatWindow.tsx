@@ -283,15 +283,16 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
                 return;
             }
 
-            const responseData: AIMessageResponse = await resp.json();
-            let aiMessage = responseData.aiMessage;
+            const raw = await resp.json();
+            const responseData = raw.data ?? raw;
+            let aiMessage = (responseData as any).aiMessage;
 
-            if (!aiMessage && (responseData as any).ai) {
+            if (!aiMessage && responseData.ai) {
                 aiMessage = {
                     id: `fallback-ai-${Date.now()}`,
                     chat_id: chatId,
                     sender: 'ai',
-                    content: (responseData as any).ai,
+                    content: responseData.ai,
                     created_at: new Date().toISOString(),
                 } as MessageRow;
             } else if (!aiMessage) {
