@@ -2,7 +2,6 @@ import { supabase } from '@/lib/supabaseClient';
 
 import type { ChatRow, MessageRow } from '@/features/chat/types/chat.types';
 
-// List chats for a given user (most recent first)
 export async function listChats(userId: string): Promise<ChatRow[]> {
   const res = await supabase
     .from('chats')
@@ -11,57 +10,49 @@ export async function listChats(userId: string): Promise<ChatRow[]> {
     .order('created_at', { ascending: false });
 
   if (res.error) {
-    // bubble up error so caller can handle it
     throw res.error;
   }
 
-  // Cast to our ChatRow[] type (safe runtime, good enough for TypeScript)
   return (res.data ?? []) as ChatRow[];
 }
 
-/**
- * Create a new chat row; returns created ChatRow
- */
 export async function createChat(userId: string, characterId: string, title: string): Promise<ChatRow> {
-  const res = await supabase
-    .from('chats')
-    .insert([{ user_id: userId, character_id: characterId, title: title ?? null }])
-    .select()
-    .single();
+  const resp = await fetch('/api/chat/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, characterId, title: title ?? 'New chat' }),
+  });
 
-  if (res.error) throw res.error;
-  return res.data as ChatRow;
+  if (!resp.ok) {
+    const err = await resp.text();
+    throw new Error(err || 'Failed to create chat');
+  }
+
+  const raw = await resp.json();
+  return (raw.data ?? raw) as ChatRow;
 }
 
-/**
- * Add a message to a chat and update chat.last_message
- */
 export async function addMessage(
   chatId: string,
   sender: 'user' | 'ai',
   content: string,
-  metadata?: unknown // Using 'unknown' before conversion to Json type
+  metadata?: unknown
 ): Promise<MessageRow> {
-  const res = await supabase
-    .from('messages')
-    .insert([{ chat_id: chatId, sender, content, metadata }])
-    .select()
-    .single();
-
-  if (res.error) throw res.error;
-
-  // Best-effort update to chats.last_message; do not block returning the message
-  // (we don't `await` to avoid race if update fails; but you can await if you prefer)
-  supabase.from('chats').update({ last_message: content }).eq('id', chatId).then(({ error }) => {
-    if (error) console.warn('Failed to update chat.last_message', error);
+  const resp = await fetch('/api/chat/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chatId, sender, content, metadata }),
   });
 
-  return res.data as MessageRow;
+  if (!resp.ok) {
+    const err = await resp.text();
+    throw new Error(err || 'Failed to add message');
+  }
+
+  const raw = await resp.json();
+  return (raw.data ?? raw) as MessageRow;
 }
 
-/**
- * Helper - fetch messages for a chat (ordered ascending)
- */
 export async function listMessages(chatId: string): Promise<MessageRow[]> {
   const res = await supabase
     .from('messages')

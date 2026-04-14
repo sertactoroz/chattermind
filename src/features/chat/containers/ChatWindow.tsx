@@ -25,9 +25,6 @@ const LANGUAGE_MAP: Record<string, string> = {
     English: 'en-US',
 };
 
-type AIMessageResponse = {
-    aiMessage: MessageRow;
-};
 
 type ConversationTurn = 'idle' | 'user_speaking' | 'ai_thinking' | 'ai_speaking';
 
