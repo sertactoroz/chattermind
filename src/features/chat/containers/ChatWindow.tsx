@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { listMessages, addMessage } from '../services/chatService';
-import { subscribeMessages } from '../services/realtime';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import MessageItem from '../components/MessageItem';
 import TypingIndicator from '../components/TypingIndicator';
@@ -194,30 +193,8 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
             }
         })();
 
-        const sub = subscribeMessages(chatId, (msg: MessageRow) => {
-            if (!msg) return;
-            const isNew = !messagesRef.current.some(p => p.id === msg.id);
-            setMessages(prev => {
-                if (prev.some(p => p.id === msg.id)) return prev;
-                const next = [...prev, msg];
-                next.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-                return next;
-            });
-            if (msg.sender === 'ai' && isNew) {
-                setAiTyping(false);
-                if (enableTTS && msg.content) {
-                    speechSynthesisRef.current.speak(msg.content);
-                    setSpeakingMessageId(msg.id);
-                }
-            }
-            if (checkScrollPosition()) {
-                scrollToBottom();
-            }
-        });
-
         return () => {
             mounted = false;
-            sub.unsubscribe();
             speechSynthesisRef.current.stop();
         };
     }, [chatId, enableTTS]);
@@ -251,8 +228,8 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
 
         try {
             try {
-                await addMessage(chatId, 'user', content);
-                setMessages(prev => prev.map(m => (m.id === tempId ? { ...m, id: m.id } : m)));
+                const saved = await addMessage(chatId, 'user', content);
+                setMessages(prev => prev.map(m => (m.id === tempId ? saved : m)));
             } catch (dbErr) {
                 console.error('DB save user message error', dbErr);
                 setMessages(prev => prev.filter(m => m.id !== tempId));

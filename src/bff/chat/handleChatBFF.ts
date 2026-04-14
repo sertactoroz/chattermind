@@ -9,6 +9,7 @@ import {
 import { AppError, ExternalServiceError } from '@/shared/errors/AppError';
 import { successResponse, errorResponse } from '@/shared/response/ApiResponse';
 import { AIMessage } from '@/services/ai/AIService';
+import { getAuthUserId } from '@/lib/auth';
 
 export interface ChatBFFRequest {
   chatId: string;
@@ -24,6 +25,11 @@ export interface ChatBFFResponse {
 
 export async function handleChatBFF(req: Request): Promise<NextResponse> {
   try {
+    const authUserId = await getAuthUserId();
+    if (!authUserId) {
+      return errorResponse(new Error('Unauthorized'));
+    }
+
     const body: ChatBFFRequest = await req.json();
 
     const chatId = validateRequired(body.chatId, 'chatId');
