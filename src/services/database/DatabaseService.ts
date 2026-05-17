@@ -1,10 +1,10 @@
-import { supabaseAdmin } from '../../lib/supabaseServer';
+import { sql } from '@/lib/neon';
 import { Message } from '../../domain/types';
 
 export interface ChatRow {
   id: string;
   user_id: string;
-  character_id: string;
+  companion_id: string;
   title: string;
   last_message: string;
   created_at: string;
@@ -21,18 +21,15 @@ export interface MessageRow {
 
 export class DatabaseService {
   async createChat(userId: string, characterId: string, title: string): Promise<ChatRow> {
-    const { data, error } = await supabaseAdmin
-      .from('chats')
-      .insert([{ user_id: userId, character_id: characterId, title: title ?? null }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Failed to create chat:', error);
+    const rows = await sql`
+      INSERT INTO chats (user_id, companion_id, title)
+      VALUES (${userId}, ${characterId}, ${title ?? null})
+      RETURNING id, user_id, companion_id, title, last_message, created_at
+    `;
+    if (!rows || rows.length === 0) {
       throw new Error('Database operation failed');
     }
-
-    return data as ChatRow;
+    return rows[0] as ChatRow;
   }
 
   async addMessage(
@@ -41,37 +38,27 @@ export class DatabaseService {
     content: string,
     metadata?: unknown
   ): Promise<MessageRow> {
-    const { data, error } = await supabaseAdmin
-      .from('messages')
-      .insert([{ chat_id: chatId, sender, content, metadata }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Failed to add message:', error);
+    const rows = await sql`
+      INSERT INTO messages (chat_id, sender, content, metadata)
+      VALUES (${chatId}, ${sender}, ${content}, ${metadata ? JSON.stringify(metadata) : null})
+      RETURNING id, chat_id, sender, content, metadata, created_at
+    `;
+    if (!rows || rows.length === 0) {
       throw new Error('Database operation failed');
     }
 
-    supabaseAdmin
-      .from('chats')
-      .update({ last_message: content })
-      .eq('id', chatId)
-      .then(({ error: updateError }) => {
-        if (updateError) console.warn('Failed to update chat.last_message', updateError);
-      });
+    sql`UPDATE chats SET last_message = ${content} WHERE id = ${chatId}`.catch((err) => {
+      console.warn('Failed to update chat.last_message', err);
+    });
 
-    return data as MessageRow;
+    return rows[0] as MessageRow;
   }
 
   async saveMessage(chatId: string, sender: 'user' | 'ai', content: string): Promise<void> {
-    const { error } = await supabaseAdmin
-      .from('messages')
-      .insert([{ chat_id: chatId, sender, content }]);
-
-    if (error) {
-      console.error('Failed to save message:', error);
-      throw new Error('Database operation failed');
-    }
+    await sql`
+      INSERT INTO messages (chat_id, sender, content)
+      VALUES (${chatId}, ${sender}, ${content})
+    `;
   }
 
   async getRecentMessages(
@@ -79,86 +66,90 @@ export class DatabaseService {
     limit: number = 50,
     contextLimit: number = 20
   ): Promise<Message[]> {
-    const { data, error } = await supabaseAdmin
-      .from('messages')
-      .select('sender, content, created_at')
-      .eq('chat_id', chatId)
-      .order('created_at', { ascending: true })
-      .limit(limit);
+    const rows = await sql`
+      SELECT sender, content, created_at
+      FROM messages
+      WHERE chat_id = ${chatId}
+      ORDER BY created_at ASC
+      LIMIT ${limit}
+    `;
 
-    if (error) {
-      console.error('Failed to fetch recent messages:', error);
+    if (!rows || rows.length === 0) {
       return [];
     }
 
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      return [];
-    }
+    const lastMessages = rows.slice(-contextLimit);
 
-    const lastMessages = data.slice(-contextLimit);
-
-    return lastMessages.map((msg) => ({
+    return lastMessages.map((msg: Record<string, unknown>) => ({
       id: '',
       chatId,
-      sender: msg.sender,
-      content: msg.content,
-      createdAt: msg.created_at,
+      sender: msg.sender as 'user' | 'ai',
+      content: msg.content as string,
+      createdAt: msg.created_at as string,
     }));
   }
 
   async getChatMessages(chatId: string): Promise<Message[]> {
-    const { data, error } = await supabaseAdmin
-      .from('messages')
-      .select('*')
-      .eq('chat_id', chatId)
-      .order('created_at', { ascending: true });
+    const rows = await sql`
+      SELECT id, chat_id, sender, content, created_at
+      FROM messages
+      WHERE chat_id = ${chatId}
+      ORDER BY created_at ASC
+    `;
 
-    if (error) {
-      console.error('Failed to fetch chat messages:', error);
+    if (!rows || !Array.isArray(rows)) {
       return [];
     }
 
-    if (!data || !Array.isArray(data)) {
-      return [];
-    }
-
-    return data.map((msg) => ({
-      id: msg.id,
-      chatId: msg.chat_id,
-      sender: msg.sender,
-      content: msg.content,
-      createdAt: msg.created_at,
+    return rows.map((msg: Record<string, unknown>) => ({
+      id: msg.id as string,
+      chatId: msg.chat_id as string,
+      sender: msg.sender as 'user' | 'ai',
+      content: msg.content as string,
+      createdAt: msg.created_at as string,
     }));
   }
 
   async listChats(userId: string): Promise<ChatRow[]> {
-    const { data, error } = await supabaseAdmin
-      .from('chats')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Failed to list chats:', error);
-      throw new Error('Database operation failed');
-    }
-
-    return (data ?? []) as ChatRow[];
+    const rows = await sql`
+      SELECT id, user_id, companion_id, title, last_message, created_at
+      FROM chats
+      WHERE user_id = ${userId}
+      ORDER BY created_at DESC
+    `;
+    return (rows ?? []) as ChatRow[];
   }
 
   async listMessages(chatId: string): Promise<MessageRow[]> {
-    const { data, error } = await supabaseAdmin
-      .from('messages')
-      .select('*')
-      .eq('chat_id', chatId)
-      .order('created_at', { ascending: true });
+    const rows = await sql`
+      SELECT id, chat_id, sender, content, metadata, created_at
+      FROM messages
+      WHERE chat_id = ${chatId}
+      ORDER BY created_at ASC
+    `;
+    return (rows ?? []) as MessageRow[];
+  }
 
-    if (error) {
-      console.error('Failed to list messages:', error);
-      throw new Error('Database operation failed');
-    }
+  async getChatById(chatId: string): Promise<ChatRow | null> {
+    const rows = await sql`
+      SELECT id, user_id, companion_id, title, last_message, created_at
+      FROM chats
+      WHERE id = ${chatId}
+      LIMIT 1
+    `;
+    if (!rows || rows.length === 0) return null;
+    return rows[0] as ChatRow;
+  }
 
-    return (data ?? []) as MessageRow[];
+  async getMessagesForPrompt(chatId: string, maxHistory: number = 10): Promise<MessageRow[]> {
+    const rows = await sql`
+      SELECT id, chat_id, sender, content, metadata, created_at
+      FROM messages
+      WHERE chat_id = ${chatId}
+      ORDER BY created_at ASC
+      LIMIT ${maxHistory}
+    `;
+    return (rows ?? []) as MessageRow[];
   }
 }
 

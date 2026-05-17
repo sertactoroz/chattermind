@@ -11,7 +11,7 @@ export default function AboutPage() {
     const t = useTranslations('About');
 
     return (
-        <div className="max-w-md mx-auto p-4">
+        <div className="max-w-2xl mx-auto p-4">
             <div className="relative flex items-center justify-center pt-4 pb-4">
                 <BackButton />
                 <h1 className="text-3xl font-bold text-center">
@@ -30,10 +30,11 @@ export default function AboutPage() {
                         </p>
 
                         <p>
-                            {t('p2_part1')} <strong>Next.js App Router</strong>,
-                            <strong> Supabase</strong> {t('p2_part2')}
+                            {t('p2_part1')} <strong>Next.js</strong>,
+                            <strong> Spring Boot</strong> {t('p2_part2')}
                             <strong> Groq LLM</strong> {t('p2_part3')}
-                            <strong>Framer Motion</strong> {t('p2_part4')}
+                            <strong>Framer Motion</strong>,
+                            <strong> Google Cloud TTS</strong>.
                         </p>
                         <p>
                             {t('p3_part1')}

@@ -3,32 +3,32 @@
 import React from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import type { MessageRow } from '../types/chat.types';
-import type { Character } from '@/features/characters/types/character.types';
+import type { Companion } from '@/features/companions/types/companion.types';
 
 type Props = {
   message: MessageRow;
-  character?: Character | null;
+  companion?: Companion | null;
   onSpeak?: () => void;
   isSpeaking?: boolean;
 };
 
-export default function MessageItem({ message, character, onSpeak, isSpeaking }: Props) {
+export default function MessageItem({ message, companion, onSpeak, isSpeaking }: Props) {
   const isUser = message.sender === 'user';
   const isAI = message.sender === 'ai';
 
   return (
     <div className={`flex gap-3 items-start ${isAI ? 'justify-start' : 'justify-end'}`}>
-      {isAI && character && (
+      {isAI && companion && (
         <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex-shrink-0 mt-1 border border-border">
-          {(character.avatar || (character as any).avatar_url) ? (
+          {(companion.avatar) ? (
             <img
-              src={character.avatar || (character as any).avatar_url}
-              alt={character.name}
+              src={companion.avatar}
+              alt={companion.name}
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-xs font-semibold bg-primary/10 text-primary">
-              {character.name ? character.name.slice(0, 2).toUpperCase() : 'AI'}
+              {companion.name ? companion.name.slice(0, 2).toUpperCase() : 'AI'}
             </div>
           )}
         </div>

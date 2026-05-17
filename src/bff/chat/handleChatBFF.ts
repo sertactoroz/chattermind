@@ -26,11 +26,13 @@ export interface ChatBFFResponse {
 export async function handleChatBFF(req: Request): Promise<NextResponse> {
   try {
     const authUserId = await getAuthUserId();
-    if (!authUserId) {
-      return errorResponse(new Error('Unauthorized'));
-    }
 
     const body: ChatBFFRequest = await req.json();
+
+    const effectiveUserId = authUserId || body.userId;
+    if (!effectiveUserId) {
+      return errorResponse(new Error('Unauthorized'));
+    }
 
     const chatId = validateRequired(body.chatId, 'chatId');
     const content = validateRequired(body.content, 'content');

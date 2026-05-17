@@ -1,12 +1,14 @@
-interface CharacterData {
+interface CompanionData {
   id: string;
   promptKey: string;
   language?: string;
 }
 
+import companionsData from '@/features/companions/data/companions.json';
+
 export class CharacterService {
-  private characters: CharacterData[];
-  private initialPromptSignal = "Generate character's opening message to start the conversation.";
+  private companions: CompanionData[];
+  private initialPromptSignal = "Generate companion's opening message to start the conversation.";
   private brevityInstruction = `
 STRICT RULE:
 You are a conversational language partner, NOT a writing assistant.
@@ -16,30 +18,24 @@ Do NOT provide lengthy explanations, lists, or cultural notes.
 `;
 
   constructor() {
-    try {
-      const charactersData = require('@/features/characters/data/characters.json');
-      this.characters = charactersData;
-    } catch (error) {
-      console.error('Failed to load characters:', error);
-      this.characters = [];
-    }
+    this.companions = companionsData as CompanionData[];
   }
 
-  getCharacterById(id: string): CharacterData | undefined {
-    return this.characters.find((char) => char.id === id);
+  getCompanionById(id: string): CompanionData | undefined {
+    return this.companions.find((comp) => comp.id === id);
   }
 
-  getCharacterPrompt(characterId: string): string {
-    const character = this.getCharacterById(characterId);
+  getCompanionPrompt(companionId: string): string {
+    const companion = this.getCompanionById(companionId);
     
-    if (!character?.promptKey) {
+    if (!companion?.promptKey) {
       return 'You are a helpful AI assistant. Keep replies concise and friendly.';
     }
 
-    const prompt = process.env[character.promptKey];
+    const prompt = process.env[companion.promptKey];
     
     if (!prompt) {
-      console.warn(`⚠️ Missing env prompt for key: ${character.promptKey}`);
+      console.warn(`⚠️ Missing env prompt for key: ${companion.promptKey}`);
       return 'You are a helpful AI assistant. Keep replies concise and friendly.';
     }
 
@@ -47,10 +43,10 @@ Do NOT provide lengthy explanations, lists, or cultural notes.
   }
 
   buildSystemPrompt(
-    characterId?: string | null,
+    companionId?: string | null,
     isInitialMessage: boolean = false
   ): string {
-    let systemPrompt = this.getCharacterPrompt(characterId || '');
+    let systemPrompt = this.getCompanionPrompt(companionId || '');
     
     systemPrompt += `\n${this.brevityInstruction}`;
 
@@ -62,12 +58,12 @@ Do NOT include meta-commentary or explanations.
 `;
     }
 
-    if (characterId) {
-      const character = this.getCharacterById(characterId);
-      if (character?.language) {
+    if (companionId) {
+      const companion = this.getCompanionById(companionId);
+      if (companion?.language) {
         systemPrompt += `
 FINAL LANGUAGE RULE (OVERRIDES ALL OTHER INSTRUCTIONS):
-You MUST respond ONLY in ${character.language}. Every single message, including your very first greeting, MUST be written in ${character.language}. Never write in any other language.`;
+You MUST respond ONLY in ${companion.language}. Every single message, including your very first greeting, MUST be written in ${companion.language}. Never write in any other language.`;
       }
     }
 
@@ -78,8 +74,8 @@ You MUST respond ONLY in ${character.language}. Every single message, including 
     return content === this.initialPromptSignal;
   }
 
-  getAllCharacters(): CharacterData[] {
-    return this.characters;
+  getAllCompanions(): CompanionData[] {
+    return this.companions;
   }
 }
 

@@ -1,31 +1,36 @@
 import type { ChatRow, MessageRow } from '@/features/chat/types/chat.types';
+import { api } from '@/lib/api';
+
+function mapChatRow(raw: Record<string, unknown>): ChatRow {
+  return {
+    id: raw.id as string,
+    user_id: (raw.user_id || raw.userId) as string,
+    character_id: (raw.character_id || raw.characterId) as string,
+    title: (raw.title || '') as string,
+    last_message: (raw.last_message || raw.lastMessage || '') as string,
+    created_at: (raw.created_at || raw.createdAt || '') as string,
+  };
+}
+
+function mapMessageRow(raw: Record<string, unknown>): MessageRow {
+  return {
+    id: raw.id as string,
+    chat_id: (raw.chat_id || raw.chatId) as string,
+    sender: api.mapSender(raw.sender as string),
+    content: raw.content as string,
+    metadata: raw.metadata as MessageRow['metadata'],
+    created_at: (raw.created_at || raw.createdAt) as string,
+  };
+}
 
 export async function listChats(userId: string): Promise<ChatRow[]> {
-  const resp = await fetch(`/api/chat/list?userId=${encodeURIComponent(userId)}`);
-
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error(err || 'Failed to load chats');
-  }
-
-  const raw = await resp.json();
-  return (raw.data ?? raw) as ChatRow[];
+  const data = await api.get<Record<string, unknown>[]>(`/api/chat/list?userId=${encodeURIComponent(userId)}`);
+  return data.map(mapChatRow);
 }
 
 export async function createChat(userId: string, characterId: string, title: string): Promise<ChatRow> {
-  const resp = await fetch('/api/chat/create', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, characterId, title: title ?? 'New chat' }),
-  });
-
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error(err || 'Failed to create chat');
-  }
-
-  const raw = await resp.json();
-  return (raw.data ?? raw) as ChatRow;
+  const raw = await api.post<Record<string, unknown>>('/api/chat/create', { userId, characterId, title: title ?? 'New chat' });
+  return mapChatRow(raw);
 }
 
 export async function addMessage(
@@ -34,29 +39,20 @@ export async function addMessage(
   content: string,
   metadata?: unknown
 ): Promise<MessageRow> {
-  const resp = await fetch('/api/chat/message', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chatId, sender, content, metadata }),
+  const raw = await api.post<Record<string, unknown>>('/api/chat/message', {
+    chatId,
+    sender: sender.toUpperCase(),
+    content,
+    metadata,
   });
-
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error(err || 'Failed to add message');
-  }
-
-  const raw = await resp.json();
-  return (raw.data ?? raw) as MessageRow;
+  return mapMessageRow(raw);
 }
 
 export async function listMessages(chatId: string): Promise<MessageRow[]> {
-  const resp = await fetch(`/api/chat/messages?chatId=${encodeURIComponent(chatId)}`);
+  const data = await api.get<Record<string, unknown>[]>(`/api/chat/messages?chatId=${encodeURIComponent(chatId)}`);
+  return data.map(mapMessageRow);
+}
 
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error(err || 'Failed to load messages');
-  }
-
-  const raw = await resp.json();
-  return (raw.data ?? raw) as MessageRow[];
+export async function deleteChat(chatId: string): Promise<void> {
+  await api.delete(`/api/chat/${chatId}`);
 }

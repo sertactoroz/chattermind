@@ -12,11 +12,11 @@ export default function BottomNav() {
 
     const items = [
         { key: 'chats', href: '/chat', label: 'Chats', icon: MessageSquare },
-        { key: 'characters', href: '/characters', label: 'Characters', icon: Users },
+        { key: 'companions', href: '/companions', label: 'Companions', icon: Users },
     ];
 
     return (
-        <nav className="sticky bottom-4 w-[min(1800px,96%)] z-40 rounded-2xl pt-4 mx-auto">
+        <nav className="lg:hidden sticky bottom-4 w-[min(1800px,96%)] z-40 rounded-2xl pt-4 mx-auto">
             <div className="bg-card border border-border rounded-3xl shadow-lg px-8 py-2 flex items-center justify-between">
                 {/* LEFT: Chats */}
                 <NavItem
@@ -26,7 +26,7 @@ export default function BottomNav() {
                 {/* CENTER: New Chat */}
                 <motion.button
                     aria-label="New chat"
-                    onClick={() => router.push('/characters')}
+                    onClick={() => router.push('/companions')}
                     whileTap={{ scale: 0.93 }}
                     whileHover={{ scale: 1.08 }}
                     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2

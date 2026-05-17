@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import ThemeProviderWrapper from '@/features/common/components/ThemeProviderClient';
 import { Toaster } from 'sonner';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -13,7 +14,7 @@ export function generateStaticParams() {
 export const metadata = {
   title: 'ChatterMind',
   description:
-    'A modern AI-powered chat experience that brings unique characters to life through natural, real-time conversations.',
+    'A modern AI-powered chat experience that brings unique companions to life through natural, real-time conversations.',
 };
 
 export default async function RootLayout({
@@ -33,10 +34,12 @@ export default async function RootLayout({
       <body className="antialiased bg-background text-foreground flex flex-col h-screen">
         <ThemeProviderWrapper>
           <NextIntlClientProvider>
-            <AuthProvider>
-              {children}
-              <Toaster position="bottom-right" richColors />
-            </AuthProvider>
+            <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ''}>
+              <AuthProvider>
+                {children}
+                <Toaster position="bottom-right" richColors />
+              </AuthProvider>
+            </GoogleOAuthProvider>
           </NextIntlClientProvider>
         </ThemeProviderWrapper>
       </body>

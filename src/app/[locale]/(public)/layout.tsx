@@ -12,7 +12,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     // Redirect authenticated users away from public pages
     useEffect(() => {
         if (!loading && user) {
-            router.replace('/characters');
+            router.replace('/companions');
         }
     }, [user, loading, router]);
 

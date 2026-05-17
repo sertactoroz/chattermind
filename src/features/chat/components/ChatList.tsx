@@ -2,13 +2,15 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { listChats } from '../services/chatService';
+import { listChats, deleteChat } from '../services/chatService';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCharacters } from '@/features/characters/hooks/useCharacters';
-import type { Character } from '@/features/characters/types/character.types';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
+import { useCompanions } from '@/features/companions/hooks/useCompanions';
+import type { Companion } from '@/features/companions/types/companion.types';
 import ChatItem from './ChatItem';
 import { ChatRow } from '../types/chat.types';
 import { toast } from 'sonner';
@@ -18,9 +20,10 @@ export default function ChatList() {
   const router = useRouter();
   const [chats, setChats] = useState<ChatRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
-  const { allCharacters, isLoading: charsLoading } = useCharacters();
-  const characterMap: Record<string, Character> = Object.fromEntries(allCharacters.map(c => [c.id, c]));
+  const { allCompanions, isLoading: charsLoading } = useCompanions();
+  const companionMap: Record<string, Companion> = Object.fromEntries(allCompanions.map(c => [c.id, c]));
 
   useEffect(() => {
     if (!user) return;
@@ -34,7 +37,6 @@ export default function ChatList() {
         setChats(rows);
       } catch (err) {
         console.error('Error loading chats', err);
-        // Show Sonner toast on error
         toast.error('Failed to load chats.', {
           description: 'An error occurred while fetching your conversation list.',
         });
@@ -47,14 +49,33 @@ export default function ChatList() {
     return () => { mounted = false; };
   }, [user]);
 
-  const handleNewChat = () => router.push('/characters');
+  const handleDeleteChat = async (chatId: string) => {
+    try {
+      await deleteChat(chatId);
+      setChats(prev => prev.filter(c => c.id !== chatId));
+    } catch {
+      toast.error('Failed to delete chat.');
+    }
+  };
+
+  const handleNewChat = () => router.push('/companions');
+
+  const filtered = search.trim()
+    ? chats.filter(c => {
+        const q = search.toLowerCase();
+        const titleMatch = (c.title || '').toLowerCase().includes(q);
+        const msgMatch = (c.last_message || '').toLowerCase().includes(q);
+        const compName = companionMap[c.character_id]?.name || '';
+        const nameMatch = compName.toLowerCase().includes(q);
+        return titleMatch || msgMatch || nameMatch;
+      })
+    : chats;
 
   if (authLoading || isLoading || charsLoading) {
     return (
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <Skeleton className="h-6 w-20" />
-          {/* <Skeleton className="h-10 w-24" /> */}
         </div>
         <div className="space-y-3">
           <Skeleton className="h-20 rounded-lg" />
@@ -66,11 +87,23 @@ export default function ChatList() {
   }
 
   return (
-    <div className="px-4 py-6 max-w-lg mx-auto">
+    <div className="px-4 py-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-center text-foreground">Chats</h2>
-        {/* <Button onClick={handleNewChat}>New chat</Button> */}
+        <h2 className="text-xl font-bold text-foreground">Chats</h2>
       </div>
+
+      {chats.length > 0 && (
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search chats..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+      )}
 
       {chats.length === 0 ? (
         <Card className="text-center p-6 border-2 border-dashed">
@@ -81,13 +114,16 @@ export default function ChatList() {
             <Button onClick={handleNewChat}>Create first chat</Button>
           </CardContent>
         </Card>
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">No chats match your search.</p>
       ) : (
         <ul className="space-y-3">
-          {chats.map(chat => (
+          {filtered.map(chat => (
             <ChatItem
               key={chat.id}
               chat={chat}
-              character={chat.character_id ? characterMap[chat.character_id] : undefined}
+              companion={chat.character_id ? companionMap[chat.character_id] : undefined}
+              onDelete={handleDeleteChat}
             />
           ))}
         </ul>

@@ -1,27 +1,78 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import jsxA11y from "eslint-plugin-jsx-a11y";
+import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
+import nextPlugin from "@next/eslint-plugin-next";
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+
     ignores: [
-      "node_modules/**",
       ".next/**",
+      "node_modules/**",
       "out/**",
       "build/**",
-      "next-env.d.ts",
+      "public/**",
+      "**/*.d.ts",
+      "**/*.d.ts.map",
+      "next.config.*",
+      ".next/types/**",
+      "coverage/**",
     ],
+
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        ecmaFeatures: { jsx: true },
+      },
+    },
+
+    settings: {
+      react: { version: "detect" },
+    },
+
+    plugins: {
+      react,
+      "react-hooks": reactHooks,
+      "jsx-a11y": jsxA11y,
+      "@typescript-eslint": tsPlugin,
+      "@next/next": nextPlugin,
+    },
+
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "off",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+
+      "react/self-closing-comp": "error",
+      "react/button-has-type": "error",
+
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/no-explicit-any": "warn",
+
+      ...jsxA11y.configs.recommended.rules,
+      "jsx-a11y/alt-text": "error",
+      "jsx-a11y/anchor-is-valid": "error",
+      "jsx-a11y/click-events-have-key-events": "error",
+      "jsx-a11y/no-static-element-interactions": "error",
+      "jsx-a11y/label-has-associated-control": "error",
+      "jsx-a11y/no-redundant-roles": "error",
+
+      "@next/next/no-html-link-for-pages": "error",
+      "@next/next/no-img-element": "warn",
+
+      "no-console": "off",
+      "prefer-const": "error",
     },
   },
 ];

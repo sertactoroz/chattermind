@@ -2,11 +2,12 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { listMessages, addMessage } from '../services/chatService';
+import { api } from '@/lib/api';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import MessageItem from '../components/MessageItem';
 import TypingIndicator from '../components/TypingIndicator';
 import type { MessageRow } from '../types/chat.types';
-import type { Character } from '@/features/characters/types/character.types';
+import type { Companion } from '@/features/companions/types/companion.types';
 import { toast } from 'sonner';
 import { SendButton } from '../components/SendButton';
 import { useTranslations } from 'next-intl';
@@ -16,7 +17,7 @@ import { MicrophoneButton } from '@/features/speech/components/MicrophoneButton'
 import { VoiceSettingsDialog } from '@/features/speech/components/VoiceSettingsDialog';
 import { speechSynthesisService } from '@/features/speech/services/speechSynthesisService';
 import type { VoiceOption } from '@/features/speech/types/speech.types';
-import { Volume2, VolumeOff, Settings } from 'lucide-react';
+import { Volume2, VolumeOff, Settings, Download } from 'lucide-react';
 
 const LANGUAGE_MAP: Record<string, string> = {
     German: 'de-DE',
@@ -30,10 +31,10 @@ type ConversationTurn = 'idle' | 'user_speaking' | 'ai_thinking' | 'ai_speaking'
 type Props = {
     chatId: string;
     characterId?: string | null;
-    character?: Character | null;
+    companion?: Companion | null;
 };
 
-export default function ChatWindow({ chatId, characterId, character }: Props) {
+export default function ChatWindow({ chatId, characterId, companion }: Props) {
     const t = useTranslations('ChatWindow');
     const { user } = useAuthContext();
     const [messages, setMessages] = useState<MessageRow[]>([]);
@@ -52,8 +53,8 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
     const pendingSpeechText = useRef('');
 
     const speechLang = useMemo(
-        () => LANGUAGE_MAP[character?.language ?? ''] ?? 'en-US',
-        [character?.language]
+        () => LANGUAGE_MAP[companion?.language ?? ''] ?? 'en-US',
+        [companion?.language]
     );
 
     const speechRecognition = useSpeechRecognition({
@@ -197,7 +198,7 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
             mounted = false;
             speechSynthesisRef.current.stop();
         };
-    }, [chatId, enableTTS]);
+    }, [chatId]);
 
     const handleSend = useCallback(async () => {
         if (!text.trim() || !user) return;
@@ -242,26 +243,11 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
             setAiTyping(true);
             scrollToBottom();
 
-            const resp = await fetch('/api/chat/ai', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chatId, userId: user.id, content, characterId }),
-            });
+            const responseData = await api.post<{ ai: string; warning?: string }>('/api/chat/ai', { chatId, userId: user.id, content, characterId });
 
-            if (!resp.ok) {
-                const txt = await resp.text();
-                console.error('AI API error', txt);
-                toast.error(t('toast_aiFailed_title'), { description: t('toast_aiFailed_desc') });
-                setAiTyping(false);
-                setTurn('idle');
-                return;
-            }
+            let aiMessage: MessageRow | undefined;
 
-            const raw = await resp.json();
-            const responseData = raw.data ?? raw;
-            let aiMessage = (responseData as any).aiMessage;
-
-            if (!aiMessage && responseData.ai) {
+            if (responseData.ai) {
                 aiMessage = {
                     id: `fallback-ai-${Date.now()}`,
                     chat_id: chatId,
@@ -339,6 +325,25 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
         }
     };
 
+    const handleExport = async (format: 'txt' | 'json') => {
+        try {
+            const token = api.getToken();
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/chat/${chatId}/export?format=${format}`, {
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            });
+            if (!response.ok) throw new Error('Export failed');
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chat-${chatId}.${format}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch {
+            toast.error('Export failed');
+        }
+    };
+
     const handleVoiceConfigChange = (newConfig: Partial<{ voiceURI: string; pitch: number; rate: number; volume: number }>) => {
         speechSynthesis.setConfig(newConfig);
         try {
@@ -367,41 +372,50 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
     const showTurnIndicator = turn !== 'idle';
 
     return (
-        <div className="flex flex-col h-full pb-4">
-            {showTurnIndicator && (
-                <div className="flex items-center justify-center py-1.5 bg-muted/50 border-b border-border">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {turn === 'ai_thinking' && (
-                            <div className="flex gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
-                            </div>
-                        )}
-                        {turn === 'ai_speaking' && (
-                            <Volume2 className="w-3.5 h-3.5 text-primary animate-pulse" />
-                        )}
-                        <span>{turnLabels[turn]}</span>
-                    </div>
-                </div>
-            )}
-
+        <div className="relative flex flex-col h-full pb-4">
             <div
                 ref={listRef}
                 className="flex-1 overflow-auto p-4 space-y-3 min-h-0"
                 onScroll={() => setIsAtBottom(checkScrollPosition())}
             >
+                {messages.length === 0 && !aiTyping && (
+                    <div className="flex items-center justify-center h-full">
+                        <div className="text-center text-muted-foreground">
+                            <p className="text-sm">{t('empty_state')}</p>
+                        </div>
+                    </div>
+                )}
                 {messages.map(m => (
                     <MessageItem
                         key={m.id}
                         message={m}
-                        character={m.sender === 'ai' ? (character || { name: 'Assistant', avatar: null } as any) : undefined}
+                        companion={m.sender === 'ai' ? (companion || { id: 'assistant', name: 'Assistant', promptKey: '', avatar: undefined }) : undefined}
                         onSpeak={m.sender === 'ai' && speechSynthesis.isSupported ? () => handleSpeakMessage(m.id, m.content) : undefined}
                         isSpeaking={speakingMessageId === m.id}
                     />
                 ))}
                 {aiTyping && <TypingIndicator />}
             </div>
+
+            {showTurnIndicator && (
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/80 backdrop-blur-sm border border-border/50 shadow-sm">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            {turn === 'ai_thinking' && (
+                                <div className="flex gap-1">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
+                                </div>
+                            )}
+                            {turn === 'ai_speaking' && (
+                                <Volume2 className="w-3.5 h-3.5 text-primary animate-pulse" />
+                            )}
+                            <span>{turnLabels[turn]}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="p-4 border-t border-border bg-background">
                 <div className="relative flex items-end gap-2 rounded-2xl border border-input bg-muted/30 px-3 py-2 transition-colors focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
@@ -485,9 +499,18 @@ export default function ChatWindow({ chatId, characterId, character }: Props) {
                                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
                             >
                                 <Settings className="w-3.5 h-3.5" />
-                                Ses Karakterleri
+                                Voice
                             </button>
                         </VoiceSettingsDialog>
+
+                        <button
+                            type="button"
+                            onClick={() => handleExport('txt')}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            Export
+                        </button>
                     </div>
                 )}
             </div>

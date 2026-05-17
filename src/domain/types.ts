@@ -22,7 +22,7 @@ export interface Message {
   createdAt: string;
 }
 
-export interface Character {
+export interface Companion {
   id: string;
   name: string;
   description: string;

@@ -1,19 +1,26 @@
 import type { SpeechRecognitionConfig, SpeechRecognitionStatus } from '../types/speech.types';
 
-type _SpeechRecognitionEvent = {
-  results: SpeechRecognitionResultList;
-  resultIndex: number;
-  error?: any;
-};
-
 type SpeechRecognitionCallbacks = {
   onResult?: (transcript: string, isFinal: boolean) => void;
   onStatusChange?: (status: SpeechRecognitionStatus) => void;
   onError?: (error: string) => void;
 };
 
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  onstart: (() => void) | null;
+  onresult: ((event: { results: SpeechRecognitionResultList; resultIndex: number }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
 class SpeechRecognitionServiceClass {
-  private recognition: any = null;
+  private recognition: SpeechRecognitionInstance | null = null;
   private callbacks: SpeechRecognitionCallbacks = {};
   private config: SpeechRecognitionConfig = {
     continuous: false,
@@ -29,11 +36,11 @@ class SpeechRecognitionServiceClass {
 
   private initialize() {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || 
-                                 (window as any).webkitSpeechRecognition;
+      const SR = (window as unknown as Record<string, unknown>).SpeechRecognition ||
+                  (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
       
-      if (SpeechRecognition) {
-        this.recognition = new SpeechRecognition();
+      if (SR) {
+        this.recognition = new (SR as new () => SpeechRecognitionInstance)();
         this.setupRecognition();
       } else {
         console.warn('Speech recognition not supported in this browser');
@@ -54,14 +61,14 @@ class SpeechRecognitionServiceClass {
       this.callbacks.onStatusChange?.(this.status);
     };
 
-    this.recognition.onresult = (event: any) => {
+    this.recognition.onresult = (event: { results: SpeechRecognitionResultList; resultIndex: number }) => {
       const result = event.results[event.resultIndex];
       const transcript = result[0].transcript;
       const isFinal = result.isFinal;
       this.callbacks.onResult?.(transcript, isFinal);
     };
 
-    this.recognition.onerror = (event: any) => {
+    this.recognition.onerror = (event: { error: string }) => {
       if (event.error !== 'aborted' && event.error !== 'no-speech') {
         console.error('Speech recognition error:', event.error);
       }

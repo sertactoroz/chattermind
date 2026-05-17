@@ -6,9 +6,26 @@ type SpeechSynthesisCallbacks = {
   onError?: (error: string) => void;
 };
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+const VOICE_MAP: Record<string, { id: string; name: string }[]> = {
+  tr: [
+    { id: 'tr-TR-Standard-B', name: 'Can' },
+    { id: 'tr-TR-Standard-A', name: 'Zeynep' },
+  ],
+  de: [
+    { id: 'de-DE-Standard-B', name: 'Alexander' },
+    { id: 'de-DE-Standard-A', name: 'Sophie' },
+  ],
+  en: [
+    { id: 'en-US-Standard-D', name: 'Alex' },
+    { id: 'en-US-Standard-A', name: 'Emma' },
+  ],
+};
+
 class SpeechSynthesisServiceClass {
   private synthesis: SpeechSynthesis | null = null;
-  private currentUtterance: SpeechSynthesisUtterance | null = null;
+  private currentAudio: HTMLAudioElement | null = null;
   private callbacks: SpeechSynthesisCallbacks = {};
   private config: SpeechSynthesisConfig = {
     voiceURI: '',
@@ -17,7 +34,7 @@ class SpeechSynthesisServiceClass {
     volume: 1,
   };
   private _isSpeaking = false;
-  private _voicesLoaded = false;
+  private _useElevenLabs = true;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -25,86 +42,27 @@ class SpeechSynthesisServiceClass {
     }
   }
 
-  async ensureVoices(): Promise<SpeechSynthesisVoice[]> {
-    const voices = this.synthesis?.getVoices() || [];
-    if (voices.length > 0) {
-      this._voicesLoaded = true;
-      return voices;
-    }
-    return new Promise((resolve) => {
-      if (!this.synthesis) {
-        resolve([]);
-        return;
-      }
-      const onVoicesChanged = () => {
-        const v = this.synthesis!.getVoices();
-        this._voicesLoaded = true;
-        this.synthesis!.removeEventListener('voiceschanged', onVoicesChanged);
-        resolve(v);
-      };
-      this.synthesis.addEventListener('voiceschanged', onVoicesChanged);
-      setTimeout(() => {
-        this.synthesis?.removeEventListener('voiceschanged', onVoicesChanged);
-        resolve(this.synthesis?.getVoices() || []);
-      }, 3000);
-    });
-  }
-
-  private getVoices(): SpeechSynthesisVoice[] {
-    return this.synthesis?.getVoices() || [];
-  }
-
-  private findVoice(voiceURI: string, lang?: string): SpeechSynthesisVoice | undefined {
-    const voices = this.getVoices();
-
-    if (voiceURI) {
-      const exact = voices.find(v => v.voiceURI === voiceURI);
-      if (exact) return exact;
-    }
-
-    if (lang) {
-      const prefix = lang.split('-')[0];
-      const langVoices = voices.filter(v => v.lang.startsWith(prefix));
-
-      if (langVoices.length > 0) {
-        const male = langVoices.find(v =>
-          /male|erkek|david|markus|hans|thomas|james|daniel|alex|george|john|andreas|peter|murat|ahmet|emre|can/i.test(v.name)
-        );
-        if (male) return male;
-
-        const remote = langVoices.find(v => !v.localService);
-        if (remote) return remote;
-
-        return langVoices[0];
-      }
-    }
-
-    return voices.find(v => v.lang.startsWith('en')) || voices[0];
-  }
-
   public isSupported(): boolean {
-    return !!this.synthesis;
+    return true;
   }
 
   public getAvailableVoices(lang?: string): VoiceOption[] {
-    const allVoices = this.getVoices();
     if (!lang) {
-      return allVoices.map(voice => ({
-        name: voice.name,
-        lang: voice.lang,
-        voiceURI: voice.voiceURI,
-        localService: voice.localService,
+      return Object.values(VOICE_MAP).flat().map(v => ({
+        name: v.name,
+        lang: '',
+        voiceURI: v.id,
+        localService: false,
       }));
     }
     const prefix = lang.split('-')[0];
-    return allVoices
-      .filter(voice => voice.lang.startsWith(prefix))
-      .map(voice => ({
-        name: voice.name,
-        lang: voice.lang,
-        voiceURI: voice.voiceURI,
-        localService: voice.localService,
-      }));
+    const voices = VOICE_MAP[prefix] || VOICE_MAP['en'];
+    return voices.map(v => ({
+      name: v.name,
+      lang: prefix,
+      voiceURI: v.id,
+      localService: false,
+    }));
   }
 
   public setConfig(config: Partial<SpeechSynthesisConfig>) {
@@ -116,22 +74,67 @@ class SpeechSynthesisServiceClass {
   }
 
   public async speak(text: string, lang?: string) {
-    if (!this.synthesis) {
-      throw new Error('Speech synthesis not supported');
-    }
+    this.stop();
 
-    await this.ensureVoices();
+    try {
+      const prefix = lang?.split('-')[0] || 'en';
+
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+      const response = await fetch(`${API_BASE}/api/tts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ text, lang: prefix }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`TTS API error: ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.volume = this.config.volume;
+
+      this.currentAudio = audio;
+      this._isSpeaking = true;
+      this.callbacks.onStart?.();
+
+      audio.onended = () => {
+        this._isSpeaking = false;
+        this.currentAudio = null;
+        URL.revokeObjectURL(audioUrl);
+        this.callbacks.onEnd?.();
+      };
+
+      audio.onerror = () => {
+        this._isSpeaking = false;
+        this.currentAudio = null;
+        URL.revokeObjectURL(audioUrl);
+        this.callbacks.onError?.('Audio playback failed');
+      };
+
+      await audio.play();
+    } catch (e) {
+      console.error('[ElevenLabs TTS] Error, falling back to browser TTS:', e);
+      this._useElevenLabs = false;
+      await this.browserSpeak(text, lang);
+    }
+  }
+
+  private async browserSpeak(text: string, lang?: string) {
+    if (!this.synthesis) return;
 
     const utterance = new SpeechSynthesisUtterance(text);
+    if (lang) utterance.lang = lang;
 
-    if (lang) {
-      utterance.lang = lang;
-    }
-
-    const selectedVoice = this.findVoice(this.config.voiceURI, lang);
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      utterance.lang = selectedVoice.lang;
+    const voices = this.synthesis.getVoices();
+    if (voices.length > 0) {
+      const prefix = lang?.split('-')[0] || 'en';
+      const match = voices.find(v => v.lang.startsWith(prefix) && !v.localService);
+      if (match) utterance.voice = match;
     }
 
     utterance.pitch = this.config.pitch;
@@ -140,56 +143,32 @@ class SpeechSynthesisServiceClass {
 
     utterance.onstart = () => {
       this._isSpeaking = true;
-      this.currentUtterance = utterance;
       this.callbacks.onStart?.();
     };
-
     utterance.onend = () => {
       this._isSpeaking = false;
-      this.currentUtterance = null;
       this.callbacks.onEnd?.();
     };
-
     utterance.onerror = (event) => {
-      if (event.error !== 'interrupted' && event.error !== 'canceled') {
-        console.error('[TTS] Error:', event.error);
-      }
       this._isSpeaking = false;
-      this.currentUtterance = null;
-      this.callbacks.onError?.(event.error);
+      if (event.error !== 'interrupted' && event.error !== 'canceled') {
+        this.callbacks.onError?.(event.error);
+      }
     };
 
-    if (this.synthesis.speaking) {
-      this.synthesis.cancel();
-    }
-
-    if (this.synthesis.paused) {
-      this.synthesis.resume();
-    }
-
-    try {
-      this.synthesis.speak(utterance);
-    } catch (e) {
-      console.error('[TTS] speak() failed, retrying...', e);
-      this.synthesis.resume();
-      setTimeout(() => {
-        try {
-          this.synthesis?.speak(utterance);
-        } catch (e2) {
-          console.error('[TTS] retry failed:', e2);
-        }
-      }, 200);
-    }
+    if (this.synthesis.speaking) this.synthesis.cancel();
+    this.synthesis.speak(utterance);
   }
 
   public stop() {
-    if (this.synthesis) {
-      if (this.synthesis.speaking) {
-        this.synthesis.cancel();
-      }
-      this._isSpeaking = false;
-      this.currentUtterance = null;
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
     }
+    if (this.synthesis?.speaking) {
+      this.synthesis.cancel();
+    }
+    this._isSpeaking = false;
   }
 
   public get isSpeaking(): boolean {

@@ -29,8 +29,8 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
         await signOut();
     };
 
-    const userInitials = (fullName && fullName.slice(0, 2).toUpperCase()) ?? 'U';
-    const userName = fullName || 'User';
+    const displayName = fullName || 'User';
+    const userInitials = displayName.slice(0, 2).toUpperCase();
 
     return (
         // 1. Sheet component defines the drawer context
@@ -43,7 +43,7 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
                 >
 
                     <Avatar className="w-11 h-11">
-                        <AvatarImage src={userAvatar || '/default-avatar.png'} alt={userName} />
+                        <AvatarImage src={userAvatar || '/default-avatar.png'} alt={displayName} />
                         <AvatarFallback>{userInitials}</AvatarFallback>
                     </Avatar>
                 </button>
@@ -60,12 +60,11 @@ export default function AvatarMenu({ userAvatar, fullName }: Props) {
 
                     <div className="flex items-center gap-3">
                         <Avatar className="w-11 h-11 gap-3 ring-2 ring-brand/40 border-1 border-background hover:ring-brand/50 rounded-full">
-                            <AvatarImage src={userAvatar || '/default-avatar.png'} alt={userName} />
-                            <AvatarFallback>{userInitials}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                            {/* FONT SIZE ADJUSTMENT 1: Increase username size to text-lg */}
-                            <span className="font-medium text-foreground text-lg">{userName}</span>
+                        <AvatarImage src={userAvatar || '/default-avatar.png'} alt={displayName} />
+                        <AvatarFallback>{userInitials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                        <span className="font-medium text-foreground text-lg">{displayName}</span>
                             <span className="text-sm text-muted-foreground">Profile</span>
                         </div>
                     </div>

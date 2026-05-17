@@ -4,165 +4,145 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthContext } from '@/features/auth/context/AuthProvider';
 import { createChat } from '@/features/chat/services/chatService';
+import { api } from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
-import characters from '@/features/characters/data/characters.json';
-import type { Character } from '@/features/characters/types/character.types';
+import type { Companion } from '@/features/companions/types/companion.types';
 
-// Function to send the initial prompt to the AI to generate the character's opening message
-const sendInitialAIPrompt = async (chatId: string, characterId: string) => {
+const sendInitialAIPrompt = async (chatId: string, characterId: string, userId: string) => {
     try {
-        // We use a specific content string to signal the AI API that this is an initial message
-        // and it should not be saved as a user message.
-        const INIT_PROMPT_CONTENT = 'Generate the character\'s opening message to start the conversation.';
-
-        const response = await fetch('/api/chat/ai', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chatId,
-                content: INIT_PROMPT_CONTENT,
-                characterId
-            }),
+        await api.post('/api/chat/ai', {
+            chatId,
+            content: 'Generate the companion\'s opening message to start the conversation.',
+            characterId,
+            userId
         });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Failed to get initial AI message:', errorText);
-
-            // Show toast for initial AI message failure
-            toast.warning('The character\'s initial message could not be loaded.', {
-                description: 'Please send your first message to start the conversation.',
-                duration: 5000
-            });
-
-            // Non-blocking error: Chat should still open even if initial message fails.
-        }
-        // AI response is saved to the 'messages' table by the API route.
-
     } catch (err) {
         console.error('Error during initial AI message fetch', err);
-
-        // Show toast for network/unexpected error during AI call
-        toast.warning('An unexpected error occurred while loading the character\'s message.', {
-            description: 'The chat was created, but the character may not have sent a greeting yet.',
+        toast.warning('An unexpected error occurred while loading the companion\'s message.', {
+            description: 'The chat was created, but the companion may not have sent a greeting yet.',
             duration: 5000
         });
     }
 };
 
+async function fetchCompanion(characterId: string): Promise<Companion | null> {
+    try {
+        const data = await api.get<{ companion: { id: string; name: string; description: string; language: string } }>(`/api/companion/${characterId}`);
+        return {
+            id: data.companion.id,
+            name: data.companion.name,
+            description: data.companion.description,
+            language: data.companion.language,
+            promptKey: data.companion.id.toUpperCase().replace(/[^A-Z0-9]/g, '_') + '_PROMPT',
+        };
+    } catch {
+        return null;
+    }
+}
 
 export default function ChatNewPage() {
     const { user } = useAuthContext();
     const router = useRouter();
     const searchParams = useSearchParams();
+    const t = useTranslations('ChatNew');
 
-    // State to store the selected character's data using the imported Character type
-    const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
-
-    // Solution: Use a reference to track if the chat creation logic has already run.
-    // This prevents double execution in React Strict Mode (Development environment).
+    const [selectedCompanion, setSelectedCompanion] = useState<Companion | null>(null);
     const hasCreatedChat = useRef(false);
 
     useEffect(() => {
         const characterId = searchParams.get('character');
 
-        // Find character data immediately when searchParams is available to update the UI
         if (characterId) {
-            // Assert the type of the characters array to Character[] for correct type checking in find()
-            const char = (characters as Character[]).find(
-                (c) => c.id === characterId
-            );
-
-            if (char) {
-                // Since 'avatar' is optional in the type, we check if it exists before setting the state.
-                // NOTE: If 'avatar' is missing, the image will just show a broken icon.
-                setSelectedCharacter(char);
-            }
+            fetchCompanion(characterId).then(comp => {
+                if (comp) setSelectedCompanion(comp);
+            });
         }
 
-        // Check 1: If the flag is already true (meaning creation has started), prevent running again.
-        if (hasCreatedChat.current) {
-            return;
-        }
+        if (hasCreatedChat.current) return;
 
         (async () => {
             if (!user) {
-                // Redirect unauthenticated users to the home page
                 router.push('/');
                 return;
             }
 
             if (!characterId) {
-                console.error('Missing character ID in URL');
-                // Show error toast before redirect
-                toast.error('Character selection failed.', {
-                    description: 'The character to start the chat with could not be found.',
+                toast.error('Companion selection failed.', {
+                    description: 'The companion to start the chat with could not be found.',
                 });
-                // Redirect back to character selection if ID is missing
-                router.replace('/chat/characters');
+                router.replace('/companions');
                 return;
             }
 
             try {
-                // Set flag to true before starting the chat creation process.
                 hasCreatedChat.current = true;
-
-                // 1. Create a new chat row in the database, including characterId
-                // The title is set to a default value 'New chat'
                 const chat = await createChat(user.id, characterId, 'New chat');
-
-                // 2. Trigger the AI to send the first message.
-                // We AWAIT this to ensure the character's message is saved before redirecting the user.
-                await sendInitialAIPrompt(chat.id, characterId);
-
-                // 3. Redirect the user to the newly created chat page
+                await sendInitialAIPrompt(chat.id, characterId, user.id);
                 router.replace(`/chat/${chat.id}`);
-
             } catch (err) {
                 console.error('Failed to create chat or initial message:', err);
-
-                // Show a critical error toast for chat creation failure
                 toast.error('Failed to create chat.', {
                     description: 'An error occurred while setting up the new conversation. Please try again.',
                     duration: 7000
                 });
-
-                // Reset the flag on failure to allow re-running if the user tries again.
                 hasCreatedChat.current = false;
-
-                // Redirect to the chat list page on failure
                 router.replace('/chat');
             }
         })();
-    }, [user, router, searchParams]); // Dependencies list ensures effect runs when these values change
+    }, [user, router, searchParams]);
 
     return (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center h-full animate-in fade-in duration-500">
             <div className="text-center flex flex-col items-center">
-                {/* Character Image Display and Custom Message */}
-                {selectedCharacter ? (
+                {selectedCompanion ? (
                     <>
-                        <div className="relative h-24 w-24 mb-4 rounded-full overflow-hidden border-4 border-primary shadow-lg">
-                            {selectedCharacter.avatar && (
-                                <Image
-                                    src={selectedCharacter.avatar}
-                                    alt={selectedCharacter.name}
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                    className="animate-pulse"
-                                />
-                            )}
+                        <div className="relative mb-6">
+                            <div className="relative h-28 w-28 rounded-full overflow-hidden border-2 border-primary/30 shadow-xl">
+                                {selectedCompanion.avatar && (
+                                    <Image
+                                        src={selectedCompanion.avatar}
+                                        alt={selectedCompanion.name}
+                                        fill
+                                        sizes="112px"
+                                        style={{ objectFit: 'cover' }}
+                                    />
+                                )}
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center animate-spin [animation-duration:2s]">
+                                <svg className="w-3.5 h-3.5 text-primary-foreground" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                                </svg>
+                            </div>
                         </div>
-                        <h1 className="text-xl font-semibold text-foreground">
-                            Creating chat with {selectedCharacter.name}...
+                        <h1 className="text-lg font-semibold text-foreground mb-1">
+                            {selectedCompanion.name}
                         </h1>
+                        <p className="text-sm text-muted-foreground mb-6">
+                            {selectedCompanion.role}
+                        </p>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <div className="flex gap-0.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
+                            </div>
+                            <span>{t('preparing_conversation')}</span>
+                        </div>
                     </>
                 ) : (
                     <>
-                        <div className="h-24 w-24 rounded-full bg-secondary animate-pulse mb-4" />
-                        <p className="text-foreground">Creating chat...</p>
+                        <div className="h-28 w-28 rounded-full bg-secondary animate-pulse mb-6" />
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <div className="flex gap-0.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
+                            </div>
+                            <span>{t('loading')}</span>
+                        </div>
                     </>
                 )}
             </div>

@@ -1,31 +1,32 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 
 export async function getAuthUserId(): Promise<string | null> {
   try {
-    const cookieStore = await cookies();
+    const headersList = await headers();
+    const authHeader = headersList.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) return null;
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[]) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {}
-          },
-        },
-      }
+    const token = authHeader.slice(7);
+    const payload = JSON.parse(
+      Buffer.from(token.split('.')[1], 'base64').toString()
     );
+    return payload.sub ?? null;
+  } catch {
+    return null;
+  }
+}
 
-    const { data } = await supabase.auth.getUser();
-    return data.user?.id ?? null;
+export async function getAuthUser() {
+  try {
+    const headersList = await headers();
+    const authHeader = headersList.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) return null;
+
+    const token = authHeader.slice(7);
+    const payload = JSON.parse(
+      Buffer.from(token.split('.')[1], 'base64').toString()
+    );
+    return { id: payload.sub, email: payload.email };
   } catch {
     return null;
   }

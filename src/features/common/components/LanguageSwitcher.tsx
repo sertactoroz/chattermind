@@ -41,7 +41,7 @@ export default function LanguageSwitcher() {
                 <DropdownMenu.Content
                     align="end"
                     sideOffset={8}
-                    className="z-50 min-w-[160px] rounded-lg border bg-white p-2 shadow-lg"
+                    className="z-50 min-w-[160px] rounded-lg border bg-popover p-2 shadow-lg"
                 >
                     {LOCALES.map(l => {
                         const active = l.code === locale;
@@ -52,12 +52,12 @@ export default function LanguageSwitcher() {
                                     e.preventDefault();
                                     switchLocale(l.code);
                                 }}
-                                className={`group flex w-full cursor-pointer select-none items-center justify-between gap-2 rounded-md px-3 py-2 text-sm outline-none transition-colors ${active ? 'bg-slate-100 font-medium' : 'hover:bg-slate-50'
+                                className={`group flex w-full cursor-pointer select-none items-center justify-between gap-2 rounded-md px-3 py-2 text-sm outline-none transition-colors ${active ? 'bg-accent font-medium' : 'hover:bg-accent/50'
                                     }`}
                             >
                                 <div className="flex items-center gap-2">
                                     <span className="w-7 text-xs/4 font-semibold">{l.label}</span>
-                                    <span className="text-slate-600 text-sm">{l.name}</span>
+                                    <span className="text-muted-foreground text-sm">{l.name}</span>
                                 </div>
                                 {/* check icon for active locale */}
                                 <div className="w-6 h-6 flex items-center justify-center">
