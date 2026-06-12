@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Volume2, VolumeX } from 'lucide-react';
 import type { MessageRow } from '../types/chat.types';
 import type { Companion } from '@/features/companions/types/companion.types';
@@ -12,19 +13,26 @@ type Props = {
   isSpeaking?: boolean;
 };
 
-export default function MessageItem({ message, companion, onSpeak, isSpeaking }: Props) {
+export default function MessageItem({
+  message,
+  companion,
+  onSpeak,
+  isSpeaking,
+}: Props) {
   const isUser = message.sender === 'user';
   const isAI = message.sender === 'ai';
 
   return (
     <div className={`flex gap-3 items-start ${isAI ? 'justify-start' : 'justify-end'}`}>
       {isAI && companion && (
-        <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex-shrink-0 mt-1 border border-border">
-          {(companion.avatar) ? (
-            <img
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex-shrink-0 mt-1 border border-border relative">
+          {companion.avatar ? (
+            <Image
               src={companion.avatar}
               alt={companion.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="32px"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-xs font-semibold bg-primary/10 text-primary">
@@ -36,8 +44,8 @@ export default function MessageItem({ message, companion, onSpeak, isSpeaking }:
 
       <div
         className={`max-w-[80%] break-words px-3 py-2 rounded-xl ${isUser
-          ? 'ml-auto bg-primary text-primary-foreground'
-          : 'mr-auto bg-muted text-foreground'
+            ? 'ml-auto bg-primary text-primary-foreground'
+            : 'mr-auto bg-muted text-foreground'
           }`}
       >
         <div className="text-sm whitespace-pre-wrap">{message.content}</div>
