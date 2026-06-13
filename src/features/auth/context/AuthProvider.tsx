@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { useGoogleLogin, TokenResponse } from '@react-oauth/google';
 import { api } from '@/lib/api';
 
 type AuthUser = {
@@ -18,9 +17,10 @@ type AuthUser = {
 type AuthContextType = {
   user: AuthUser | null;
   loading: boolean;
+  googleEnabled: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName?: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (accessToken: string) => Promise<void>;
   signInAsGuest: (displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -28,7 +28,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children, googleEnabled = false }: { children: React.ReactNode; googleEnabled?: boolean }) => {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,29 +80,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.push('/companions');
   }, [router, handleAuthSuccess]);
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse: TokenResponse) => {
-      try {
-        const result = await api.post<{ token: string; userId: string; email: string; displayName?: string; avatarUrl?: string }>('/api/auth/google', {
-          accessToken: tokenResponse.access_token
-        });
-        handleAuthSuccess(result.token, result.userId, result.email, result.displayName, result.avatarUrl);
-        toast.success('Logged in with Google');
-        router.replace('/companions');
-      } catch (e) {
-        console.error('[Google OAuth] Error:', e);
-        toast.error('Google sign in failed');
-      }
-    },
-    onError: (err) => {
-      console.error('[Google OAuth] Login error:', err);
-      toast.error('Google sign in failed');
-    },
-  });
-
-  const signInWithGoogle = useCallback(async () => {
-    googleLogin();
-  }, [googleLogin]);
+  const signInWithGoogle = useCallback(async (accessToken: string) => {
+    const result = await api.post<{ token: string; userId: string; email: string; displayName?: string; avatarUrl?: string }>('/api/auth/google', {
+      accessToken
+    });
+    handleAuthSuccess(result.token, result.userId, result.email, result.displayName, result.avatarUrl);
+    toast.success('Logged in with Google');
+    router.replace('/companions');
+  }, [router, handleAuthSuccess]);
 
   const signInAsGuest = useCallback(async (displayName: string) => {
     const result = await api.post<{ token: string; userId: string; email: string }>('/api/auth/guest', { displayName });
@@ -142,7 +127,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithEmail, register: registerUser, signInWithGoogle, signInAsGuest, signOut, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, googleEnabled, signInWithEmail, register: registerUser, signInWithGoogle, signInAsGuest, signOut, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

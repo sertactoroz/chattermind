@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { IoPersonOutline } from 'react-icons/io5';
 import { Loader2, Mail, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
 
 type Provider = 'email' | 'google' | 'guest' | null;
 
@@ -23,14 +24,58 @@ function GoogleIcon() {
     );
 }
 
+function GoogleSignInButton({
+    disabled,
+    loading,
+    onStart,
+    onSettled,
+}: {
+    disabled: boolean;
+    loading: boolean;
+    onStart: () => void;
+    onSettled: () => void;
+}) {
+    const { signInWithGoogle } = useAuthContext();
+    const t = useTranslations('Auth');
+    const login = useGoogleLogin({
+        onSuccess: async (tokenResponse: TokenResponse) => {
+            try {
+                await signInWithGoogle(tokenResponse.access_token);
+            } catch (error) {
+                console.error('[Google OAuth] Error:', error);
+                onSettled();
+            }
+        },
+        onError: (error) => {
+            console.error('[Google OAuth] Login error:', error);
+            onSettled();
+        },
+    });
+
+    return (
+        <button
+            type="button"
+            onClick={() => {
+                onStart();
+                login();
+            }}
+            disabled={disabled}
+            className="w-full h-11 flex items-center justify-center gap-3 px-4 rounded-lg border border-border/60 bg-background text-foreground text-sm font-medium hover:bg-muted/50 transition-colors cursor-pointer disabled:opacity-50"
+        >
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
+            <span>{t('signin_google')}</span>
+        </button>
+    );
+}
+
 export function AuthButtons() {
     const {
         user,
         loading,
+        googleEnabled,
         signInWithEmail,
         register,
-        signInAsGuest,
-        signInWithGoogle
+        signInAsGuest
     } = useAuthContext();
 
     const [loadingProvider, setLoadingProvider] = useState<Provider>(null);
@@ -62,15 +107,6 @@ export function AuthButtons() {
         }
     };
 
-    const handleGoogleSignIn = async () => {
-        setLoadingProvider('google');
-        try {
-            await signInWithGoogle();
-        } catch {
-            setLoadingProvider(null);
-        }
-    };
-
     const handleGuestSignIn = async () => {
         if (!guestName.trim()) return;
         setLoadingProvider('guest');
@@ -97,19 +133,14 @@ export function AuthButtons() {
 
     return (
         <div className="flex flex-col space-y-3 w-full">
-            <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                disabled={loadingProvider !== null && loadingProvider !== 'google'}
-                className="w-full h-11 flex items-center justify-center gap-3 px-4 rounded-lg border border-border/60 bg-background text-foreground text-sm font-medium hover:bg-muted/50 transition-colors cursor-pointer disabled:opacity-50"
-            >
-                {(loadingProvider === 'google') ? (
-                    <ButtonSpinner />
-                ) : (
-                    <GoogleIcon />
-                )}
-                <span>{t('signin_google')}</span>
-            </button>
+            {googleEnabled && (
+                <GoogleSignInButton
+                    disabled={loadingProvider !== null && loadingProvider !== 'google'}
+                    loading={loadingProvider === 'google'}
+                    onStart={() => setLoadingProvider('google')}
+                    onSettled={() => setLoadingProvider(null)}
+                />
+            )}
 
             <button
                 type="button"

@@ -29,17 +29,24 @@ export default async function RootLayout({
     notFound();
   }
 
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const app = (
+    <AuthProvider googleEnabled={Boolean(googleClientId)}>
+      {children}
+      <Toaster position="bottom-right" richColors />
+    </AuthProvider>
+  );
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="antialiased bg-background text-foreground flex flex-col h-screen">
         <ThemeProviderWrapper>
           <NextIntlClientProvider>
-            <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ''}>
-              <AuthProvider>
-                {children}
-                <Toaster position="bottom-right" richColors />
-              </AuthProvider>
-            </GoogleOAuthProvider>
+            {googleClientId ? (
+              <GoogleOAuthProvider clientId={googleClientId}>
+                {app}
+              </GoogleOAuthProvider>
+            ) : app}
           </NextIntlClientProvider>
         </ThemeProviderWrapper>
       </body>
