@@ -327,8 +327,11 @@ export default function ChatWindow({ chatId, characterId, companion }: Props) {
 
     const handleExport = async (format: 'txt' | 'json') => {
         try {
+            const apiBase = api.getBaseUrl();
+            if (!apiBase) throw new Error('Backend API is not configured');
+
             const token = api.getToken();
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/chat/${chatId}/export?format=${format}`, {
+            const response = await fetch(`${apiBase}/api/chat/${chatId}/export?format=${format}`, {
                 headers: token ? { 'Authorization': `Bearer ${token}` } : {},
             });
             if (!response.ok) throw new Error('Export failed');

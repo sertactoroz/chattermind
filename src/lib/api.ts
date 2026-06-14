@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL
+  || (process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : '');
 
 type ApiResult<T> = {
   success: boolean;
@@ -35,6 +36,10 @@ function getAuthHeaders(): HeadersInit {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  if (!API_BASE) {
+    throw new Error('Backend API is not configured. Set NEXT_PUBLIC_API_URL.');
+  }
+
   const url = `${API_BASE}${path}`;
 
   const resp = await fetch(url, {
@@ -88,5 +93,6 @@ export const api = {
   setToken,
   clearToken,
   getGuestId,
+  getBaseUrl: () => API_BASE,
   mapSender,
 };

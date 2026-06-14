@@ -6,7 +6,8 @@ type SpeechSynthesisCallbacks = {
   onError?: (error: string) => void;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL
+  || (process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : '');
 
 const VOICE_MAP: Record<string, { id: string; name: string }[]> = {
   tr: [
@@ -77,6 +78,10 @@ class SpeechSynthesisServiceClass {
     this.stop();
 
     try {
+      if (!API_BASE) {
+        throw new Error('Backend API is not configured. Set NEXT_PUBLIC_API_URL.');
+      }
+
       const prefix = lang?.split('-')[0] || 'en';
 
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
