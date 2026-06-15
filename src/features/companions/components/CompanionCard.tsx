@@ -21,14 +21,8 @@ export default function CompanionCard({
 
     const roleKey = `${companion.id}_role`;
     const descriptionKey = `${companion.id}_description`;
-    let translatedRole = companion.role;
-    let translatedDescription = companion.description;
-    try {
-        if (t.raw(roleKey)) translatedRole = t(roleKey);
-    } catch {}
-    try {
-        if (t.raw(descriptionKey)) translatedDescription = t(descriptionKey);
-    } catch {}
+    const translatedRole = t.has(roleKey) ? t(roleKey) : companion.role;
+    const translatedDescription = t.has(descriptionKey) ? t(descriptionKey) : companion.description;
 
     return (
         <button
