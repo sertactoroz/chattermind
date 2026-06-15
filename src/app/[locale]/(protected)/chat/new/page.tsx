@@ -15,7 +15,7 @@ const sendInitialAIPrompt = async (chatId: string, characterId: string, userId: 
     try {
         await api.post('/api/chat/ai', {
             chatId,
-            content: 'Generate the companion\'s opening message to start the conversation.',
+            content: 'Generate the character\'s opening message to start the conversation.',
             characterId,
             userId
         });

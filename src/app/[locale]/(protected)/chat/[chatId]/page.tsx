@@ -1,44 +1,68 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
 import ChatWindow from '@/features/chat/containers/ChatWindow';
 import NotFoundToast from '@/features/common/components/NotFoundToast';
-import { getDatabaseService } from '@/services/database/DatabaseService';
-import companions from '@/features/companions/data/companions.json';
-import type { Companion } from '@/features/companions/types/companion.types';
+import { useAuthContext } from '@/features/auth/context/AuthProvider';
+import { useCompanions } from '@/features/companions/hooks/useCompanions';
+import { listChats } from '@/features/chat/services/chatService';
+import type { ChatRow } from '@/features/chat/types/chat.types';
+import { LoaderPinwheel } from 'lucide-react';
 
-type Props = {
-  params: Promise<{ chatId: string }>;
-};
+export default function ChatIdPage() {
+  const params = useParams<{ chatId: string }>();
+  const chatId = params.chatId;
+  const { user, loading: authLoading } = useAuthContext();
+  const { allCompanions, isLoading: companionsLoading } = useCompanions();
+  const [chat, setChat] = useState<ChatRow | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default async function ChatIdPage({ params }: Props) {
-  const { chatId } = await params;
-
-  try {
-    const db = getDatabaseService();
-    const data = await db.getChatById(chatId);
-
-    if (!data) {
-      return (
-        <div className="flex items-center justify-center flex-1">
-          <NotFoundToast />
-        </div>
-      );
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
     }
 
-    const companionId = data.companion_id ?? null;
+    let mounted = true;
+    listChats(user.id)
+      .then((chats) => {
+        if (mounted) setChat(chats.find((item) => item.id === chatId) ?? null);
+      })
+      .catch((err) => {
+        console.error('Chat page error:', err);
+        if (mounted) setChat(null);
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
 
-    let companion: Companion | null = null;
-    if (companionId) {
-      companion = (companions as Companion[]).find((c) => c.id === companionId) ?? null;
-    }
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading, chatId, user]);
 
+  const companion = useMemo(
+    () => allCompanions.find((item) => item.id === chat?.character_id) ?? null,
+    [allCompanions, chat?.character_id]
+  );
+
+  if (authLoading || isLoading || companionsLoading) {
     return (
-      <ChatWindow chatId={chatId} characterId={companionId} companion={companion} />
+      <div className="flex items-center justify-center flex-1">
+        <LoaderPinwheel className="h-10 w-10 animate-spin text-primary" aria-label="Loading chat" />
+      </div>
     );
-  } catch (err) {
-    console.error('Chat page error:', err);
+  }
+
+  if (!chat) {
     return (
       <div className="flex items-center justify-center flex-1">
         <NotFoundToast />
       </div>
     );
   }
+
+  return <ChatWindow chatId={chatId} characterId={chat.character_id} companion={companion} />;
 }
