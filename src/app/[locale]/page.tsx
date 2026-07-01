@@ -10,6 +10,9 @@ import AvatarMenuPublic from '@/features/common/components/AvatarMenuPublic';
 import { LoaderPinwheel } from 'lucide-react';
 import LanguageSwitcher from '@/features/common/components/LanguageSwitcher';
 import ThemeToggle from '@/features/common/components/ThemeToggle';
+import companions from '@/features/companions/data/companions.json';
+
+const featuredCompanions = companions.slice(0, 4);
 
 export default function Home() {
   const { user, loading } = useAuthContext();
@@ -57,6 +60,29 @@ export default function Home() {
                 className="object-contain"
                 priority
               />
+            </div>
+            <div
+              className="mb-6 flex justify-center gap-3 sm:gap-4"
+              aria-label="Featured AI companions"
+            >
+              {featuredCompanions.map((companion, index) => (
+                <div
+                  key={companion.id}
+                  className="relative h-14 w-14 overflow-hidden rounded-full p-0.5 sm:h-16 sm:w-16"
+                  style={{
+                    animation: `pulse-border 2s ease-in-out infinite ${index * 0.3}s`,
+                  }}
+                >
+                  <Image
+                    src={companion.avatar}
+                    alt={companion.name}
+                    fill
+                    sizes="(min-width: 640px) 64px, 56px"
+                    className="rounded-full border-2 border-background object-cover"
+                    style={{ objectPosition: '50% 20%' }}
+                  />
+                </div>
+              ))}
             </div>
             <p className="text-sm text-muted-foreground text-center max-w-xs">
               {t('subtitle')}

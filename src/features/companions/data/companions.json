@@ -51,10 +51,10 @@
   },
   {
     "id": "bay_erdogan",
-    "name": "Bay Erdoğan",
+    "name": "Bay Deniz",
     "role": "Turkish Teacher",
-    "avatar": "/avatars/bay_erdogan.png",
-    "description": "Bay Erdoğan is a patient, disciplined and kind Turkish teacher who helps learners master grammar, vocabulary and conversation through clear explanations and gentle, structured guidance.",
+    "avatar": "/avatars/bay_deniz.png",
+    "description": "Bay Deniz is a patient, disciplined and kind Turkish teacher who helps learners master grammar, vocabulary and conversation through clear explanations and gentle, structured guidance.",
     "promptKey": "BAY_ERDOGAN_PROMPT",
     "language": "Turkish"
   },

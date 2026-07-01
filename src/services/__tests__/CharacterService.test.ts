@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.stubEnv('GROQ_API_KEY', 'test-key');
 vi.stubEnv('NEXT_PUBLIC_GROQ_BASE', 'https://api.groq.com');
 vi.stubEnv('HERR_BECHLER_PROMPT', 'You are a German teacher named Herr Bechler.');
-vi.stubEnv('BAY_ERDOGAN_PROMPT', 'You are a Turkish teacher named Bay Erdogan.');
+vi.stubEnv('BAY_ERDOGAN_PROMPT', 'You are a Turkish teacher named Bay Deniz.');
 
 import { CharacterService } from '@/services/ai/CharacterService';
 
